@@ -1,0 +1,9 @@
+[workspace]
+members = [
+    "bins/*",
+]
+
+[profile.release]
+lto = true
+panic = 'abort'
+codegen-units = 1
