@@ -42,13 +42,11 @@ fn main() -> Result<()> {
     numbers.sort_unstable();
     let max = numbers.iter().last().unwrap_or(&0);
     let mut id = 0;
-    let mut prev = numbers[0];
-    for &n in numbers.iter().skip(1) {
-        if n - prev > 1 {
-            id = prev + 1;
+    for w in numbers.windows(2) {
+        if w[1] - w[0] > 1 {
+            id = w[0] + 1;
             break;
         }
-        prev = n;
     }
     println!("max: {}, id: {}", max, id);
     Ok(())
