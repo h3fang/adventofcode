@@ -8,7 +8,7 @@ fn parse(s: String) -> Result<Option<(usize, usize, char, String)>> {
         return Ok(Some((
             cap[1].parse()?,
             cap[2].parse()?,
-            cap[3].chars().next().unwrap(),
+            cap[3].chars().next().expect("should not happen"),
             cap[4].to_string(),
         )));
     }
@@ -21,8 +21,8 @@ fn is_valid(min: &usize, max: &usize, c: &char, pwd: &str) -> bool {
 }
 
 fn is_valid_part2(i1: &usize, i2: &usize, c: &char, pwd: &str) -> bool {
-    let first = pwd.chars().nth(i1 - 1).unwrap() == *c;
-    let second = pwd.chars().nth(i2 - 1).unwrap() == *c;
+    let first = pwd.chars().nth(i1 - 1).expect("password too short") == *c;
+    let second = pwd.chars().nth(i2 - 1).expect("password too short") == *c;
     (first || second) && !(first && second)
 }
 
@@ -31,8 +31,8 @@ fn main() -> Result<()> {
     let passwords: Vec<_> = stdin
         .lock()
         .lines()
-        .filter_map(|line| line.ok())
-        .filter_map(|s| parse(s).ok().unwrap())
+        .flatten()
+        .filter_map(|s| parse(s).expect("invalid line"))
         .collect();
     let n_valid = passwords
         .iter()
