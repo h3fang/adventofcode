@@ -3,7 +3,10 @@ use anyhow::Result;
 use std::time::Instant;
 
 fn main() -> Result<()> {
-    let fns: Vec<(fn(&str) -> Result<()>, &str)> = vec![
+    // to make cargo clippy happy
+    type Days = Vec<(fn(&str) -> Result<()>, &'static str)>;
+
+    let fns: Days = vec![
         (day1::main, "data/day1"),
         (day2::main, "data/day2"),
         (day3::main, "data/day3"),
