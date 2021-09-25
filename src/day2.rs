@@ -1,13 +1,16 @@
 use anyhow::Result;
+use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
     fs,
     io::{self, BufRead},
 };
 
-fn parse(s: String) -> Result<Option<(usize, usize, char, String)>> {
-    let re = Regex::new(r"^(\d+)-(\d+) (\w): (\w+)$")?;
-    if let Some(cap) = re.captures_iter(&s).next() {
+fn parse(s: &str) -> Result<Option<(usize, usize, char, String)>> {
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r"^(\d+)-(\d+) (\w): (\w+)$").unwrap();
+    };
+    if let Some(cap) = RE.captures_iter(s).next() {
         return Ok(Some((
             cap[1].parse()?,
             cap[2].parse()?,
@@ -34,7 +37,7 @@ pub fn main(file_path: &str) -> Result<()> {
     let passwords: Vec<_> = io::BufReader::new(data_file)
         .lines()
         .flatten()
-        .filter_map(|s| parse(s).expect("invalid line"))
+        .filter_map(|s| parse(&s).expect("invalid line"))
         .collect();
     let n_valid = passwords
         .iter()

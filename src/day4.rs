@@ -1,4 +1,5 @@
 use anyhow::Result;
+use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
     collections::HashMap,
@@ -58,8 +59,10 @@ impl Passport {
                         }
                     }
                     "hgt" => {
-                        let re = Regex::new(r"^(\d+)(in|cm)$").unwrap();
-                        let mut caps = re.captures_iter(value);
+                        lazy_static! {
+                            static ref RE: Regex = Regex::new(r"^(\d+)(in|cm)$").unwrap();
+                        }
+                        let mut caps = RE.captures_iter(value);
                         if let Some(cap) = caps.next() {
                             let n = cap[1].parse::<u32>().unwrap();
                             (&cap[2] == "cm" && n >= 150 && n <= 193)
@@ -69,16 +72,23 @@ impl Passport {
                         }
                     }
                     "hcl" => {
-                        let re = Regex::new(r"^#[0-9a-f]{6}$").unwrap();
-                        re.is_match(value)
+                        lazy_static! {
+                            static ref RE: Regex = Regex::new(r"^#[0-9a-f]{6}$").unwrap();
+                        }
+                        RE.is_match(value)
                     }
                     "ecl" => {
-                        let re = Regex::new(r"^amb|blu|brn|gry|grn|hzl|oth$").unwrap();
-                        re.is_match(value)
+                        lazy_static! {
+                            static ref RE: Regex =
+                                Regex::new(r"^amb|blu|brn|gry|grn|hzl|oth$").unwrap();
+                        }
+                        RE.is_match(value)
                     }
                     "pid" => {
-                        let re = Regex::new(r"^\d{9}$").unwrap();
-                        re.is_match(value)
+                        lazy_static! {
+                            static ref RE: Regex = Regex::new(r"^\d{9}$").unwrap();
+                        }
+                        RE.is_match(value)
                     }
                     _ => true,
                 }
