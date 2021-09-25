@@ -2,7 +2,7 @@ use anyhow::Result;
 use regex::Regex;
 use std::{
     collections::HashMap,
-    env, fs,
+    fs,
     io::{self, BufRead},
 };
 
@@ -72,11 +72,7 @@ fn count_contained_bags(
     n
 }
 
-fn main() -> Result<()> {
-    let mut args = env::args();
-    let file_path = args
-        .nth(1)
-        .expect("not enough arguments, missing data file path");
+pub fn main(file_path: &str) -> Result<()> {
     let data_file = fs::File::open(file_path)?;
     let r1 = Regex::new(r"^(\w+ \w+) bags contain (.+)\.$").unwrap();
     let r2 = Regex::new(r"(\d+) (\w+ \w+) bags?").unwrap();
@@ -97,11 +93,11 @@ fn main() -> Result<()> {
         .keys()
         .filter(|&k| k != "shiny gold" && contains_shiny_gold(k, &map, &mut table))
         .count();
-    println!("n: {}", n);
+    println!("day7 part1: {}", n);
 
     // part 2
     let mut table = HashMap::new();
     let n = count_contained_bags("shiny gold", &map, &mut table) - 1;
-    println!("n part2: {}", n);
+    println!("day7 part2: {}", n);
     Ok(())
 }

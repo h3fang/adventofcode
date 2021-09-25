@@ -1,7 +1,7 @@
 use anyhow::Result;
 use regex::Regex;
 use std::{
-    env, fs,
+    fs,
     io::{self, BufRead},
 };
 
@@ -72,10 +72,7 @@ fn find_bug(instructions: &mut [Instruction]) -> i32 {
     panic!("no solutions found")
 }
 
-fn main() -> Result<()> {
-    let file_path = env::args()
-        .nth(1)
-        .expect("not enough arguments, missing data file path");
+pub fn main(file_path: &str) -> Result<()> {
     let data_file = fs::File::open(file_path)?;
 
     let r1 = Regex::new(r"^(\w{3}) ([+|-]\d+)$").unwrap();
@@ -88,11 +85,11 @@ fn main() -> Result<()> {
 
     // part 1
     let acc = run(&instructions, 0).0;
-    println!("accumulator: {}", acc);
+    println!("day8 part1: {}", acc);
 
     // part 2
     let acc = find_bug(&mut instructions);
-    println!("accumulator part2: {}", acc);
+    println!("day8 part2: {}", acc);
 
     Ok(())
 }

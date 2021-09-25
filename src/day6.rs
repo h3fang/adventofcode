@@ -1,6 +1,7 @@
 use anyhow::Result;
 use std::{
     collections::HashSet,
+    fs,
     io::{self, BufRead},
 };
 
@@ -25,12 +26,12 @@ fn count_part2(lines: &[String]) -> usize {
         .count()
 }
 
-fn main() -> Result<()> {
-    let stdin = io::stdin();
+pub fn main(file_path: &str) -> Result<()> {
+    let data_file = fs::File::open(file_path)?;
     let mut lines = Vec::new();
     let mut n = 0;
     let mut n_part2 = 0;
-    for line in stdin.lock().lines().flatten() {
+    for line in io::BufReader::new(data_file).lines().flatten() {
         if line.is_empty() {
             n += count(&lines);
             n_part2 += count_part2(&lines);
@@ -43,6 +44,6 @@ fn main() -> Result<()> {
         n += count(&lines);
         n_part2 += count_part2(&lines);
     }
-    println!("n: {}, n_part2: {}", n, n_part2);
+    println!("day6 part1: {}\nday6 part2: {}", n, n_part2);
     Ok(())
 }

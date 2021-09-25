@@ -2,6 +2,7 @@ use anyhow::Result;
 use regex::Regex;
 use std::{
     collections::HashMap,
+    fs,
     io::{self, BufRead},
 };
 
@@ -88,12 +89,12 @@ impl Passport {
     }
 }
 
-fn main() -> Result<()> {
-    let stdin = io::stdin();
+pub fn main(file_path: &str) -> Result<()> {
+    let data_file = fs::File::open(file_path)?;
     let mut lines = Vec::new();
     let mut valid = 0;
     let mut valid_part2 = 0;
-    for line in stdin.lock().lines().flatten() {
+    for line in io::BufReader::new(data_file).lines().flatten() {
         if line.is_empty() {
             let p = Passport::from_lines(&lines);
             if p.is_valid() {
@@ -107,6 +108,6 @@ fn main() -> Result<()> {
             lines.push(line);
         }
     }
-    println!("valid: {}, valid_part2: {}", valid, valid_part2);
+    println!("day4 part1: {}\nday4 part2: {}", valid, valid_part2);
     Ok(())
 }

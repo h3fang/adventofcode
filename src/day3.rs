@@ -1,5 +1,8 @@
 use anyhow::Result;
-use std::io::{self, BufRead};
+use std::{
+    fs,
+    io::{self, BufRead},
+};
 
 struct Map {
     tile: Vec<Vec<char>>,
@@ -37,10 +40,9 @@ fn count_trees(map: &Map, dx: usize, dy: usize) -> usize {
     c
 }
 
-fn main() -> Result<()> {
-    let stdin = io::stdin();
-    let tile: Vec<_> = stdin
-        .lock()
+pub fn main(file_path: &str) -> Result<()> {
+    let data_file = fs::File::open(file_path)?;
+    let tile: Vec<_> = io::BufReader::new(data_file)
         .lines()
         .filter_map(|line| line.ok())
         .map(|s| s.chars().collect::<Vec<_>>())
@@ -51,10 +53,7 @@ fn main() -> Result<()> {
         .iter()
         .map(|&(dx, dy)| count_trees(&map, dx, dy))
         .collect::<Vec<_>>();
-    println!("number of trees: {}", n_trees[1]);
-    println!(
-        "number of trees part 2: {}",
-        n_trees.iter().product::<usize>()
-    );
+    println!("day3 part1: {}", n_trees[1]);
+    println!("day3 part2: {}", n_trees.iter().product::<usize>());
     Ok(())
 }

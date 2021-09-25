@@ -1,6 +1,9 @@
 use anyhow::Result;
 use regex::Regex;
-use std::io::{self, BufRead};
+use std::{
+    fs,
+    io::{self, BufRead},
+};
 
 fn parse(s: String) -> Result<Option<(usize, usize, char, String)>> {
     let re = Regex::new(r"^(\d+)-(\d+) (\w): (\w+)$")?;
@@ -26,10 +29,9 @@ fn is_valid_part2(i1: &usize, i2: &usize, c: &char, pwd: &str) -> bool {
     (first || second) && !(first && second)
 }
 
-fn main() -> Result<()> {
-    let stdin = io::stdin();
-    let passwords: Vec<_> = stdin
-        .lock()
+pub fn main(file_path: &str) -> Result<()> {
+    let data_file = fs::File::open(file_path)?;
+    let passwords: Vec<_> = io::BufReader::new(data_file)
         .lines()
         .flatten()
         .filter_map(|s| parse(s).expect("invalid line"))
@@ -38,12 +40,12 @@ fn main() -> Result<()> {
         .iter()
         .filter(|(min, max, c, pwd)| is_valid(min, max, c, pwd))
         .count();
-    println!("valid: {}", n_valid);
+    println!("day2 part1: {}", n_valid);
 
     let n_valid_part2 = passwords
         .iter()
         .filter(|(min, max, c, pwd)| is_valid_part2(min, max, c, pwd))
         .count();
-    println!("valid part2: {}", n_valid_part2);
+    println!("day2 part2: {}", n_valid_part2);
     Ok(())
 }

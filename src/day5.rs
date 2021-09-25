@@ -1,5 +1,6 @@
 use anyhow::Result;
 use std::{
+    fs,
     io::{self, BufRead},
     str::Chars,
 };
@@ -26,12 +27,11 @@ fn binary(mut s: Chars, left: char, right: char, low: usize, high: usize) -> usi
     }
 }
 
-fn main() -> Result<()> {
-    let stdin = io::stdin();
-    let mut numbers = stdin
-        .lock()
+pub fn main(file_path: &str) -> Result<()> {
+    let data_file = fs::File::open(file_path)?;
+    let mut numbers = io::BufReader::new(data_file)
         .lines()
-        .filter_map(|line| line.ok())
+        .flatten()
         .map(|line| {
             let (row, col) = line.split_at(7);
             let row = code_to_row(row);
@@ -48,6 +48,6 @@ fn main() -> Result<()> {
             break;
         }
     }
-    println!("max: {}, id: {}", max, id);
+    println!("day5 part1: {}\nday5 part2: {}", max, id);
     Ok(())
 }

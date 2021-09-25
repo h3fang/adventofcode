@@ -1,7 +1,7 @@
 use anyhow::Result;
 use std::{
     collections::BTreeSet,
-    env, fs,
+    fs,
     io::{self, BufRead},
     iter::FromIterator,
 };
@@ -48,19 +48,15 @@ fn part2(nums: &[u64], target: u64) -> u64 {
     panic!("solution not found");
 }
 
-fn main() -> Result<()> {
-    let file_path = env::args()
-        .nth(1)
-        .expect("not enough arguments, missing data file path");
-
-    let nums = parse(&file_path)?;
+pub fn main(file_path: &str) -> Result<()> {
+    let nums = parse(file_path)?;
 
     // part 1
     let target = part1(&nums, 25);
-    println!("part1: {}", target);
+    println!("day9 part1: {}", target);
 
     // part 2
-    println!("part2: {}", part2(&nums, target));
+    println!("day9 part2: {}", part2(&nums, target));
 
     Ok(())
 }
