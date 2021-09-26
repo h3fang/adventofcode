@@ -49,8 +49,8 @@ fn part2(_timestamp: usize, buses: &[Option<usize>]) -> usize {
     sorted.sort_unstable_by_key(|(_, b)| *b);
     let (d_max, b_max) = *sorted.last().unwrap();
     let mut t = b_max - d_max;
-    let mut step = b_max;
-    sorted.iter().for_each(|&(d, b)| {
+    let mut step = 1;
+    sorted.iter().rev().for_each(|&(d, b)| {
         while (t + d) % b != 0 {
             t += step;
         }
