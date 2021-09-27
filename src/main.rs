@@ -22,6 +22,7 @@ fn main() -> Result<()> {
         (day13::main, "data/day13"),
         (day14::main, "data/day14"),
         (day15::main, "data/day15"),
+        (day16::main, "data/day16"),
     ];
 
     fns.iter().for_each(|(f, path)| {
