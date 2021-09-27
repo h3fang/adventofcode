@@ -113,24 +113,24 @@ fn step(
     neighbor_fn: fn(&Grid, usize, usize) -> ArrayVec<(usize, usize), 8>,
 ) -> usize {
     let mut changed = 0;
-    let mut r = seats.clone();
-    for i in 1..seats.num_rows - 1 {
-        for j in 1..seats.num_columns - 1 {
-            let neighbors = neighbor_fn(seats, i, j);
-            match seats.get(i, j) {
+    let r = seats.clone();
+    for i in 1..r.num_rows - 1 {
+        for j in 1..r.num_columns - 1 {
+            let neighbors = neighbor_fn(&r, i, j);
+            match r.get(i, j) {
                 '#' => {
                     let c = neighbors
                         .iter()
-                        .filter(|(m, n)| seats.get(*m, *n) == '#')
+                        .filter(|(m, n)| r.get(*m, *n) == '#')
                         .count();
                     if c >= threshold {
-                        r.set(i, j, 'L');
+                        seats.set(i, j, 'L');
                         changed += 1;
                     }
                 }
                 'L' => {
-                    if neighbors.iter().all(|(m, n)| seats.get(*m, *n) != '#') {
-                        r.set(i, j, '#');
+                    if neighbors.iter().all(|(m, n)| r.get(*m, *n) != '#') {
+                        seats.set(i, j, '#');
                         changed += 1;
                     }
                 }
@@ -138,7 +138,6 @@ fn step(
             }
         }
     }
-    *seats = r;
     changed
 }
 
