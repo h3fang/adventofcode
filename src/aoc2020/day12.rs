@@ -119,7 +119,7 @@ fn part2(instructions: &[Instruction]) -> i32 {
 }
 
 pub fn main() {
-    let instructions = parse(include_str!("../data/day12"));
+    let instructions = parse(&std::fs::read_to_string("data/2020/day12").unwrap());
 
     // part 1
     println!("day 12 part1: {}", part1(&instructions));
@@ -134,7 +134,7 @@ mod tests {
 
     #[test]
     fn test_small_input() {
-        let instructions = parse(include_str!("../data/day12-1"));
+        let instructions = parse(&std::fs::read_to_string("data/2020/day12-1").unwrap());
         assert_eq!(25, part1(&instructions));
         assert_eq!(286, part2(&instructions));
     }

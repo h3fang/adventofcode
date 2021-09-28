@@ -35,7 +35,7 @@ fn count_trees(map: &Map, dx: usize, dy: usize) -> usize {
 }
 
 pub fn main() {
-    let tile: Vec<_> = include_str!("../data/day3")
+    let tile: Vec<_> = std::fs::read_to_string("data/2020/day3").unwrap()
         .lines()
         .map(|s| s.chars().collect::<Vec<_>>())
         .collect();

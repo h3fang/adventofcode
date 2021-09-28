@@ -37,7 +37,7 @@ fn part2(jolts: &[u64]) -> u64 {
 }
 
 pub fn main() {
-    let mut adapters = parse(include_str!("../data/day10"));
+    let mut adapters = parse(&std::fs::read_to_string("data/2020/day10").unwrap());
     adapters.sort_unstable();
 
     // part 1
@@ -53,7 +53,7 @@ mod tests {
 
     #[test]
     fn test_day10_1() {
-        let mut adapters = parse(include_str!("../data/day10-1"));
+        let mut adapters = parse(&std::fs::read_to_string("data/2020/day10-1").unwrap());
         adapters.sort_unstable();
 
         assert_eq!(35, part1(&adapters));
@@ -62,7 +62,7 @@ mod tests {
 
     #[test]
     fn test_day10_2() {
-        let mut adapters = parse(include_str!("../data/day10-2"));
+        let mut adapters = parse(&std::fs::read_to_string("data/2020/day10-2").unwrap());
         adapters.sort_unstable();
 
         assert_eq!(220, part1(&adapters));

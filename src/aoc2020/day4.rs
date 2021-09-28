@@ -98,7 +98,7 @@ pub fn main() {
     let mut lines = Vec::new();
     let mut valid = 0;
     let mut valid_part2 = 0;
-    for line in include_str!("../data/day4").lines() {
+    for line in std::fs::read_to_string("data/2020/day4").unwrap().lines() {
         if line.is_empty() {
             let p = Passport::from_lines(&lines);
             if p.is_valid() {

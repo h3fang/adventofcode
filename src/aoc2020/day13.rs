@@ -53,7 +53,7 @@ fn part2(_timestamp: usize, buses: &[Option<usize>]) -> usize {
 }
 
 pub fn main() {
-    let (timestamp, buses) = parse(include_str!("../data/day13"));
+    let (timestamp, buses) = parse(&std::fs::read_to_string("data/2020/day13").unwrap());
 
     // part 1
     println!("day 13 part1: {}", part1(timestamp, &buses));
@@ -68,10 +68,10 @@ mod tests {
 
     #[test]
     fn test_part2() {
-        let (timestamp, buses) = parse(include_str!("../data/day13-1"));
+        let (timestamp, buses) = parse(&std::fs::read_to_string("data/2020/day13-1").unwrap());
         assert_eq!(1068781, part2(timestamp, &buses));
 
-        let (timestamp, buses) = parse(include_str!("../data/day13-2"));
+        let (timestamp, buses) = parse(&std::fs::read_to_string("data/2020/day13-2").unwrap());
         assert_eq!(1202161486, part2(timestamp, &buses));
     }
 }

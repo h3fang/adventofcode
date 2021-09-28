@@ -333,7 +333,7 @@ fn part2(grid: &mut Grid4) -> usize {
 }
 
 pub fn main() {
-    let (mut grid, mut grid4) = parse(include_str!("../data/day17"));
+    let (mut grid, mut grid4) = parse(&std::fs::read_to_string("data/2020/day17").unwrap());
 
     // part 1
     println!("day 17 part1: {}", part1(&mut grid));
@@ -348,7 +348,7 @@ mod tests {
 
     #[test]
     fn test_small1() {
-        let (mut grid, mut grid4) = parse(include_str!("../data/day17-1"));
+        let (mut grid, mut grid4) = parse(&std::fs::read_to_string("data/2020/day17-1").unwrap());
         assert_eq!(112, part1(&mut grid));
         assert_eq!(848, part2(&mut grid4));
     }

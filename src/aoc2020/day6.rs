@@ -25,7 +25,8 @@ pub fn main() {
     let mut lines = Vec::new();
     let mut n = 0;
     let mut n_part2 = 0;
-    for line in include_str!("../data/day6").lines() {
+    let content = std::fs::read_to_string("data/2020/day6").unwrap();
+    for line in content.lines() {
         if line.is_empty() {
             n += count(&lines);
             n_part2 += count_part2(&lines);

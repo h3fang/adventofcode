@@ -23,7 +23,8 @@ fn binary(mut s: Chars, left: char, right: char, low: usize, high: usize) -> usi
 }
 
 pub fn main() {
-    let mut numbers = include_str!("../data/day5")
+    let mut numbers = std::fs::read_to_string("data/2020/day5")
+        .unwrap()
         .lines()
         .map(|line| {
             let (row, col) = line.split_at(7);

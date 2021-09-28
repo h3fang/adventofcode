@@ -145,7 +145,7 @@ fn part(
 }
 
 pub fn main() {
-    let mut seats = parse(include_str!("../data/day11"));
+    let mut seats = parse(&std::fs::read_to_string("data/2020/day11").unwrap());
 
     // part 1
     println!(
@@ -164,21 +164,21 @@ mod tests {
     #[test]
     fn test_neightbors_part2() {
         // step 0
-        let mut seats = parse(include_str!("../data/day11-0"));
+        let mut seats = parse(&std::fs::read_to_string("data/2020/day11-0").unwrap());
 
         // step 1
         step(&mut seats, 5, neighbors_part2);
-        let expected = parse(include_str!("../data/day11-1"));
+        let expected = parse(&std::fs::read_to_string("data/2020/day11-1").unwrap());
         assert_eq!(seats, expected);
 
         // step 2
         step(&mut seats, 5, neighbors_part2);
-        let expected = parse(include_str!("../data/day11-2"));
+        let expected = parse(&std::fs::read_to_string("data/2020/day11-2").unwrap());
         assert_eq!(seats, expected);
 
         // step 3
         step(&mut seats, 5, neighbors_part2);
-        let expected = parse(include_str!("../data/day11-3"));
+        let expected = parse(&std::fs::read_to_string("data/2020/day11-3").unwrap());
         assert_eq!(seats, expected);
     }
 }

@@ -71,7 +71,7 @@ pub fn main() {
     let r1 = Regex::new(r"^(\w+ \w+) bags contain (.+)\.$").unwrap();
     let r2 = Regex::new(r"(\d+) (\w+ \w+) bags?").unwrap();
     let mut map = HashMap::new();
-    for line in include_str!("../data/day7").lines() {
+    for line in std::fs::read_to_string("data/2020/day7").unwrap().lines() {
         if let Some(cap) = r1.captures(line) {
             let b1 = &cap[1];
             let b2 = split(&r2, &cap[2]);

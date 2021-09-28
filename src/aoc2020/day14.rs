@@ -112,7 +112,7 @@ fn part2(instructions: &[Instruction]) -> usize {
 }
 
 pub fn main() {
-    let instructions = parse(include_str!("../data/day14"));
+    let instructions = parse(&std::fs::read_to_string("data/2020/day14").unwrap());
 
     // part 1
     println!("day 14 part1: {}", part1(&instructions));
@@ -127,7 +127,7 @@ mod tests {
 
     #[test]
     fn test_part1() {
-        let instructions = parse(include_str!("../data/day14-1"));
+        let instructions = parse(&std::fs::read_to_string("data/2020/day14-1").unwrap());
         assert_eq!(165, part1(&instructions));
     }
 
@@ -145,7 +145,7 @@ mod tests {
 
     #[test]
     fn test_part2() {
-        let instructions = parse(include_str!("../data/day14-2"));
+        let instructions = parse(&std::fs::read_to_string("data/2020/day14-2").unwrap());
         assert_eq!(208, part2(&instructions));
     }
 }

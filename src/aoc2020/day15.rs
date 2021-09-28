@@ -27,7 +27,7 @@ fn part(starting_nums: &[usize], target_pos: usize) -> usize {
 }
 
 pub fn main() {
-    let starting_nums = parse(include_str!("../data/day15"));
+    let starting_nums = parse(&std::fs::read_to_string("data/2020/day15").unwrap());
 
     // part 1
     println!("day 15 part1: {}", part(&starting_nums, 2020));
@@ -42,10 +42,10 @@ mod tests {
 
     #[test]
     fn test_part1() {
-        let starting_nums = parse(include_str!("../data/day15-1"));
+        let starting_nums = parse(&std::fs::read_to_string("data/2020/day15-1").unwrap());
         assert_eq!(436, part(&starting_nums, 2020));
 
-        let starting_nums = parse(include_str!("../data/day15-2"));
+        let starting_nums = parse(&std::fs::read_to_string("data/2020/day15-2").unwrap());
         assert_eq!(1836, part(&starting_nums, 2020));
     }
 }

@@ -28,7 +28,7 @@ fn is_valid_part2(i1: &usize, i2: &usize, c: &char, pwd: &str) -> bool {
 }
 
 pub fn main() {
-    let passwords: Vec<_> = include_str!("../data/day2")
+    let passwords: Vec<_> = std::fs::read_to_string("data/2020/day2").unwrap()
         .lines()
         .filter_map(|s| parse(s))
         .collect();

@@ -118,7 +118,8 @@ fn part2(expressions: &[&str]) -> usize {
 }
 
 pub fn main() {
-    let expressions = parse(include_str!("../data/day18"));
+    let content = std::fs::read_to_string("data/2020/day18").unwrap();
+    let expressions = parse(&content);
 
     // part 1
     println!("day 18 part1: {}", part1(&expressions));
