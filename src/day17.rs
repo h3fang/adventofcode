@@ -239,7 +239,7 @@ impl Grid4 {
         for i in m..grid.size.0 - m {
             for j in m..grid.size.1 - m {
                 for k in m..grid.size.2 - m {
-                    for w in m..grid.size.3 - m {
+                    for w in m..=1 + CYCLES {
                         match grid.get(i, j, k, w) {
                             '#' => {
                                 let active = grid
@@ -264,6 +264,8 @@ impl Grid4 {
                             _ => panic!("invalid cell"),
                         }
                     }
+                    let mirror = self.get(i, j, k, CYCLES);
+                    self.set(i, j, k, 2 + CYCLES, mirror);
                 }
             }
         }
@@ -318,7 +320,23 @@ fn part2(grid: &mut Grid4) -> usize {
     for _ in 0..CYCLES {
         grid.cycle();
     }
-    grid.array.iter().filter(|c| **c == '#').count()
+    let mut middle = 0;
+    let mut half = 0;
+    for i in 1..grid.size.0 - 1 {
+        for j in 1..grid.size.1 - 1 {
+            for k in 1..grid.size.2 - 1 {
+                for w in 1..1 + CYCLES {
+                    if grid.get(i, j, k, w) == '#' {
+                        half += 1;
+                    }
+                }
+                if grid.get(i, j, k, 1 + CYCLES) == '#' {
+                    middle += 1;
+                }
+            }
+        }
+    }
+    middle + 2 * half
 }
 
 pub fn main(file_path: &str) -> Result<()> {
@@ -338,7 +356,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_part1() {
+    fn test_small1() {
         let (mut grid, mut grid4) = parse("data/day17-1").unwrap();
         assert_eq!(112, part1(&mut grid));
         assert_eq!(848, part2(&mut grid4));
