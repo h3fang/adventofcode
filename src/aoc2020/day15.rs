@@ -1,4 +1,4 @@
-fn parse(content: &str) -> Vec<usize> {
+fn parse(content: &str) -> Vec<u32> {
     content
         .lines()
         .next()
@@ -8,18 +8,19 @@ fn parse(content: &str) -> Vec<usize> {
         .collect::<Vec<_>>()
 }
 
-fn part(starting_nums: &[usize], target_pos: usize) -> usize {
-    let mut map = vec![usize::MAX; target_pos];
+fn part(starting_nums: &[u32], target_pos: usize) -> u32 {
+    let mut map = vec![u32::MAX; target_pos];
     let mut last = *starting_nums.first().unwrap();
     for (i, n) in starting_nums.iter().skip(1).enumerate() {
-        map[last] = i;
+        map[last as usize] = i as u32;
         last = *n;
     }
 
     for i in starting_nums.len()..target_pos {
-        let turn = map[last];
-        let next = if turn == usize::MAX { 0 } else { i - 1 - turn };
-        map[last] = i - 1;
+        let i = i as u32;
+        let turn = map[last as usize];
+        let next = if turn == u32::MAX { 0 } else { i - 1 - turn };
+        map[last as usize] = i - 1;
 
         last = next;
     }
