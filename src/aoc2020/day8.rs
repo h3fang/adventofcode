@@ -70,7 +70,8 @@ fn find_bug(instructions: &mut [Instruction]) -> i32 {
 pub fn main() {
     let r1 = Regex::new(r"^(\w{3}) ([+|-]\d+)$").unwrap();
 
-    let mut instructions = std::fs::read_to_string("data/2020/day8").unwrap()
+    let mut instructions = std::fs::read_to_string("data/2020/day8")
+        .unwrap()
         .lines()
         .map(|line| parse(line, &r1))
         .collect::<Vec<_>>();

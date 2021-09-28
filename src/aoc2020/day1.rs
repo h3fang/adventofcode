@@ -22,7 +22,8 @@ fn three_sum(target: i32, nums: &[i32]) -> Option<i32> {
 }
 
 pub fn main() {
-    let numbers: Vec<i32> = std::fs::read_to_string("data/2020/day1").unwrap()
+    let numbers: Vec<i32> = std::fs::read_to_string("data/2020/day1")
+        .unwrap()
         .lines()
         .filter_map(|s| s.parse::<i32>().ok())
         .collect();

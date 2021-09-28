@@ -143,7 +143,8 @@ fn part2(ranges: &Ranges, valid_tickets: &[Vec<usize>]) -> usize {
 }
 
 pub fn main() {
-    let (ranges, my_ticket, nearby_tickets) = parse(&std::fs::read_to_string("data/2020/day16").unwrap());
+    let (ranges, my_ticket, nearby_tickets) =
+        parse(&std::fs::read_to_string("data/2020/day16").unwrap());
 
     // part 1
     let (sum, mut valid_tickets) = part1(&ranges, &nearby_tickets);

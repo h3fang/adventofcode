@@ -1,7 +1,8 @@
 use std::{collections::BTreeSet, iter::FromIterator};
 
 fn parse() -> Vec<u64> {
-    std::fs::read_to_string("data/2020/day9").unwrap()
+    std::fs::read_to_string("data/2020/day9")
+        .unwrap()
         .lines()
         .map(|line| {
             line.parse::<u64>()
