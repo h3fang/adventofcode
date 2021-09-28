@@ -1,9 +1,4 @@
-use anyhow::Result;
 use arrayvec::ArrayVec;
-use std::{
-    fs,
-    io::{self, BufRead},
-};
 
 const CYCLES: i64 = 6;
 
@@ -273,11 +268,9 @@ impl Grid4 {
     }
 }
 
-fn parse(file_path: &str) -> Result<(Grid, Grid4)> {
-    let data_file = fs::File::open(file_path)?;
-    let layer = io::BufReader::new(data_file)
+fn parse(content: &str) -> (Grid, Grid4) {
+    let layer = content
         .lines()
-        .flatten()
         .map(|line| line.chars().collect::<Vec<_>>())
         .collect::<Vec<_>>();
     let m = layer.len() as i64;
@@ -306,7 +299,7 @@ fn parse(file_path: &str) -> Result<(Grid, Grid4)> {
         }
     }
 
-    Ok((grid, grid4))
+    (grid, grid4)
 }
 
 fn part1(grid: &mut Grid) -> usize {
@@ -339,16 +332,14 @@ fn part2(grid: &mut Grid4) -> usize {
     middle + 2 * half
 }
 
-pub fn main(file_path: &str) -> Result<()> {
-    let (mut grid, mut grid4) = parse(file_path)?;
+pub fn main() {
+    let (mut grid, mut grid4) = parse(include_str!("../data/day17"));
 
     // part 1
     println!("day 17 part1: {}", part1(&mut grid));
 
     // part 2
     println!("day 17 part2: {}", part2(&mut grid4));
-
-    Ok(())
 }
 
 #[cfg(test)]
@@ -357,7 +348,7 @@ mod tests {
 
     #[test]
     fn test_small1() {
-        let (mut grid, mut grid4) = parse("data/day17-1").unwrap();
+        let (mut grid, mut grid4) = parse(include_str!("../data/day17-1"));
         assert_eq!(112, part1(&mut grid));
         assert_eq!(848, part2(&mut grid4));
     }

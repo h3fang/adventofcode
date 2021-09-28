@@ -1,21 +1,13 @@
-use anyhow::Result;
-use std::{
-    collections::BTreeSet,
-    fs,
-    io::{self, BufRead},
-    iter::FromIterator,
-};
+use std::{collections::BTreeSet, iter::FromIterator};
 
-fn parse(file_path: &str) -> Result<Vec<u64>> {
-    let data_file = fs::File::open(file_path)?;
-    Ok(io::BufReader::new(data_file)
+fn parse() -> Vec<u64> {
+    include_str!("../data/day9")
         .lines()
-        .flatten()
         .map(|line| {
             line.parse::<u64>()
                 .unwrap_or_else(|_| panic!("invalid line: {}", line))
         })
-        .collect())
+        .collect()
 }
 
 fn part1(nums: &[u64], preamble: usize) -> u64 {
@@ -48,8 +40,8 @@ fn part2(nums: &[u64], target: u64) -> u64 {
     panic!("solution not found");
 }
 
-pub fn main(file_path: &str) -> Result<()> {
-    let nums = parse(file_path)?;
+pub fn main() {
+    let nums = parse();
 
     // part 1
     let target = part1(&nums, 25);
@@ -57,6 +49,4 @@ pub fn main(file_path: &str) -> Result<()> {
 
     // part 2
     println!("day9 part2: {}", part2(&nums, target));
-
-    Ok(())
 }

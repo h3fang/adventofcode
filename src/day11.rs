@@ -1,9 +1,5 @@
-use anyhow::Result;
 use arrayvec::ArrayVec;
-use std::{
-    fmt, fs,
-    io::{self, BufRead},
-};
+use std::fmt;
 
 #[derive(Clone, PartialEq)]
 struct Grid {
@@ -39,11 +35,9 @@ impl fmt::Debug for Grid {
     }
 }
 
-fn parse(file_path: &str) -> Result<Grid> {
-    let data_file = fs::File::open(file_path)?;
-    let mut r = io::BufReader::new(data_file)
+fn parse(content: &str) -> Grid {
+    let mut r = content
         .lines()
-        .flatten()
         .map(|line| {
             let mut c: Vec<char> = line.chars().collect();
             c.insert(0, ' ');
@@ -53,11 +47,11 @@ fn parse(file_path: &str) -> Result<Grid> {
         .collect::<Vec<_>>();
     r.insert(0, vec![' '; r[0].len()]);
     r.push(vec![' '; r[0].len()]);
-    Ok(Grid {
+    Grid {
         num_rows: r.len(),
         num_columns: r[0].len(),
         array: r.into_iter().flatten().collect(),
-    })
+    }
 }
 
 fn neighbors_part1(_seats: &Grid, i: usize, j: usize) -> ArrayVec<(usize, usize), 8> {
@@ -150,8 +144,8 @@ fn part(
     seats.array.iter().filter(|&c| *c == '#').count()
 }
 
-pub fn main(file_path: &str) -> Result<()> {
-    let mut seats = parse(file_path)?;
+pub fn main() {
+    let mut seats = parse(include_str!("../data/day11"));
 
     // part 1
     println!(
@@ -161,8 +155,6 @@ pub fn main(file_path: &str) -> Result<()> {
 
     // part 2
     println!("day 11 part2: {}", part(&mut seats, 5, neighbors_part2));
-
-    Ok(())
 }
 
 #[cfg(test)]
@@ -172,21 +164,21 @@ mod tests {
     #[test]
     fn test_neightbors_part2() {
         // step 0
-        let mut seats = parse("data/day11-0").unwrap();
+        let mut seats = parse(include_str!("../data/day11-0"));
 
         // step 1
         step(&mut seats, 5, neighbors_part2);
-        let expected = parse("data/day11-1").unwrap();
+        let expected = parse(include_str!("../data/day11-1"));
         assert_eq!(seats, expected);
 
         // step 2
         step(&mut seats, 5, neighbors_part2);
-        let expected = parse("data/day11-2").unwrap();
+        let expected = parse(include_str!("../data/day11-2"));
         assert_eq!(seats, expected);
 
         // step 3
         step(&mut seats, 5, neighbors_part2);
-        let expected = parse("data/day11-3").unwrap();
+        let expected = parse(include_str!("../data/day11-3"));
         assert_eq!(seats, expected);
     }
 }

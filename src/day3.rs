@@ -1,9 +1,3 @@
-use anyhow::Result;
-use std::{
-    fs,
-    io::{self, BufRead},
-};
-
 struct Map {
     tile: Vec<Vec<char>>,
     tile_width: usize,
@@ -40,11 +34,9 @@ fn count_trees(map: &Map, dx: usize, dy: usize) -> usize {
     c
 }
 
-pub fn main(file_path: &str) -> Result<()> {
-    let data_file = fs::File::open(file_path)?;
-    let tile: Vec<_> = io::BufReader::new(data_file)
+pub fn main() {
+    let tile: Vec<_> = include_str!("../data/day3")
         .lines()
-        .filter_map(|line| line.ok())
         .map(|s| s.chars().collect::<Vec<_>>())
         .collect();
     let map = Map::new(tile);
@@ -55,5 +47,4 @@ pub fn main(file_path: &str) -> Result<()> {
         .collect::<Vec<_>>();
     println!("day3 part1: {}", n_trees[1]);
     println!("day3 part2: {}", n_trees.iter().product::<usize>());
-    Ok(())
 }

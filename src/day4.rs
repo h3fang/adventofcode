@@ -1,11 +1,6 @@
-use anyhow::Result;
+use hashbrown::HashMap;
 use lazy_static::lazy_static;
 use regex::Regex;
-use std::{
-    collections::HashMap,
-    fs,
-    io::{self, BufRead},
-};
 
 const KEYS: &[&str] = &["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
 
@@ -14,7 +9,7 @@ struct Passport {
 }
 
 impl Passport {
-    fn from_lines(lines: &[String]) -> Self {
+    fn from_lines(lines: &[&str]) -> Self {
         let mut fields = HashMap::new();
         for line in lines {
             line.split(' ').for_each(|pattern| {
@@ -99,12 +94,11 @@ impl Passport {
     }
 }
 
-pub fn main(file_path: &str) -> Result<()> {
-    let data_file = fs::File::open(file_path)?;
+pub fn main() {
     let mut lines = Vec::new();
     let mut valid = 0;
     let mut valid_part2 = 0;
-    for line in io::BufReader::new(data_file).lines().flatten() {
+    for line in include_str!("../data/day4").lines() {
         if line.is_empty() {
             let p = Passport::from_lines(&lines);
             if p.is_valid() {
@@ -119,5 +113,4 @@ pub fn main(file_path: &str) -> Result<()> {
         }
     }
     println!("day4 part1: {}\nday4 part2: {}", valid, valid_part2);
-    Ok(())
 }

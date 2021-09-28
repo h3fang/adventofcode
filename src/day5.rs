@@ -1,9 +1,4 @@
-use anyhow::Result;
-use std::{
-    fs,
-    io::{self, BufRead},
-    str::Chars,
-};
+use std::str::Chars;
 
 fn code_to_row(s: &str) -> usize {
     binary(s.chars(), 'F', 'B', 0, 127)
@@ -27,11 +22,9 @@ fn binary(mut s: Chars, left: char, right: char, low: usize, high: usize) -> usi
     }
 }
 
-pub fn main(file_path: &str) -> Result<()> {
-    let data_file = fs::File::open(file_path)?;
-    let mut numbers = io::BufReader::new(data_file)
+pub fn main() {
+    let mut numbers = include_str!("../data/day5")
         .lines()
-        .flatten()
         .map(|line| {
             let (row, col) = line.split_at(7);
             let row = code_to_row(row);
@@ -49,5 +42,4 @@ pub fn main(file_path: &str) -> Result<()> {
         }
     }
     println!("day5 part1: {}\nday5 part2: {}", max, id);
-    Ok(())
 }

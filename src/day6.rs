@@ -1,11 +1,6 @@
-use anyhow::Result;
-use std::{
-    collections::HashSet,
-    fs,
-    io::{self, BufRead},
-};
+use hashbrown::HashSet;
 
-fn count(lines: &[String]) -> usize {
+fn count(lines: &[&str]) -> usize {
     let chars = lines
         .iter()
         .flat_map(|line| line.chars())
@@ -13,7 +8,7 @@ fn count(lines: &[String]) -> usize {
     chars.len()
 }
 
-fn count_part2(lines: &[String]) -> usize {
+fn count_part2(lines: &[&str]) -> usize {
     let shortest = lines.iter().map(|line| line.len()).min().unwrap();
     let shortest = lines.iter().find(|line| line.len() == shortest).unwrap();
     let chars = lines
@@ -26,12 +21,11 @@ fn count_part2(lines: &[String]) -> usize {
         .count()
 }
 
-pub fn main(file_path: &str) -> Result<()> {
-    let data_file = fs::File::open(file_path)?;
+pub fn main() {
     let mut lines = Vec::new();
     let mut n = 0;
     let mut n_part2 = 0;
-    for line in io::BufReader::new(data_file).lines().flatten() {
+    for line in include_str!("../data/day6").lines() {
         if line.is_empty() {
             n += count(&lines);
             n_part2 += count_part2(&lines);
@@ -45,5 +39,4 @@ pub fn main(file_path: &str) -> Result<()> {
         n_part2 += count_part2(&lines);
     }
     println!("day6 part1: {}\nday6 part2: {}", n, n_part2);
-    Ok(())
 }

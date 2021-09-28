@@ -1,13 +1,6 @@
-use anyhow::Result;
-use std::{
-    fs,
-    io::{self, BufRead},
-};
-
-fn parse(file_path: &str) -> Result<(usize, Vec<Option<usize>>)> {
-    let data_file = fs::File::open(file_path)?;
-    let mut lines = io::BufReader::new(data_file).lines().flatten();
-    let timestamp = lines.next().unwrap().parse::<usize>()?;
+fn parse(content: &str) -> (usize, Vec<Option<usize>>) {
+    let mut lines = content.lines();
+    let timestamp = lines.next().unwrap().parse::<usize>().unwrap();
     let buses = lines
         .next()
         .unwrap()
@@ -20,7 +13,7 @@ fn parse(file_path: &str) -> Result<(usize, Vec<Option<usize>>)> {
             }
         })
         .collect::<Vec<_>>();
-    Ok((timestamp, buses))
+    (timestamp, buses)
 }
 
 fn part1(timestamp: usize, buses: &[Option<usize>]) -> usize {
@@ -59,16 +52,14 @@ fn part2(_timestamp: usize, buses: &[Option<usize>]) -> usize {
     t
 }
 
-pub fn main(file_path: &str) -> Result<()> {
-    let (timestamp, buses) = parse(file_path)?;
+pub fn main() {
+    let (timestamp, buses) = parse(include_str!("../data/day13"));
 
     // part 1
     println!("day 13 part1: {}", part1(timestamp, &buses));
 
     // part 2
     println!("day 13 part2: {}", part2(timestamp, &buses));
-
-    Ok(())
 }
 
 #[cfg(test)]
@@ -77,10 +68,10 @@ mod tests {
 
     #[test]
     fn test_part2() {
-        let (timestamp, buses) = parse("data/day13-1").unwrap();
+        let (timestamp, buses) = parse(include_str!("../data/day13-1"));
         assert_eq!(1068781, part2(timestamp, &buses));
 
-        let (timestamp, buses) = parse("data/day13-2").unwrap();
+        let (timestamp, buses) = parse(include_str!("../data/day13-2"));
         assert_eq!(1202161486, part2(timestamp, &buses));
     }
 }

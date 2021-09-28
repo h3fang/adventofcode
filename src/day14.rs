@@ -1,9 +1,4 @@
-use anyhow::Result;
-use std::{
-    collections::HashMap,
-    fs,
-    io::{self, BufRead},
-};
+use hashbrown::HashMap;
 
 #[derive(Clone)]
 enum Instruction {
@@ -56,10 +51,9 @@ fn mask_part2(s: &str) -> (usize, usize, Vec<usize>) {
     (mask, value, addrs)
 }
 
-fn parse(file_path: &str) -> Result<Vec<Instruction>> {
-    let data_file = fs::File::open(file_path)?;
-    let lines = io::BufReader::new(data_file).lines().flatten();
-    Ok(lines
+fn parse(content: &str) -> Vec<Instruction> {
+    content
+        .lines()
         .map(|line| {
             if &line[0..4] == "mask" {
                 Instruction::Mask(line[7..].to_string())
@@ -72,7 +66,7 @@ fn parse(file_path: &str) -> Result<Vec<Instruction>> {
                 panic!("invalid line: {}", line);
             }
         })
-        .collect::<Vec<_>>())
+        .collect::<Vec<_>>()
 }
 
 fn part1(instructions: &[Instruction]) -> usize {
@@ -117,16 +111,14 @@ fn part2(instructions: &[Instruction]) -> usize {
     map.values().sum()
 }
 
-pub fn main(file_path: &str) -> Result<()> {
-    let instructions = parse(file_path)?;
+pub fn main() {
+    let instructions = parse(include_str!("../data/day14"));
 
     // part 1
     println!("day 14 part1: {}", part1(&instructions));
 
     // part 2
     println!("day 14 part2: {}", part2(&instructions));
-
-    Ok(())
 }
 
 #[cfg(test)]
@@ -135,7 +127,7 @@ mod tests {
 
     #[test]
     fn test_part1() {
-        let instructions = parse("data/day14-1").unwrap();
+        let instructions = parse(include_str!("../data/day14-1"));
         assert_eq!(165, part1(&instructions));
     }
 
@@ -153,7 +145,7 @@ mod tests {
 
     #[test]
     fn test_part2() {
-        let instructions = parse("data/day14-2").unwrap();
+        let instructions = parse(include_str!("../data/day14-2"));
         assert_eq!(208, part2(&instructions));
     }
 }

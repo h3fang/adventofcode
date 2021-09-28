@@ -1,20 +1,11 @@
-use anyhow::Result;
-use std::{
-    fs,
-    io::{self, BufRead},
-};
-
-fn parse(file_path: &str) -> Result<Vec<usize>> {
-    let data_file = fs::File::open(file_path)?;
-    let line = io::BufReader::new(data_file)
+fn parse(content: &str) -> Vec<usize> {
+    content
         .lines()
-        .flatten()
         .next()
-        .unwrap();
-    Ok(line
+        .unwrap()
         .split(',')
         .map(|token| token.parse().unwrap())
-        .collect::<Vec<_>>())
+        .collect::<Vec<_>>()
 }
 
 fn part(starting_nums: &[usize], target_pos: usize) -> usize {
@@ -35,16 +26,14 @@ fn part(starting_nums: &[usize], target_pos: usize) -> usize {
     last
 }
 
-pub fn main(file_path: &str) -> Result<()> {
-    let starting_nums = parse(file_path)?;
+pub fn main() {
+    let starting_nums = parse(include_str!("../data/day15"));
 
     // part 1
     println!("day 15 part1: {}", part(&starting_nums, 2020));
 
     // part 2
     println!("day 15 part2: {}", part(&starting_nums, 30000000));
-
-    Ok(())
 }
 
 #[cfg(test)]
@@ -53,10 +42,10 @@ mod tests {
 
     #[test]
     fn test_part1() {
-        let starting_nums = parse("data/day15-1").unwrap();
+        let starting_nums = parse(include_str!("../data/day15-1"));
         assert_eq!(436, part(&starting_nums, 2020));
 
-        let starting_nums = parse("data/day15-2").unwrap();
+        let starting_nums = parse(include_str!("../data/day15-2"));
         assert_eq!(1836, part(&starting_nums, 2020));
     }
 }

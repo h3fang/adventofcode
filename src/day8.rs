@@ -1,9 +1,4 @@
-use anyhow::Result;
 use regex::Regex;
-use std::{
-    fs,
-    io::{self, BufRead},
-};
 
 #[derive(Clone)]
 enum Instruction {
@@ -72,15 +67,12 @@ fn find_bug(instructions: &mut [Instruction]) -> i32 {
     panic!("no solutions found")
 }
 
-pub fn main(file_path: &str) -> Result<()> {
-    let data_file = fs::File::open(file_path)?;
-
+pub fn main() {
     let r1 = Regex::new(r"^(\w{3}) ([+|-]\d+)$").unwrap();
 
-    let mut instructions = io::BufReader::new(data_file)
+    let mut instructions = include_str!("../data/day8")
         .lines()
-        .flatten()
-        .map(|line| parse(&line, &r1))
+        .map(|line| parse(line, &r1))
         .collect::<Vec<_>>();
 
     // part 1
@@ -90,6 +82,4 @@ pub fn main(file_path: &str) -> Result<()> {
     // part 2
     let acc = find_bug(&mut instructions);
     println!("day8 part2: {}", acc);
-
-    Ok(())
 }

@@ -1,36 +1,33 @@
 use adventofcode::*;
-use anyhow::Result;
 use std::time::Instant;
 
-fn main() -> Result<()> {
+fn main() {
     // to make cargo clippy happy
-    type Days = Vec<(fn(&str) -> Result<()>, &'static str)>;
+    type Days = Vec<fn() -> ()>;
 
     let fns: Days = vec![
-        (day1::main, "data/day1"),
-        (day2::main, "data/day2"),
-        (day3::main, "data/day3"),
-        (day4::main, "data/day4"),
-        (day5::main, "data/day5"),
-        (day6::main, "data/day6"),
-        (day7::main, "data/day7"),
-        (day8::main, "data/day8"),
-        (day9::main, "data/day9"),
-        (day10::main, "data/day10"),
-        (day11::main, "data/day11"),
-        (day12::main, "data/day12"),
-        (day13::main, "data/day13"),
-        (day14::main, "data/day14"),
-        (day15::main, "data/day15"),
-        (day16::main, "data/day16"),
-        (day17::main, "data/day17"),
+        day1::main,
+        day2::main,
+        day3::main,
+        day4::main,
+        day5::main,
+        day6::main,
+        day7::main,
+        day8::main,
+        day9::main,
+        day10::main,
+        day11::main,
+        day12::main,
+        day13::main,
+        day14::main,
+        day15::main,
+        day16::main,
+        day17::main,
     ];
 
-    fns.iter().for_each(|(f, path)| {
+    fns.iter().for_each(|f| {
         let start = Instant::now();
-        f(path).unwrap();
+        f();
         println!("time: {:?}\n", Instant::now() - start);
     });
-
-    Ok(())
 }

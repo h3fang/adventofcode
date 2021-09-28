@@ -1,10 +1,5 @@
-use anyhow::Result;
+use hashbrown::HashMap;
 use regex::Regex;
-use std::{
-    collections::HashMap,
-    fs,
-    io::{self, BufRead},
-};
 
 fn split(re: &Regex, bags: &str) -> Vec<(usize, String)> {
     if bags == "no other bags" {
@@ -72,13 +67,12 @@ fn count_contained_bags(
     n
 }
 
-pub fn main(file_path: &str) -> Result<()> {
-    let data_file = fs::File::open(file_path)?;
+pub fn main() {
     let r1 = Regex::new(r"^(\w+ \w+) bags contain (.+)\.$").unwrap();
     let r2 = Regex::new(r"(\d+) (\w+ \w+) bags?").unwrap();
     let mut map = HashMap::new();
-    for line in io::BufReader::new(data_file).lines().flatten() {
-        if let Some(cap) = r1.captures(&line) {
+    for line in include_str!("../data/day7").lines() {
+        if let Some(cap) = r1.captures(line) {
             let b1 = &cap[1];
             let b2 = split(&r2, &cap[2]);
             map.insert(b1.to_string(), b2);
@@ -99,5 +93,4 @@ pub fn main(file_path: &str) -> Result<()> {
     let mut table = HashMap::new();
     let n = count_contained_bags("shiny gold", &map, &mut table) - 1;
     println!("day7 part2: {}", n);
-    Ok(())
 }

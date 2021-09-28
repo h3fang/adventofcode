@@ -1,16 +1,10 @@
-use anyhow::Result;
 use hashbrown::{HashMap, HashSet};
-use std::{
-    fs,
-    io::{self, BufRead},
-};
 
 type Ranges = HashMap<String, Vec<(usize, usize)>>;
 
-fn parse(file_path: &str) -> Result<(Ranges, Vec<usize>, Vec<Vec<usize>>)> {
-    let data_file = fs::File::open(file_path)?;
+fn parse(content: &str) -> (Ranges, Vec<usize>, Vec<Vec<usize>>) {
     let mut map = Ranges::new();
-    let mut lines = io::BufReader::new(data_file).lines().flatten();
+    let mut lines = content.lines();
     for line in &mut lines {
         if line.is_empty() {
             break;
@@ -49,7 +43,7 @@ fn parse(file_path: &str) -> Result<(Ranges, Vec<usize>, Vec<Vec<usize>>)> {
                 .collect::<Vec<_>>()
         })
         .collect::<Vec<_>>();
-    Ok((map, my_ticket, nearby_tickets))
+    (map, my_ticket, nearby_tickets)
 }
 
 fn part1(ranges: &Ranges, nearby_tickets: &[Vec<usize>]) -> (usize, Vec<Vec<usize>>) {
@@ -148,8 +142,8 @@ fn part2(ranges: &Ranges, valid_tickets: &[Vec<usize>]) -> usize {
     r
 }
 
-pub fn main(file_path: &str) -> Result<()> {
-    let (ranges, my_ticket, nearby_tickets) = parse(file_path)?;
+pub fn main() {
+    let (ranges, my_ticket, nearby_tickets) = parse(include_str!("../data/day16"));
 
     // part 1
     let (sum, mut valid_tickets) = part1(&ranges, &nearby_tickets);
@@ -158,6 +152,4 @@ pub fn main(file_path: &str) -> Result<()> {
     // part 2
     valid_tickets.push(my_ticket);
     println!("day 16 part2: {}", part2(&ranges, &valid_tickets));
-
-    Ok(())
 }

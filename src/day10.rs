@@ -1,19 +1,11 @@
-use anyhow::Result;
-use std::{
-    fs,
-    io::{self, BufRead},
-};
-
-fn parse(file_path: &str) -> Result<Vec<u64>> {
-    let data_file = fs::File::open(file_path)?;
-    Ok(io::BufReader::new(data_file)
+fn parse(content: &str) -> Vec<u64> {
+    content
         .lines()
-        .flatten()
         .map(|line| {
             line.parse::<u64>()
                 .unwrap_or_else(|_| panic!("invalid line: {}", line))
         })
-        .collect())
+        .collect()
 }
 
 fn part1(adapters: &[u64]) -> u64 {
@@ -44,8 +36,8 @@ fn part2(jolts: &[u64]) -> u64 {
     dp[0]
 }
 
-pub fn main(file_path: &str) -> Result<()> {
-    let mut adapters = parse(file_path)?;
+pub fn main() {
+    let mut adapters = parse(include_str!("../data/day10"));
     adapters.sort_unstable();
 
     // part 1
@@ -53,8 +45,6 @@ pub fn main(file_path: &str) -> Result<()> {
 
     // part 2
     println!("day 10 part2: {}", part2(&adapters));
-
-    Ok(())
 }
 
 #[cfg(test)]
@@ -63,7 +53,7 @@ mod tests {
 
     #[test]
     fn test_day10_1() {
-        let mut adapters = parse("data/day10-1").unwrap();
+        let mut adapters = parse(include_str!("../data/day10-1"));
         adapters.sort_unstable();
 
         assert_eq!(35, part1(&adapters));
@@ -72,7 +62,7 @@ mod tests {
 
     #[test]
     fn test_day10_2() {
-        let mut adapters = parse("data/day10-2").unwrap();
+        let mut adapters = parse(include_str!("../data/day10-2"));
         adapters.sort_unstable();
 
         assert_eq!(220, part1(&adapters));

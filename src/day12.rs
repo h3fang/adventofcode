@@ -1,9 +1,3 @@
-use anyhow::Result;
-use std::{
-    fs,
-    io::{self, BufRead},
-};
-
 enum Instruction {
     North(i32),
     East(i32),
@@ -59,11 +53,9 @@ impl Postion {
     }
 }
 
-fn parse(file_path: &str) -> Result<Vec<Instruction>> {
-    let data_file = fs::File::open(file_path)?;
-    Ok(io::BufReader::new(data_file)
+fn parse(content: &str) -> Vec<Instruction> {
+    content
         .lines()
-        .flatten()
         .map(|line| {
             let mut chars = line.chars();
             let c = chars
@@ -84,7 +76,7 @@ fn parse(file_path: &str) -> Result<Vec<Instruction>> {
                 _ => panic!("invalid line: {}", line),
             }
         })
-        .collect::<Vec<_>>())
+        .collect::<Vec<_>>()
 }
 
 fn part1(instructions: &[Instruction]) -> i32 {
@@ -126,16 +118,14 @@ fn part2(instructions: &[Instruction]) -> i32 {
     ship.x.abs() + ship.y.abs()
 }
 
-pub fn main(file_path: &str) -> Result<()> {
-    let instructions = parse(file_path)?;
+pub fn main() {
+    let instructions = parse(include_str!("../data/day12"));
 
     // part 1
     println!("day 12 part1: {}", part1(&instructions));
 
     // part 2
     println!("day 12 part2: {}", part2(&instructions));
-
-    Ok(())
 }
 
 #[cfg(test)]
@@ -143,14 +133,9 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_part1() {
-        let instructions = parse("data/day12-1").unwrap();
+    fn test_small_input() {
+        let instructions = parse(include_str!("../data/day12-1"));
         assert_eq!(25, part1(&instructions));
-    }
-
-    #[test]
-    fn test_part2() {
-        let instructions = parse("data/day12-1").unwrap();
         assert_eq!(286, part2(&instructions));
     }
 }

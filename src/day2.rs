@@ -1,24 +1,19 @@
-use anyhow::Result;
 use lazy_static::lazy_static;
 use regex::Regex;
-use std::{
-    fs,
-    io::{self, BufRead},
-};
 
-fn parse(s: &str) -> Result<Option<(usize, usize, char, String)>> {
+fn parse(s: &str) -> Option<(usize, usize, char, String)> {
     lazy_static! {
         static ref RE: Regex = Regex::new(r"^(\d+)-(\d+) (\w): (\w+)$").unwrap();
     };
     if let Some(cap) = RE.captures_iter(s).next() {
-        return Ok(Some((
-            cap[1].parse()?,
-            cap[2].parse()?,
+        return Some((
+            cap[1].parse().unwrap(),
+            cap[2].parse().unwrap(),
             cap[3].chars().next().expect("should not happen"),
             cap[4].to_string(),
-        )));
+        ));
     }
-    Ok(None)
+    None
 }
 
 fn is_valid(min: &usize, max: &usize, c: &char, pwd: &str) -> bool {
@@ -32,12 +27,10 @@ fn is_valid_part2(i1: &usize, i2: &usize, c: &char, pwd: &str) -> bool {
     (first || second) && !(first && second)
 }
 
-pub fn main(file_path: &str) -> Result<()> {
-    let data_file = fs::File::open(file_path)?;
-    let passwords: Vec<_> = io::BufReader::new(data_file)
+pub fn main() {
+    let passwords: Vec<_> = include_str!("../data/day2")
         .lines()
-        .flatten()
-        .filter_map(|s| parse(&s).expect("invalid line"))
+        .filter_map(|s| parse(s))
         .collect();
     let n_valid = passwords
         .iter()
@@ -50,5 +43,4 @@ pub fn main(file_path: &str) -> Result<()> {
         .filter(|(min, max, c, pwd)| is_valid_part2(min, max, c, pwd))
         .count();
     println!("day2 part2: {}", n_valid_part2);
-    Ok(())
 }
