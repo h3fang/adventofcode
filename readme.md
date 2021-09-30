@@ -1,0 +1,1 @@
+Solutions for [adventofcode](https://adventofcode.com) written by [rust](https://www.rust-lang.org/).
