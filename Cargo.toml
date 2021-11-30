@@ -2,8 +2,17 @@
 name = "adventofcode"
 version = "0.2.0"
 edition = "2021"
+default-run = "2019"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[[bin]]
+name = "2019"
+path = "src/aoc2019/main.rs"
+
+[[bin]]
+name = "2020"
+path = "src/aoc2020/main.rs"
 
 [dependencies]
 regex = "1"
