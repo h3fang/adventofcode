@@ -6,6 +6,8 @@ mod day5;
 mod day6;
 mod day7;
 mod day8;
+mod day9;
+
 pub const DAYS: &[fn()] = &[
     day1::main,
     day2::main,
@@ -15,6 +17,7 @@ pub const DAYS: &[fn()] = &[
     day6::main,
     day7::main,
     day8::main,
+    day9::main,
 ];
 
 use std::time::Instant;
