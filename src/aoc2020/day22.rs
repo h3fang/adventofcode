@@ -1,4 +1,4 @@
-use hashbrown::HashSet;
+use std::collections::HashSet;
 use std::collections::VecDeque;
 
 enum Player {

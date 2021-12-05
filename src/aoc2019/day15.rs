@@ -1,6 +1,4 @@
-use std::collections::{BinaryHeap, VecDeque};
-
-use hashbrown::{HashMap, HashSet};
+use std::collections::{BinaryHeap, HashMap, HashSet, VecDeque};
 
 use crate::day5::Intcode;
 
@@ -45,22 +43,23 @@ impl Map {
         fn dfs(prog: &mut Intcode, map: &mut HashMap<(i64, i64), Tile>, (x, y): (i64, i64)) {
             for (dir, cmd) in [((0, -1), 1), ((0, 1), 2), ((-1, 0), 3), ((1, 0), 4)] {
                 let next = (x + dir.0, y + dir.1);
-                if !map.contains_key(&next) {
-                    prog.inputs.push(cmd);
+                if map.contains_key(&next) {
+                    continue;
+                }
+                prog.inputs.push(cmd);
+                prog.run();
+                let t = Tile::from(prog.output);
+                map.insert(next, t);
+                if t != Tile::Wall {
+                    dfs(prog, map, next);
+                    prog.inputs.push(match cmd {
+                        1 => 2,
+                        2 => 1,
+                        3 => 4,
+                        4 => 3,
+                        _ => panic!("impossible"),
+                    });
                     prog.run();
-                    let t = Tile::from(prog.output);
-                    map.insert(next, t);
-                    if t != Tile::Wall {
-                        dfs(prog, map, next);
-                        prog.inputs.push(match cmd {
-                            1 => 2,
-                            2 => 1,
-                            3 => 4,
-                            4 => 3,
-                            _ => panic!("impossible"),
-                        });
-                        prog.run();
-                    }
                 }
             }
         }

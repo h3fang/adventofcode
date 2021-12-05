@@ -1,4 +1,4 @@
-use hashbrown::HashMap;
+use std::collections::HashMap;
 
 type Graph<'a> = HashMap<&'a str, (usize, Vec<(&'a str, usize)>)>;
 

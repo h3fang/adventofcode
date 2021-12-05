@@ -2,7 +2,7 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use std::str::FromStr;
 
-use hashbrown::HashMap;
+use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
 enum Rule {

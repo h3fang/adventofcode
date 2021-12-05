@@ -1,6 +1,6 @@
 use std::ops::{Add, AddAssign, Sub};
 
-use hashbrown::HashSet;
+use std::collections::HashSet;
 
 #[derive(Default, Debug, Clone, Copy)]
 struct Vec3 {

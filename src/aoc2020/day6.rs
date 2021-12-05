@@ -1,4 +1,4 @@
-use hashbrown::HashSet;
+use std::collections::HashSet;
 
 fn count(lines: &[&str]) -> usize {
     let chars = lines

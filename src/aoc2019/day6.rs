@@ -1,4 +1,4 @@
-use hashbrown::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet};
 
 fn part1(g: &HashMap<&str, HashSet<&str>>) -> usize {
     fn dfs(g: &HashMap<&str, HashSet<&str>>, s: &str, result: &mut usize) -> usize {

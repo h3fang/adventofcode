@@ -1,6 +1,6 @@
-use hashbrown::HashMap;
 use lazy_static::lazy_static;
 use regex::Regex;
+use std::collections::HashMap;
 
 const KEYS: &[&str] = &["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
 

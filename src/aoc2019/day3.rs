@@ -1,4 +1,4 @@
-use hashbrown::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet};
 
 #[derive(Debug)]
 enum Direction {
@@ -77,9 +77,7 @@ fn part2(wires: &[Vec<Segment>]) -> i32 {
             tip.0 += ds.0;
             tip.1 += ds.1;
             steps += 1;
-            if !w1.contains_key(&tip) {
-                w1.insert(tip, steps);
-            }
+            w1.entry(tip).or_insert(steps);
         }
     }
 

@@ -1,4 +1,4 @@
-use hashbrown::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet};
 
 type Ranges = HashMap<String, Vec<(usize, usize)>>;
 

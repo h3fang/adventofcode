@@ -1,6 +1,4 @@
-use std::collections::BTreeMap;
-
-use hashbrown::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 struct Ingredient {
@@ -27,7 +25,7 @@ fn part1<'a>(
     // find candidates for allergen
     data.iter().for_each(|(ingredients, allergens)| {
         for &allergen in allergens {
-            let entry = map.entry(allergen).or_insert(ingredients.clone());
+            let entry = map.entry(allergen).or_insert_with(|| ingredients.clone());
             *entry = entry.intersection(ingredients).cloned().collect();
         }
     });
@@ -63,7 +61,7 @@ fn part1<'a>(
 
 fn part2(dangerous: &HashMap<&str, HashSet<&str>>) -> String {
     let dangerous = dangerous
-        .into_iter()
+        .iter()
         .map(|(k, v)| (*k, v.iter().next().unwrap().to_owned()))
         .collect::<BTreeMap<&str, &str>>();
     dangerous.values().cloned().collect::<Vec<_>>().join(",")

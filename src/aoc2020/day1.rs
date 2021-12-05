@@ -1,4 +1,4 @@
-use hashbrown::HashMap;
+use std::collections::HashMap;
 
 fn two_sum(target: i32, nums: &[i32]) -> Option<i32> {
     let mut numbers = HashMap::new();

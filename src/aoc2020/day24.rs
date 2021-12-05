@@ -1,4 +1,4 @@
-use hashbrown::HashMap;
+use std::collections::HashMap;
 
 const NEIGHBORS: [(i32, i32); 6] = [(1, 0), (-1, 0), (0, -1), (1, -1), (-1, 1), (0, 1)];
 
