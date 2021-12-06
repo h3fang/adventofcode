@@ -1,15 +1,7 @@
 fn part1(count: &mut [usize], days: usize) -> usize {
-    fn step(count: &mut [usize]) {
-        let new = count[0];
-        for i in 0..8 {
-            count[i] = count[i + 1];
-        }
-        count[8] = new;
-        count[6] += new;
-    }
-
     for _ in 0..days {
-        step(count);
+        count.rotate_left(1);
+        count[6] += count[8];
     }
     count.iter().sum::<usize>()
 }
