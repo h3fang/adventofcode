@@ -43,11 +43,7 @@ pub fn main() {
         .lines()
         .map(|r| {
             r.split("->")
-                .map(|p| {
-                    p.split(',')
-                        .map(|n| n.trim().parse::<i64>().unwrap())
-                        .collect::<Vec<_>>()
-                })
+                .map(|p| p.split(',').map(|n| n.trim().parse::<i64>().unwrap()))
                 .flatten()
                 .collect::<Vec<_>>()
         })
