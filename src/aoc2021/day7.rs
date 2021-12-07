@@ -8,7 +8,7 @@ fn part2(pos: &[i64]) -> i64 {
     let n = pos.len();
     let sum = pos.iter().sum::<i64>();
     let avg = sum / n as i64;
-    (avg - 1..=avg + 1)
+    (avg..=avg + 1)
         .map(|avg| {
             pos.iter()
                 .map(|p| {
