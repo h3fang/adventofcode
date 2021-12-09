@@ -39,7 +39,7 @@ fn get_output(patterns: &[u8], outputs: &[u8]) -> usize {
         }
     }
 
-    let mut map = vec![0; 10];
+    let mut map = [0; 10];
     map[one.0] = 1;
     map[seven.0] = 7;
     map[four.0] = 4;
@@ -63,11 +63,9 @@ fn get_output(patterns: &[u8], outputs: &[u8]) -> usize {
         if seven.1 & s.1 == seven.1 {
             d = (s.1 ^ seven.1) & !g;
             map[s.0] = 3;
-        }
-        if s.1 & e > 0 {
+        } else if s.1 & e > 0 {
             map[s.0] = 2;
-        }
-        if bd & s.1 == bd {
+        } else if bd & s.1 == bd {
             map[s.0] = 5;
         }
     }
@@ -75,9 +73,7 @@ fn get_output(patterns: &[u8], outputs: &[u8]) -> usize {
     for s in &ss {
         if s.1 & d == 0 {
             map[s.0] = 0;
-        }
-
-        if s.1 & d > 0 && s.1 & e > 0 {
+        } else if s.1 & d > 0 && s.1 & e > 0 {
             map[s.0] = 6;
         }
     }
