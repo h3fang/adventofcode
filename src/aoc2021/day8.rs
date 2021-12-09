@@ -45,23 +45,15 @@ fn get_output(patterns: &[u8], outputs: &[u8]) -> usize {
     map[four.0] = 4;
     map[eight.0] = 8;
 
-    let a = seven.1 ^ one.1;
+    type Parts = (Vec<(usize, u8)>, Vec<(usize, u8)>);
 
-    let mut g = 0;
-    let mut e = 0;
-    for s in &ss {
-        if four.1 & s.1 == four.1 {
-            g = (s.1 ^ four.1) & !a;
-            map[s.0] = 9;
-            e = eight.1 ^ s.1;
-        }
-    }
+    let (nine, six_zero): Parts = ss.into_iter().partition(|s| four.1 & s.1 == four.1);
+    map[nine[0].0] = 9;
+    let e = eight.1 ^ nine[0].1;
 
-    let mut d = 0;
     let bd = four.1 ^ one.1;
     for s in &fs {
         if seven.1 & s.1 == seven.1 {
-            d = (s.1 ^ seven.1) & !g;
             map[s.0] = 3;
         } else if s.1 & e > 0 {
             map[s.0] = 2;
@@ -70,10 +62,10 @@ fn get_output(patterns: &[u8], outputs: &[u8]) -> usize {
         }
     }
 
-    for s in &ss {
-        if s.1 & d == 0 {
+    for s in &six_zero {
+        if s.1 & one.1 == one.1 {
             map[s.0] = 0;
-        } else if s.1 & d > 0 && s.1 & e > 0 {
+        } else {
             map[s.0] = 6;
         }
     }
