@@ -1,19 +1,19 @@
-fn digits(mut p: i32) -> Vec<i32> {
-    let mut s = Vec::with_capacity(8);
-    while p > 0 {
-        s.push(p % 10);
+fn digits(mut p: i32) -> [u8; 6] {
+    let mut s = [0; 6];
+    for e in &mut s {
+        *e = (p % 10) as u8;
         p /= 10;
     }
     s
 }
 
-fn part1(nums: &[Vec<i32>]) -> usize {
+fn part1(nums: &[[u8; 6]]) -> usize {
     nums.iter()
         .filter(|s| s.windows(2).all(|w| w[0] >= w[1]) && s.windows(2).any(|w| w[0] == w[1]))
         .count()
 }
 
-fn part2(nums: &[Vec<i32>]) -> usize {
+fn part2(nums: &[[u8; 6]]) -> usize {
     nums.iter()
         .filter(|s| {
             s.windows(2).all(|w| w[0] >= w[1])

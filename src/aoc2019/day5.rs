@@ -1,7 +1,7 @@
-fn parameter_modes(mut n: i64) -> Vec<u8> {
-    let mut r = Vec::with_capacity(3);
-    for _ in 0..3 {
-        r.push((n % 10) as u8);
+fn parameter_modes(mut n: i64) -> [u8; 3] {
+    let mut r = [0; 3];
+    for m in &mut r {
+        *m = (n % 10) as u8;
         n /= 10;
     }
     r
@@ -18,7 +18,7 @@ pub struct Intcode {
 impl Intcode {
     pub fn new(codes: &[i64]) -> Self {
         let mut codes = codes.to_vec();
-        codes.resize(100000, 0);
+        codes.resize(10000, 0);
         Self {
             codes: codes.to_vec(),
             ip: 0,

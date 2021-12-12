@@ -1,7 +1,5 @@
 use std::ops::{Add, AddAssign, Sub};
 
-use std::collections::HashSet;
-
 #[derive(Default, Debug, Clone, Copy)]
 struct Vec3 {
     x: i64,
@@ -117,23 +115,32 @@ fn part1(nbody: &mut NBody) -> i64 {
     nbody.total_energy()
 }
 
-fn find_period<F>(nbody: &mut NBody, axis: F) -> usize
-where
-    F: Fn(&Vec3) -> i64,
-{
-    let mut s = HashSet::new();
-    let state = nbody.state(&axis);
-    s.insert(state);
+fn find_periods(nbody: &mut NBody) -> (usize, usize, usize) {
+    let axis_x = |v: &Vec3| v.x;
+    let axis_y = |v: &Vec3| v.y;
+    let axis_z = |v: &Vec3| v.z;
 
+    let state_x = nbody.state(&axis_x);
+    let state_y = nbody.state(&axis_y);
+    let state_z = nbody.state(&axis_z);
+
+    let mut result = (0, 0, 0);
     let mut i = 0;
     loop {
         nbody.step();
         i += 1;
-        let state = nbody.state(&axis);
-        if s.contains(&state) {
-            return i;
+        if nbody.state(&axis_x) == state_x {
+            result.0 = i;
         }
-        s.insert(state);
+        if nbody.state(&axis_y) == state_y {
+            result.1 = i;
+        }
+        if nbody.state(&axis_z) == state_z {
+            result.2 = i;
+        }
+        if result.0 > 0 && result.1 > 0 && result.2 > 0 {
+            return result;
+        }
     }
 }
 
@@ -150,9 +157,7 @@ fn lcm(a: usize, b: usize) -> usize {
 }
 
 fn part2(nbody: &mut NBody) -> usize {
-    let p1 = find_period(nbody, |v| v.x);
-    let p2 = find_period(nbody, |v| v.y);
-    let p3 = find_period(nbody, |v| v.z);
+    let (p1, p2, p3) = find_periods(nbody);
     lcm(lcm(p1, p2), p3)
 }
 
