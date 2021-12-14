@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
-fn parse(data: &str) -> (HashMap<[u8; 2], usize>, HashMap<[u8; 2], u8>) {
+type Input = (u8, u8, HashMap<[u8; 2], usize>, HashMap<[u8; 2], u8>);
+fn parse(data: &str) -> Input {
     let mut lines = data.lines();
     let template = lines.next().unwrap().trim().as_bytes();
     lines.next();
@@ -11,22 +12,25 @@ fn parse(data: &str) -> (HashMap<[u8; 2], usize>, HashMap<[u8; 2], u8>) {
         let c = parts.next().unwrap().as_bytes()[0];
         rules.insert([ab[0], ab[1]], c);
     }
+    let first = template[0];
+    let last = *template.last().unwrap();
     let mut pairs: HashMap<[u8; 2], usize> = HashMap::new();
     for w in template.windows(2) {
         *pairs.entry([w[0], w[1]]).or_default() += 1;
     }
-    pairs.insert([b'$', template[0]], 1);
-    pairs.insert([template[template.len() - 1], b'$'], 1);
-    (pairs, rules)
+    (first, last, pairs, rules)
 }
 
 fn polymerization(
-    (mut pairs, rules): (HashMap<[u8; 2], usize>, HashMap<[u8; 2], u8>),
+    first: u8,
+    last: u8,
+    mut pairs: HashMap<[u8; 2], usize>,
+    rules: &HashMap<[u8; 2], u8>,
     steps: usize,
 ) -> usize {
     for _ in 0..steps {
         let mut next = pairs.clone();
-        for (ab, &c) in &rules {
+        for (ab, &c) in rules {
             if let Some(n) = pairs.get(ab) {
                 *next.entry(*ab).or_default() -= n;
                 *next.entry([ab[0], c]).or_default() += n;
@@ -36,11 +40,11 @@ fn polymerization(
         pairs = next;
     }
     let mut count = [0usize; 26];
+    count[(first - b'A') as usize] = 1;
+    count[(last - b'A') as usize] = 1;
     for (ab, n) in pairs {
         for e in ab {
-            if e.is_ascii_uppercase() {
-                count[(e - b'A') as usize] += n;
-            }
+            count[(e - b'A') as usize] += n;
         }
     }
     let mut max = 0;
@@ -57,9 +61,15 @@ fn polymerization(
 
 pub fn main() {
     let data = std::fs::read_to_string("data/2021/day14").unwrap();
-    let input = parse(&data);
-    println!("day14 part1: {}", polymerization(input.clone(), 10));
-    println!("day14 part2: {}", polymerization(input, 40));
+    let (first, last, pairs, rules) = parse(&data);
+    println!(
+        "day14 part1: {}",
+        polymerization(first, last, pairs.clone(), &rules, 10)
+    );
+    println!(
+        "day14 part2: {}",
+        polymerization(first, last, pairs, &rules, 10)
+    );
 }
 
 #[cfg(test)]
@@ -86,7 +96,11 @@ mod tests {
         BC -> B
         CC -> N
         CN -> C";
-        assert_eq!(1588, polymerization(parse(data), 10));
-        assert_eq!(2188189693529, polymerization(parse(data), 40));
+        let (first, last, pairs, rules) = parse(&data);
+        assert_eq!(1588, polymerization(first, last, pairs.clone(), &rules, 10));
+        assert_eq!(
+            2188189693529,
+            polymerization(first, last, pairs, &rules, 40)
+        );
     }
 }
