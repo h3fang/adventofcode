@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use ahash::AHashMap as HashMap;
 
 fn part1(lines: &[Vec<i64>]) -> usize {
     let mut map: HashMap<(i64, i64), usize> = HashMap::new();

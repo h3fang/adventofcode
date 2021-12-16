@@ -22,6 +22,7 @@ path = "src/aoc2021/main.rs"
 regex = "1"
 lazy_static = "1"
 arrayvec = "0.7"
+ahash = "0.7"
 
 [profile.release]
 lto = true

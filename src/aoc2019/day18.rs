@@ -1,7 +1,6 @@
-use std::{
-    collections::{BinaryHeap, HashMap, HashSet},
-    ops::BitOr,
-};
+use ahash::AHashMap as HashMap;
+use ahash::AHashSet as HashSet;
+use std::{collections::BinaryHeap, ops::BitOr};
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 struct Position {

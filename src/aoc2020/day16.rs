@@ -1,4 +1,5 @@
-use std::collections::{HashMap, HashSet};
+use ahash::AHashMap as HashMap;
+use ahash::AHashSet as HashSet;
 
 type Ranges = HashMap<String, Vec<(usize, usize)>>;
 

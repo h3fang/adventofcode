@@ -1,4 +1,5 @@
-use std::collections::{HashMap, HashSet};
+use ahash::AHashMap as HashMap;
+use ahash::AHashSet as HashSet;
 
 fn is_lowercase(s: &str) -> bool {
     s.as_bytes()[0].is_ascii_lowercase()

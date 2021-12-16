@@ -1,5 +1,5 @@
 use regex::Regex;
-use std::collections::HashMap;
+use ahash::AHashMap as HashMap;
 
 fn split(re: &Regex, bags: &str) -> Vec<(usize, String)> {
     if bags == "no other bags" {

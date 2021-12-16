@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use ahash::AHashMap as HashMap;
 
 const NEIGHBORS: [(i32, i32); 6] = [(1, 0), (-1, 0), (0, -1), (1, -1), (-1, 1), (0, 1)];
 

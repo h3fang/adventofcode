@@ -1,4 +1,5 @@
-use std::collections::{HashMap, HashSet};
+use ahash::AHashMap as HashMap;
+use ahash::AHashSet as HashSet;
 use std::fmt;
 
 const SEA_MONSTER: &str =

@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use ahash::AHashMap as HashMap;
 
 type Input = (u8, u8, HashMap<[u8; 2], usize>, HashMap<[u8; 2], u8>);
 fn parse(data: &str) -> Input {

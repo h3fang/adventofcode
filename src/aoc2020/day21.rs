@@ -1,4 +1,6 @@
-use std::collections::{BTreeMap, HashMap, HashSet};
+use ahash::AHashMap as HashMap;
+use ahash::AHashSet as HashSet;
+use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 struct Ingredient {

@@ -1,4 +1,6 @@
-use std::collections::{BinaryHeap, HashMap, HashSet, VecDeque};
+use ahash::AHashMap as HashMap;
+use ahash::AHashSet as HashSet;
+use std::collections::{BinaryHeap, VecDeque};
 
 use crate::day5::Intcode;
 

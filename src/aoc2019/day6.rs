@@ -1,4 +1,5 @@
-use std::collections::{HashMap, HashSet};
+use ahash::AHashMap as HashMap;
+use ahash::AHashSet as HashSet;
 
 fn part1(g: &HashMap<&str, HashSet<&str>>) -> usize {
     fn dfs(g: &HashMap<&str, HashSet<&str>>, s: &str, result: &mut usize) -> usize {

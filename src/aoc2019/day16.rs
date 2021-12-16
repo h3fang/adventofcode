@@ -1,10 +1,9 @@
-fn phase(curr: &[u8], next: &mut [u8], offset: usize) {
+fn phase(curr: &[u8], next: &mut [u8], prefix: &mut [i32]) {
     let n = curr.len();
-    let mut prefix = vec![0i32; n + 1];
     for i in 1..=n {
         prefix[i] = prefix[i - 1] + curr[i - 1] as i32;
     }
-    (offset + 1..=n).for_each(|i| {
+    (1..=n).for_each(|i| {
         let mut sum = 0i32;
         let mut j = i - 1;
         let mut k = 1;
@@ -21,18 +20,19 @@ fn phase(curr: &[u8], next: &mut [u8], offset: usize) {
     });
 }
 
-fn fft(signal: Vec<u8>, phases: usize, offset: usize) -> Vec<u8> {
+fn fft(signal: Vec<u8>, phases: usize) -> Vec<u8> {
     let mut curr = signal.to_vec();
     let mut next = vec![0; curr.len()];
+    let mut prefix = vec![0i32; curr.len() + 1];
     for _ in 0..phases {
-        phase(&curr, &mut next, offset);
+        phase(&curr, &mut next, &mut prefix);
         std::mem::swap(&mut curr, &mut next);
     }
     curr
 }
 
 fn part1(signal: &[u8]) -> String {
-    let s = fft(signal.to_vec(), 100, 0);
+    let s = fft(signal.to_vec(), 100);
     let s = s.iter().take(8).map(|b| b + b'0').collect::<Vec<_>>();
     unsafe { String::from_utf8_unchecked(s) }
 }
@@ -120,7 +120,7 @@ mod tests {
             .iter()
             .map(|b| b - b'0')
             .collect::<Vec<_>>();
-        let s = fft(signal.to_vec(), 1, 0);
+        let s = fft(signal.to_vec(), 1);
         let s = s.iter().take(8).map(|b| b + b'0').collect::<Vec<_>>();
         let r = unsafe { String::from_utf8_unchecked(s) };
         assert_eq!("48226158".to_string(), r);

@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use ahash::AHashMap as HashMap;
 
 type Graph<'a> = HashMap<&'a str, (usize, Vec<(&'a str, usize)>)>;
 

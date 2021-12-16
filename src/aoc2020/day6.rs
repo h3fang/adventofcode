@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use ahash::AHashSet as HashSet;
 
 fn count(lines: &[&str]) -> usize {
     let chars = lines
