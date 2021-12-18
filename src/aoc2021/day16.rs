@@ -1,107 +1,51 @@
 #[derive(Debug, PartialEq)]
-enum PacketType {
-    Literal,
-    Sum,
-    Product,
-    Minimum,
-    Maximum,
-    GreaterThan,
-    LessThan,
-    EqualTo,
-}
-
-impl From<u16> for PacketType {
-    fn from(n: u16) -> Self {
-        match n & 0b111 {
-            4 => PacketType::Literal,
-            0 => PacketType::Sum,
-            1 => PacketType::Product,
-            2 => PacketType::Minimum,
-            3 => PacketType::Maximum,
-            5 => PacketType::GreaterThan,
-            6 => PacketType::LessThan,
-            7 => PacketType::EqualTo,
-            _ => unreachable!(),
-        }
-    }
-}
-
-#[derive(Debug, PartialEq)]
 struct Header {
     version: u8,
-    type_id: PacketType,
+    type_id: u8,
 }
 
 #[derive(Debug, PartialEq)]
-enum LengthType {
-    TotalBits,
-    TotalPackets,
-}
-
-impl From<u16> for LengthType {
-    fn from(n: u16) -> Self {
-        match n & 0b1 {
-            0 => LengthType::TotalBits,
-            1 => LengthType::TotalPackets,
-            _ => unreachable!(),
-        }
-    }
+enum Body {
+    Literal(i64),
+    Operator(Vec<Packet>),
 }
 
 #[derive(Debug, PartialEq)]
-enum Packet {
-    Literal {
-        header: Header,
-        value: i64,
-    },
-    Operator {
-        header: Header,
-        sub_packets: Vec<Packet>,
-    },
+struct Packet {
+    header: Header,
+    body: Body,
 }
 
 impl Packet {
+    fn versions(&self) -> i64 {
+        match &self.body {
+            Body::Literal(_) => self.header.version as i64,
+            Body::Operator(pkts) => {
+                self.header.version as i64 + pkts.iter().map(|p| p.versions()).sum::<i64>()
+            }
+        }
+    }
+
     fn value(&self) -> i64 {
-        match self {
-            Packet::Literal { header: _, value } => *value,
-            Packet::Operator {
-                header,
-                sub_packets,
-            } => match header.type_id {
-                PacketType::Literal => unreachable!(),
-                PacketType::Sum => sub_packets.iter().map(|pkt| pkt.value()).sum(),
-                PacketType::Product => sub_packets.iter().map(|pkt| pkt.value()).product(),
-                PacketType::Minimum => sub_packets
+        match &self.body {
+            Body::Literal(v) => *v,
+            Body::Operator(sub_packets) => match self.header.type_id {
+                0 => sub_packets.iter().map(|pkt| pkt.value()).sum(),
+                1 => sub_packets.iter().map(|pkt| pkt.value()).product(),
+                2 => sub_packets
                     .iter()
                     .map(|pkt| pkt.value())
                     .min()
                     .expect("empty sub-packets for Minimum operator"),
-                PacketType::Maximum => sub_packets
+                3 => sub_packets
                     .iter()
                     .map(|pkt| pkt.value())
                     .max()
                     .expect("empty sub-packets for Maximum operator"),
-                PacketType::GreaterThan => {
-                    if sub_packets[0].value() > sub_packets[1].value() {
-                        1
-                    } else {
-                        0
-                    }
-                }
-                PacketType::LessThan => {
-                    if sub_packets[0].value() < sub_packets[1].value() {
-                        1
-                    } else {
-                        0
-                    }
-                }
-                PacketType::EqualTo => {
-                    if sub_packets[0].value() == sub_packets[1].value() {
-                        1
-                    } else {
-                        0
-                    }
-                }
+                5 => (sub_packets[0].value() > sub_packets[1].value()).into(),
+                6 => (sub_packets[0].value() < sub_packets[1].value()).into(),
+                7 => (sub_packets[0].value() == sub_packets[1].value()).into(),
+                _ => unreachable!(),
             },
         }
     }
@@ -149,10 +93,10 @@ impl BITSTransmission {
 
     fn read_packet(&mut self) -> Result<Packet, BITSReadError> {
         let version = self.read(3)? as u8;
-        let type_id = self.read(3)?.into();
+        let type_id = self.read(3)? as u8;
         let header = Header { version, type_id };
         match header.type_id {
-            PacketType::Literal => {
+            4 => {
                 let mut value = 0i64;
                 loop {
                     let prefix = self.read(1)?;
@@ -160,16 +104,17 @@ impl BITSTransmission {
                     value = (value << 4) + group;
                     if prefix == 0 {
                         break;
-                    } else if prefix != 1 {
-                        panic!("invalid literal group prefix");
                     }
                 }
-                Ok(Packet::Literal { header, value })
+                Ok(Packet {
+                    header,
+                    body: Body::Literal(value),
+                })
             }
             _ => {
-                let len_type: LengthType = self.read(1)?.into();
+                let len_type = self.read(1)?;
                 let sub_packets = match len_type {
-                    LengthType::TotalBits => {
+                    0 => {
                         let mut len = self.read(15)? as usize;
                         let mut sub_pkts = vec![];
                         while len > 0 {
@@ -179,41 +124,26 @@ impl BITSTransmission {
                         }
                         sub_pkts
                     }
-                    LengthType::TotalPackets => {
+                    _ => {
                         let len = self.read(11)? as usize;
                         let sub_pkts: Result<Vec<_>, _> =
                             (0..len).map(|_| self.read_packet()).collect();
                         sub_pkts?
                     }
                 };
-                Ok(Packet::Operator {
+                Ok(Packet {
                     header,
-                    sub_packets,
+                    body: Body::Operator(sub_packets),
                 })
             }
         }
     }
 }
 
-fn solve(data: &[u8]) -> (usize, i64) {
-    fn accumulate_versions(pkt: &Packet) -> usize {
-        match pkt {
-            Packet::Literal { header, value: _ } => header.version as usize,
-            Packet::Operator {
-                header,
-                sub_packets,
-            } => {
-                let mut result = header.version as usize;
-                for sub in sub_packets {
-                    result += accumulate_versions(sub);
-                }
-                result
-            }
-        }
-    }
+fn solve(data: &[u8]) -> (i64, i64) {
     let mut bits = BITSTransmission::new(data);
     if let Ok(pkt) = bits.read_packet() {
-        (accumulate_versions(&pkt), pkt.value())
+        (pkt.versions(), pkt.value())
     } else {
         unreachable!()
     }
@@ -236,12 +166,12 @@ mod tests {
         let mut bits = BITSTransmission::new(data.as_bytes());
         let pkt = bits.read_packet();
         assert_eq!(
-            Ok(Packet::Literal {
+            Ok(Packet {
                 header: Header {
                     version: 6,
-                    type_id: PacketType::Literal
+                    type_id: 4
                 },
-                value: 2021,
+                body: Body::Literal(2021),
             }),
             pkt
         );
@@ -253,27 +183,27 @@ mod tests {
         let mut bits = BITSTransmission::new(data.as_bytes());
         let pkt = bits.read_packet();
         assert_eq!(
-            Ok(Packet::Operator {
+            Ok(Packet {
                 header: Header {
                     version: 1,
-                    type_id: PacketType::LessThan
+                    type_id: 6,
                 },
-                sub_packets: vec![
-                    Packet::Literal {
+                body: Body::Operator(vec![
+                    Packet {
                         header: Header {
                             version: 6,
-                            type_id: PacketType::Literal
+                            type_id: 4
                         },
-                        value: 10,
+                        body: Body::Literal(10),
                     },
-                    Packet::Literal {
+                    Packet {
                         header: Header {
                             version: 2,
-                            type_id: PacketType::Literal
+                            type_id: 4
                         },
-                        value: 20,
+                        body: Body::Literal(20),
                     }
-                ],
+                ]),
             }),
             pkt
         );
