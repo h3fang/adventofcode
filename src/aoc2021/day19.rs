@@ -238,8 +238,9 @@ type FingerprintSouce = HashMap<i32, Vec<Vec3>>;
 struct Scanner {
     position: Vec3,
     fingerprints: HashSet<i32>,
+    fingerprint_source: FingerprintSouce,
     rotation_index: usize,
-    rotations: Vec<(HashSet<Vec3>, FingerprintSouce)>,
+    rotations: Vec<HashSet<Vec3>>,
 }
 
 impl Scanner {
@@ -256,16 +257,12 @@ impl Scanner {
         }
 
         let beacons = beacons.into_iter().collect::<HashSet<_>>();
-        let mut rotations = vec![(beacons.clone(), fingerprint_source.clone())];
+        let mut rotations = vec![beacons];
 
         if id != 0 {
             for rotate in &ROTATIONS[1..] {
-                let beacons = beacons.iter().map(rotate).collect();
-                let fingerprint_source = fingerprint_source
-                    .iter()
-                    .map(|(&f, pairs)| (f, pairs.iter().map(rotate).collect()))
-                    .collect();
-                rotations.push((beacons, fingerprint_source));
+                let beacons = rotations[0].iter().map(rotate).collect();
+                rotations.push(beacons);
             }
         }
 
@@ -274,29 +271,32 @@ impl Scanner {
             rotation_index: 0,
             rotations,
             fingerprints,
+            fingerprint_source,
         }
     }
 
     fn beacons(&self) -> &HashSet<Vec3> {
-        &self.rotations[self.rotation_index].0
+        &self.rotations[self.rotation_index]
     }
 
-    fn fingerprint_source(&self) -> &FingerprintSouce {
-        &self.rotations[self.rotation_index].1
+    fn rotate(&mut self, rotation_index: usize) {
+        self.rotation_index = rotation_index;
+        self.fingerprint_source.values_mut().for_each(|p| {
+            p.iter_mut().for_each(|p| {
+                *p = ROTATIONS[rotation_index](p);
+            })
+        });
     }
 
     fn translate(&mut self, translation: Vec3) {
-        self.rotations[self.rotation_index].0 =
+        self.rotations[self.rotation_index] =
             self.beacons().iter().map(|p| p + &translation).collect();
         let trans2 = &translation * 2;
-        self.rotations[self.rotation_index]
-            .1
-            .values_mut()
-            .for_each(|pts| {
-                pts.iter_mut().for_each(|p| {
-                    *p = &*p + &trans2;
-                })
-            });
+        self.fingerprint_source.values_mut().for_each(|pts| {
+            pts.iter_mut().for_each(|p| {
+                *p = &*p + &trans2;
+            })
+        });
         self.position = translation;
     }
 
@@ -315,20 +315,20 @@ impl Scanner {
             return false;
         }
 
-        for rotation_index in 0..24 {
+        for (rotation_index, rotation) in ROTATIONS.iter().enumerate() {
             for fp in &fps {
-                for pa in self.fingerprint_source().get(fp).unwrap() {
-                    for pb in other.rotations[rotation_index].1.get(fp).unwrap().clone() {
+                for pa in self.fingerprint_source.get(fp).unwrap() {
+                    for pb in other.fingerprint_source.get(fp).unwrap().clone() {
+                        let pb = rotation(&pb);
                         let translation = &(pa - &pb) / 2;
                         if other.rotations[rotation_index]
-                            .0
                             .iter()
                             .filter(|p| self.beacons().contains(&(*p + &translation)))
                             .take(12)
                             .count()
                             == 12
                         {
-                            other.rotation_index = rotation_index;
+                            other.rotate(rotation_index);
                             other.translate(translation);
                             return true;
                         }
