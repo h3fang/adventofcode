@@ -1,45 +1,50 @@
-use ahash::AHashMap as HashMap;
+use ahash::AHashSet as HashSet;
 
 struct Image {
-    img: HashMap<(i32, i32), bool>,
-    bounds: (i32, i32, i32, i32),
-}
-
-impl Default for Image {
-    fn default() -> Self {
-        Self {
-            img: Default::default(),
-            bounds: (i32::MAX, i32::MAX, i32::MIN, i32::MIN),
-        }
-    }
+    img: Vec<bool>,
+    width: usize,
+    bounds: (usize, usize, usize, usize),
 }
 
 impl Image {
-    fn update_bounds(&mut self, x: i32, y: i32) {
-        self.bounds.0 = self.bounds.0.min(x);
-        self.bounds.1 = self.bounds.1.min(y);
-        self.bounds.2 = self.bounds.2.max(x);
-        self.bounds.3 = self.bounds.3.max(y);
+    fn update_bounds<T: Ord + Copy>(bounds: &mut (T, T, T, T), x: T, y: T) {
+        bounds.0 = bounds.0.min(x);
+        bounds.1 = bounds.1.min(y);
+        bounds.2 = bounds.2.max(x);
+        bounds.3 = bounds.3.max(y);
     }
 
     fn from_lines(s: &str) -> Self {
-        let mut result = Self::default();
+        let mut pixels = HashSet::new();
+        let mut bounds = (usize::MAX, usize::MAX, usize::MIN, usize::MIN);
         s.lines().enumerate().for_each(|(y, line)| {
             line.as_bytes().iter().enumerate().for_each(|(x, &pixel)| {
                 if pixel == b'#' {
-                    result.img.insert((x as i32, y as i32), true);
-                    result.update_bounds(x as i32, y as i32);
+                    pixels.insert((x, y));
+                    Self::update_bounds(&mut bounds, x, y);
                 }
             })
         });
-        result
+        let height = (bounds.2 - bounds.0 + 4 * 50) as usize;
+        let width = (bounds.3 - bounds.1 + 4 * 50) as usize;
+        let mut img = vec![false; width * height];
+        for (x, y) in pixels {
+            img[(y + 2 * 50) * width + x + 2 * 50] = true;
+        }
+        let bounds = (
+            (bounds.0 + 2 * 50) as usize,
+            (bounds.1 + 2 * 50) as usize,
+            (bounds.2 + 2 * 50) as usize,
+            (bounds.3 + 2 * 50) as usize,
+        );
+        Self { img, width, bounds }
     }
 
-    fn combine(img: &HashMap<(i32, i32), bool>, (x, y): (i32, i32)) -> usize {
+    fn combine(img: &[bool], width: usize, (x, y): (usize, usize)) -> usize {
         let mut result = 0;
         for yn in [y - 1, y, y + 1] {
             for xn in [x - 1, x, x + 1] {
-                let pixel = *img.get(&(xn, yn)).unwrap_or(&false);
+                let pixel = img[yn * width + xn];
                 result = (result << 1) + if pixel { 1 } else { 0 };
             }
         }
@@ -48,33 +53,30 @@ impl Image {
 
     fn enhance_twice(&mut self, algo: &[bool]) {
         let bounds = self.bounds;
-
-        let mut new = HashMap::with_capacity(
-            (bounds.2 - bounds.0 + 9) as usize * (bounds.3 - bounds.1 + 9) as usize,
-        );
+        let mut new = vec![false; self.img.len()];
 
         // first
         for x in bounds.0 - 4..=bounds.2 + 4 {
             for y in bounds.1 - 4..=bounds.3 + 4 {
-                let i = Self::combine(&self.img, (x, y));
-                new.insert((x, y), algo[i]);
+                let i = Self::combine(&self.img, self.width, (x, y));
+                new[y * self.width + x] = algo[i];
             }
         }
 
         // second
         for x in bounds.0 - 2..=bounds.2 + 2 {
             for y in bounds.1 - 2..=bounds.3 + 2 {
-                let i = Self::combine(&new, (x, y));
-                self.img.insert((x, y), algo[i]);
+                let i = Self::combine(&new, self.width, (x, y));
+                self.img[y * self.width + x] = algo[i];
                 if algo[i] {
-                    self.update_bounds(x, y);
+                    Self::update_bounds(&mut self.bounds, x, y);
                 }
             }
         }
     }
 
     fn lit_pixels(&self) -> usize {
-        self.img.values().filter(|p| **p).count()
+        self.img.iter().filter(|p| **p).count()
     }
 }
 
