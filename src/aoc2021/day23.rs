@@ -293,7 +293,7 @@ fn parse<const D: usize>(data: &str) -> Grid<D> {
     grid
 }
 
-fn solve<const D: usize>(g: Grid<D>) -> usize {
+fn solve<const D: usize, const E: usize>(g: Grid<D>) -> usize {
     let mut costs = HashMap::new();
     let mut q = BinaryHeap::new();
     q.push((Reverse(0), g));
@@ -301,17 +301,19 @@ fn solve<const D: usize>(g: Grid<D>) -> usize {
         if g.is_done() {
             return cost.0;
         }
-        if let Some(c) = costs.get(&g) {
+        let key: &[u32; E] = unsafe { std::mem::transmute(&g) };
+        if let Some(c) = costs.get(key) {
             if cost.0 > *c {
                 continue;
             }
         }
         for (from, to, delta_cost) in g.all_moves() {
             let next = g.make_move((from, to));
-            let old = costs.get(&next).cloned().unwrap_or(usize::MAX);
+            let key: &[u32; E] = unsafe { std::mem::transmute(&next) };
+            let old = costs.get(key).cloned().unwrap_or(usize::MAX);
             let new = cost.0 + delta_cost;
             if new < old {
-                costs.insert(next.clone(), new);
+                costs.insert(*key, new);
                 q.push((Reverse(new), next));
             }
         }
@@ -321,8 +323,8 @@ fn solve<const D: usize>(g: Grid<D>) -> usize {
 
 pub fn main() {
     let data = std::fs::read_to_string("data/2021/day23").unwrap();
-    println!("day23 part1: {}", solve(parse::<2>(&data)));
-    println!("day23 part2: {}", solve(parse::<4>(&data)));
+    println!("day23 part1: {}", solve::<2, 4>(parse::<2>(&data)));
+    println!("day23 part2: {}", solve::<4, 6>(parse::<4>(&data)));
 }
 
 #[cfg(test)]
@@ -336,7 +338,7 @@ mod tests {
 ###B#C#B#D###
   #A#D#C#A#  
   #########  ";
-        assert_eq!(12521, solve(parse::<2>(&data)));
-        assert_eq!(44169, solve(parse::<4>(&data)));
+        assert_eq!(12521, solve::<2, 4>(parse::<2>(&data)));
+        assert_eq!(44169, solve::<4, 6>(parse::<4>(&data)));
     }
 }
