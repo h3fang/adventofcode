@@ -46,14 +46,13 @@ enum Position {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-struct Grid {
-    room_size: usize,
+struct Grid<const D: usize> {
     hallway: [Cell; 11],
-    rooms: ArrayVec<ArrayVec<Cell, 4>, 4>,
+    rooms: [[Cell; D]; 4],
 }
 
-impl Grid {
-    fn amphipod_room(amphipod: &Cell) -> usize {
+impl<const D: usize> Grid<D> {
+    const fn amphipod_room(amphipod: &Cell) -> usize {
         match amphipod {
             Cell::Amber => 0,
             Cell::Bronze => 1,
@@ -63,7 +62,7 @@ impl Grid {
         }
     }
 
-    fn room_amphipod(idx: usize) -> Cell {
+    const fn room_amphipod(idx: usize) -> Cell {
         match idx {
             0 => Cell::Amber,
             1 => Cell::Bronze,
@@ -74,19 +73,23 @@ impl Grid {
     }
 
     fn room_depth(&self, idx: usize) -> usize {
-        self.room_size - self.rooms[idx].len()
+        self.rooms[idx]
+            .iter()
+            .position(|c| *c != Cell::Empty)
+            .unwrap_or(D)
     }
 
     fn is_room_ready(&self, idx: usize) -> bool {
         let amp = Self::room_amphipod(idx);
-        self.rooms[idx].iter().all(|c| *c == amp)
+        self.rooms[idx]
+            .iter()
+            .all(|c| *c == Cell::Empty || *c == amp)
     }
 
     fn is_room_done(&self, idx: usize) -> bool {
-        self.rooms[idx].len() == self.room_size
-            && self.rooms[idx]
-                .iter()
-                .all(|c| *c == Self::room_amphipod(idx))
+        self.rooms[idx]
+            .iter()
+            .all(|c| *c == Self::room_amphipod(idx))
     }
 
     fn is_done(&self) -> bool {
@@ -139,54 +142,61 @@ impl Grid {
         }
     }
 
-    fn all_moves(&self) -> Vec<(Position, Position, usize)> {
-        let mut result = vec![];
+    fn all_moves(&self) -> ArrayVec<(Position, Position, usize), 28> {
+        let mut result = ArrayVec::new();
 
-        // from hallway
+        // hallway to room
         for (i, c) in self.hallway.iter().enumerate() {
             if c == &Cell::Empty {
                 continue;
             }
             let from = Position::Hallway(i);
-            // hallway to room
             let room = Self::amphipod_room(c);
             if self.is_room_ready(room) {
                 let to = Position::Room(room);
                 if let Some(dist) = self.distance(from, to) {
                     result.push((from, to, dist * c.energy()));
+                    return result;
                 }
             }
         }
 
-        // from room
-        for (i, ci) in self.rooms.iter().enumerate() {
-            if self.is_room_ready(i) {
-                continue;
-            }
-            if let Some(c) = ci.last() {
-                let from = Position::Room(i);
-
-                // room to room
-                let j = Self::amphipod_room(c);
-                if self.is_room_ready(j) {
-                    let to = Position::Room(j);
-                    if let Some(dist) = self.distance(from, to) {
-                        result.push((from, to, dist * c.energy()));
-                        // Since it's able to move to room, there is no need
-                        // to try to move into the hallway.
-                        continue;
-                    }
+        let unfinished = (0..self.rooms.len())
+            .filter(|i| !self.is_room_ready(*i))
+            .filter_map(|i| {
+                let d = self.room_depth(i);
+                if d == D {
+                    None
+                } else {
+                    Some((i, self.rooms[i][d]))
                 }
+            })
+            .collect::<ArrayVec<_, 4>>();
 
-                // room to hallway
-                for i in [0, 1, 3, 5, 7, 9, 10] {
-                    if self.hallway[i] != Cell::Empty {
-                        continue;
-                    }
-                    let to = Position::Hallway(i);
-                    if let Some(dist) = self.distance(from, to) {
-                        result.push((from, to, dist * c.energy()));
-                    }
+        // room to room
+        for (i, c) in &unfinished {
+            let from = Position::Room(*i);
+
+            let j = Self::amphipod_room(c);
+            if self.is_room_ready(j) {
+                let to = Position::Room(j);
+                if let Some(dist) = self.distance(from, to) {
+                    result.push((from, to, dist * c.energy()));
+                    return result;
+                }
+            }
+        }
+
+        // room to hallway
+        for (i, c) in &unfinished {
+            let from = Position::Room(*i);
+            for i in [0, 1, 3, 5, 7, 9, 10] {
+                if self.hallway[i] != Cell::Empty {
+                    continue;
+                }
+                let to = Position::Hallway(i);
+                if let Some(dist) = self.distance(from, to) {
+                    result.push((from, to, dist * c.energy()));
                 }
             }
         }
@@ -202,7 +212,12 @@ impl Grid {
                 g.hallway[i] = Cell::Empty;
                 c
             }
-            Position::Room(i) => g.rooms[i].pop().unwrap(),
+            Position::Room(i) => {
+                let d = g.room_depth(i);
+                let c = g.rooms[i][d];
+                g.rooms[i][d] = Cell::Empty;
+                c
+            }
         };
         match to {
             Position::Hallway(i) => {
@@ -210,14 +225,15 @@ impl Grid {
                 g.hallway[i] = c;
             }
             Position::Room(i) => {
-                g.rooms[i].push(c);
+                let d = g.room_depth(i);
+                g.rooms[i][d - 1] = c;
             }
         }
         g
     }
 }
 
-impl Display for Grid {
+impl<const D: usize> Display for Grid<D> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
@@ -227,15 +243,11 @@ impl Display for Grid {
                 .map(|c| c.to_string())
                 .collect::<String>()
         )?;
-        for i in (0..self.room_size).rev() {
+        for i in 0..D {
             let r = self
                 .rooms
                 .iter()
-                .map(|r| {
-                    r.get(i)
-                        .map(|c| c.to_string())
-                        .unwrap_or_else(|| ".".to_string())
-                })
+                .map(|r| r[i].to_string())
                 .collect::<Vec<_>>();
             writeln!(f)?;
             write!(f, " |{}|{}|{}|{}| ", r[0], r[1], r[2], r[3])?;
@@ -244,33 +256,45 @@ impl Display for Grid {
     }
 }
 
-fn parse(data: &str) -> Grid {
+fn parse<const D: usize>(data: &str) -> Grid<D> {
     let cells: Vec<Vec<char>> = data
         .lines()
         .map(|line| line.chars().collect::<Vec<_>>())
         .collect::<Vec<_>>();
     let mut grid = Grid {
-        room_size: 2,
         hallway: [Cell::Empty; 11],
-        rooms: ArrayVec::from_iter((0..4).map(|_| ArrayVec::new())),
+        rooms: [[Cell::Empty; D]; 4],
     };
+    if D == 4 {
+        grid.rooms[0][1] = Cell::Desert;
+        grid.rooms[0][2] = Cell::Desert;
+
+        grid.rooms[1][1] = Cell::Copper;
+        grid.rooms[1][2] = Cell::Bronze;
+
+        grid.rooms[2][1] = Cell::Bronze;
+        grid.rooms[2][2] = Cell::Amber;
+
+        grid.rooms[3][1] = Cell::Amber;
+        grid.rooms[3][2] = Cell::Copper;
+    }
     for i in 0..4 {
         let x = 1 + 2 * (i + 1);
-        for y in (2..=3).rev() {
-            grid.rooms[i].push(match cells[y][x] {
+        for (j, y) in [(0, 2), (D - 1, 3)] {
+            grid.rooms[i][j] = match cells[y][x] {
                 'A' => Cell::Amber,
                 'B' => Cell::Bronze,
                 'C' => Cell::Copper,
                 'D' => Cell::Desert,
                 x => panic!("invalid amphipod {}", x),
-            });
+            };
         }
     }
     grid
 }
 
-fn solve(g: Grid) -> usize {
-    let mut costs: HashMap<Grid, usize> = HashMap::new();
+fn solve<const D: usize>(g: Grid<D>) -> usize {
+    let mut costs = HashMap::new();
     let mut q = BinaryHeap::new();
     q.push((Reverse(0), g));
     while let Some((cost, g)) = q.pop() {
@@ -295,28 +319,10 @@ fn solve(g: Grid) -> usize {
     unreachable!()
 }
 
-fn part2(mut g: Grid) -> usize {
-    g.rooms[0].insert(1, Cell::Desert);
-    g.rooms[0].insert(1, Cell::Desert);
-
-    g.rooms[1].insert(1, Cell::Copper);
-    g.rooms[1].insert(1, Cell::Bronze);
-
-    g.rooms[2].insert(1, Cell::Bronze);
-    g.rooms[2].insert(1, Cell::Amber);
-
-    g.rooms[3].insert(1, Cell::Amber);
-    g.rooms[3].insert(1, Cell::Copper);
-
-    g.room_size = 4;
-    solve(g)
-}
-
 pub fn main() {
     let data = std::fs::read_to_string("data/2021/day23").unwrap();
-    let g = parse(&data);
-    println!("day23 part1: {}", solve(g.clone()));
-    println!("day23 part2: {}", part2(g));
+    println!("day23 part1: {}", solve(parse::<2>(&data)));
+    println!("day23 part2: {}", solve(parse::<4>(&data)));
 }
 
 #[cfg(test)]
@@ -330,8 +336,7 @@ mod tests {
 ###B#C#B#D###
   #A#D#C#A#  
   #########  ";
-        let g = parse(&data);
-        // assert_eq!(12521, solve(g.clone()));
-        assert_eq!(44169, part2(g));
+        assert_eq!(12521, solve(parse::<2>(&data)));
+        assert_eq!(44169, solve(parse::<4>(&data)));
     }
 }
