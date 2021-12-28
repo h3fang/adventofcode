@@ -31,37 +31,45 @@ fn fft(signal: Vec<u8>, phases: usize) -> Vec<u8> {
     curr
 }
 
-fn part1(signal: &[u8]) -> String {
+fn part1(signal: &[u8]) -> usize {
     let s = fft(signal.to_vec(), 100);
-    let s = s.iter().take(8).map(|b| b + b'0').collect::<Vec<_>>();
-    unsafe { String::from_utf8_unchecked(s) }
+    s.into_iter()
+        .take(8)
+        .fold(0, |acc, n| acc * 10 + n as usize)
 }
 
-fn part2(signal: &[u8]) -> String {
+fn part2(signal: &[u8]) -> usize {
     let offset = signal[..7]
         .iter()
         .fold(0usize, |acc, i| acc * 10 + *i as usize);
-    let mut s = signal.repeat(10000);
+    let n = 10000 * signal.len() - offset;
+    let s = signal
+        .iter()
+        .cycle()
+        .skip(offset)
+        .take(n)
+        .cloned()
+        .collect::<Vec<_>>();
 
-    let n = s.len();
-    let mut p = vec![0; n];
-    for _ in 0..100 {
-        // Since the offset is larger than half of the repeated signal, the output
-        // after each phase is just a suffix sum.
-        p[n - 1] = s[n - 1];
-        for i in (offset..n - 1).rev() {
-            p[i] = (s[i] + p[i + 1]) % 10;
+    // The diagnals of the Pascal Triangle mod 10 has a period of 16000.
+    const PERIOD: usize = 16000;
+    let mut diag = vec![1u8; PERIOD];
+    for _ in 1..100 {
+        for i in 1..PERIOD {
+            diag[i] = (diag[i] + diag[i - 1]) % 10;
         }
-        std::mem::swap(&mut s, &mut p);
     }
 
-    let s = s
-        .iter()
-        .skip(offset)
-        .take(8)
-        .map(|b| b + b'0')
-        .collect::<Vec<_>>();
-    unsafe { String::from_utf8_unchecked(s) }
+    (0..8)
+        .map(|i| {
+            s[i..]
+                .iter()
+                .zip(diag.iter().cycle())
+                .map(|(a, b)| ((a * b) % 10) as usize)
+                .sum::<usize>()
+                % 10
+        })
+        .fold(0, |acc, n| acc * 10 + n)
 }
 
 pub fn main() {
@@ -90,7 +98,7 @@ mod tests {
             .iter()
             .map(|b| b - b'0')
             .collect::<Vec<_>>();
-        assert_eq!("24176176".to_string(), part1(&signal));
+        assert_eq!(24176176, part1(&signal));
     }
 
     #[test]
@@ -100,7 +108,7 @@ mod tests {
             .iter()
             .map(|b| b - b'0')
             .collect::<Vec<_>>();
-        assert_eq!("73745418".to_string(), part1(&signal));
+        assert_eq!(73745418, part1(&signal));
     }
 
     #[test]
@@ -110,7 +118,7 @@ mod tests {
             .iter()
             .map(|b| b - b'0')
             .collect::<Vec<_>>();
-        assert_eq!("52432133".to_string(), part1(&signal));
+        assert_eq!(52432133, part1(&signal));
     }
 
     #[test]
@@ -121,9 +129,11 @@ mod tests {
             .map(|b| b - b'0')
             .collect::<Vec<_>>();
         let s = fft(signal.to_vec(), 1);
-        let s = s.iter().take(8).map(|b| b + b'0').collect::<Vec<_>>();
-        let r = unsafe { String::from_utf8_unchecked(s) };
-        assert_eq!("48226158".to_string(), r);
+        let r = s
+            .into_iter()
+            .take(8)
+            .fold(0, |acc, n| acc * 10 + n as usize);
+        assert_eq!(48226158, r);
     }
 
     #[test]
@@ -133,6 +143,6 @@ mod tests {
             .iter()
             .map(|b| b - b'0')
             .collect::<Vec<_>>();
-        assert_eq!("84462026".to_string(), part2(&signal));
+        assert_eq!(84462026, part2(&signal));
     }
 }
