@@ -2,41 +2,24 @@ use ahash::AHashMap as HashMap;
 use arrayvec::ArrayVec;
 use std::{cmp::Reverse, collections::BinaryHeap, fmt::Display};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[repr(u8)]
-enum Cell {
-    Empty,
-    Amber,
-    Bronze,
-    Copper,
-    Desert,
-}
-
-impl Cell {
-    fn energy(&self) -> usize {
-        match self {
-            Cell::Amber => 1,
-            Cell::Bronze => 10,
-            Cell::Copper => 100,
-            Cell::Desert => 1000,
-            Cell::Empty => unreachable!(),
-        }
+fn energy(amphipod: u8) -> usize {
+    match amphipod {
+        1 => 1,
+        2 => 10,
+        3 => 100,
+        4 => 1000,
+        _ => unreachable!(),
     }
 }
 
-impl Display for Cell {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                Cell::Empty => '.',
-                Cell::Amber => 'A',
-                Cell::Bronze => 'B',
-                Cell::Copper => 'C',
-                Cell::Desert => 'D',
-            }
-        )
+fn fmt(amphipod: u8) -> char {
+    match amphipod {
+        0 => '.',
+        1 => 'A',
+        2 => 'B',
+        3 => 'C',
+        4 => 'D',
+        _ => unreachable!(),
     }
 }
 
@@ -48,42 +31,31 @@ enum Position {
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 struct Grid<const D: usize> {
-    hallway: [Cell; 12],
-    rooms: [[Cell; D]; 4],
+    hallway: [u8; 12],
+    rooms: [[u8; D]; 4],
 }
 
 impl<const D: usize> Grid<D> {
-    const fn amphipod_room(amphipod: &Cell) -> usize {
-        match amphipod {
-            Cell::Amber => 0,
-            Cell::Bronze => 1,
-            Cell::Copper => 2,
-            Cell::Desert => 3,
-            Cell::Empty => unreachable!(),
-        }
+    const fn amphipod_room(amphipod: u8) -> usize {
+        amphipod as usize - 1
     }
 
-    const fn room_amphipod(idx: usize) -> Cell {
-        match idx {
-            0 => Cell::Amber,
-            1 => Cell::Bronze,
-            2 => Cell::Copper,
-            3 => Cell::Desert,
-            _ => unreachable!(),
-        }
+    const fn room_amphipod(room: usize) -> u8 {
+        room as u8 + 1
+    }
+
+    const fn room_exit(idx: usize) -> usize {
+        2 * (idx + 1)
     }
 
     fn room_depth(&self, idx: usize) -> usize {
-        self.rooms[idx]
-            .iter()
-            .position(|c| *c != Cell::Empty)
-            .unwrap_or(D)
+        self.rooms[idx].iter().position(|c| *c != 0).unwrap_or(D)
     }
 
     fn is_room_ready(&self, idx: usize) -> bool {
         for i in (0..D).rev() {
             let c = self.rooms[idx][i];
-            if c == Cell::Empty {
+            if c == 0 {
                 break;
             }
             if c != Self::room_amphipod(idx) {
@@ -103,12 +75,8 @@ impl<const D: usize> Grid<D> {
         (0..self.rooms.len()).all(|i| self.is_room_done(i))
     }
 
-    fn room_exit(idx: usize) -> usize {
-        2 * (idx + 1)
-    }
-
     fn is_hallway_clear(&self, a: usize, b: usize) -> bool {
-        (a..=b).all(|i| self.hallway[i] == Cell::Empty)
+        (a..=b).all(|i| self.hallway[i] == 0)
     }
 
     fn hallway_distance(&self, a: usize, b: usize) -> Option<usize> {
@@ -155,15 +123,15 @@ impl<const D: usize> Grid<D> {
         // hallway to room
         for i in [0, 1, 3, 5, 7, 9, 10] {
             let c = self.hallway[i];
-            if c == Cell::Empty {
+            if c == 0 {
                 continue;
             }
             let from = Position::Hallway(i);
-            let room = Self::amphipod_room(&c);
+            let room = Self::amphipod_room(c);
             if self.is_room_ready(room) {
                 let to = Position::Room(room);
                 if let Some(dist) = self.distance(from, to) {
-                    result.push((from, to, dist * c.energy()));
+                    result.push((from, to, dist * energy(c)));
                     return result;
                 }
             }
@@ -182,30 +150,30 @@ impl<const D: usize> Grid<D> {
             .collect::<ArrayVec<_, 4>>();
 
         // room to room
-        for (i, c) in &unfinished {
-            let from = Position::Room(*i);
+        for &(i, c) in &unfinished {
+            let from = Position::Room(i);
 
             let j = Self::amphipod_room(c);
             if self.is_room_ready(j) {
                 let to = Position::Room(j);
                 if let Some(dist) = self.distance(from, to) {
-                    result.push((from, to, dist * c.energy()));
+                    result.push((from, to, dist * energy(c)));
                     return result;
                 }
             }
         }
 
         // room to hallway
-        for &(i, c) in &unfinished {
+        for (i, c) in unfinished {
             let from = Position::Room(i);
             let exit = Self::room_exit(i);
             let depth = self.room_depth(i);
 
             let mut right = exit - 1;
-            while self.hallway[right] == Cell::Empty {
+            while self.hallway[right] == 0 {
                 let to = Position::Hallway(right);
                 let dist = depth + 1 + exit - right;
-                result.push((from, to, dist * c.energy()));
+                result.push((from, to, dist * energy(c)));
                 if right == 0 {
                     break;
                 } else if right == 1 {
@@ -216,10 +184,10 @@ impl<const D: usize> Grid<D> {
             }
 
             let mut right = exit + 1;
-            while self.hallway[right] == Cell::Empty {
+            while self.hallway[right] == 0 {
                 let to = Position::Hallway(right);
                 let dist = depth + 1 + right - exit;
-                result.push((from, to, dist * c.energy()));
+                result.push((from, to, dist * energy(c)));
                 if right == 10 {
                     break;
                 } else if right == 9 {
@@ -238,19 +206,19 @@ impl<const D: usize> Grid<D> {
         let c = match from {
             Position::Hallway(i) => {
                 let c = g.hallway[i];
-                g.hallway[i] = Cell::Empty;
+                g.hallway[i] = 0;
                 c
             }
             Position::Room(i) => {
                 let d = g.room_depth(i);
                 let c = g.rooms[i][d];
-                g.rooms[i][d] = Cell::Empty;
+                g.rooms[i][d] = 0;
                 c
             }
         };
         match to {
             Position::Hallway(i) => {
-                debug_assert_eq!(g.hallway[i as usize], Cell::Empty);
+                debug_assert_eq!(g.hallway[i as usize], 0);
                 g.hallway[i] = c;
             }
             Position::Room(i) => {
@@ -269,15 +237,15 @@ impl<const D: usize> Display for Grid<D> {
             "{}",
             self.hallway[..11]
                 .iter()
-                .map(|c| c.to_string())
+                .map(|c| fmt(*c))
                 .collect::<String>()
         )?;
         for i in 0..D {
             let r = self
                 .rooms
                 .iter()
-                .map(|r| r[i].to_string())
-                .collect::<Vec<_>>();
+                .map(|r| fmt(r[i]))
+                .collect::<ArrayVec<_, 4>>();
             writeln!(f)?;
             write!(f, " |{}|{}|{}|{}| ", r[0], r[1], r[2], r[3])?;
         }
@@ -291,30 +259,30 @@ fn parse<const D: usize>(data: &str) -> Grid<D> {
         .map(|line| line.chars().collect::<Vec<_>>())
         .collect::<Vec<_>>();
     let mut grid = Grid {
-        hallway: [Cell::Empty; 12],
-        rooms: [[Cell::Empty; D]; 4],
+        hallway: [0; 12],
+        rooms: [[0; D]; 4],
     };
     if D == 4 {
-        grid.rooms[0][1] = Cell::Desert;
-        grid.rooms[0][2] = Cell::Desert;
+        grid.rooms[0][1] = 4;
+        grid.rooms[0][2] = 4;
 
-        grid.rooms[1][1] = Cell::Copper;
-        grid.rooms[1][2] = Cell::Bronze;
+        grid.rooms[1][1] = 3;
+        grid.rooms[1][2] = 2;
 
-        grid.rooms[2][1] = Cell::Bronze;
-        grid.rooms[2][2] = Cell::Amber;
+        grid.rooms[2][1] = 2;
+        grid.rooms[2][2] = 1;
 
-        grid.rooms[3][1] = Cell::Amber;
-        grid.rooms[3][2] = Cell::Copper;
+        grid.rooms[3][1] = 1;
+        grid.rooms[3][2] = 3;
     }
     for i in 0..4 {
         let x = 1 + 2 * (i + 1);
         for (j, y) in [(0, 2), (D - 1, 3)] {
             grid.rooms[i][j] = match cells[y][x] {
-                'A' => Cell::Amber,
-                'B' => Cell::Bronze,
-                'C' => Cell::Copper,
-                'D' => Cell::Desert,
+                'A' => 1,
+                'B' => 2,
+                'C' => 3,
+                'D' => 4,
                 x => panic!("invalid amphipod {}", x),
             };
         }
