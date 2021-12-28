@@ -81,10 +81,16 @@ impl<const D: usize> Grid<D> {
     }
 
     fn is_room_ready(&self, idx: usize) -> bool {
-        let amp = Self::room_amphipod(idx);
-        self.rooms[idx]
-            .iter()
-            .all(|c| *c == Cell::Empty || *c == amp)
+        for i in (0..D).rev() {
+            let c = self.rooms[idx][i];
+            if c == Cell::Empty {
+                break;
+            }
+            if c != Self::room_amphipod(idx) {
+                return false;
+            }
+        }
+        true
     }
 
     fn is_room_done(&self, idx: usize) -> bool {
@@ -147,12 +153,13 @@ impl<const D: usize> Grid<D> {
         let mut result = ArrayVec::new();
 
         // hallway to room
-        for (i, c) in self.hallway[..11].iter().enumerate() {
-            if c == &Cell::Empty {
+        for i in [0, 1, 3, 5, 7, 9, 10] {
+            let c = self.hallway[i];
+            if c == Cell::Empty {
                 continue;
             }
             let from = Position::Hallway(i);
-            let room = Self::amphipod_room(c);
+            let room = Self::amphipod_room(&c);
             if self.is_room_ready(room) {
                 let to = Position::Room(room);
                 if let Some(dist) = self.distance(from, to) {
@@ -189,15 +196,36 @@ impl<const D: usize> Grid<D> {
         }
 
         // room to hallway
-        for (i, c) in &unfinished {
-            let from = Position::Room(*i);
-            for i in [0, 1, 3, 5, 7, 9, 10] {
-                if self.hallway[i] != Cell::Empty {
-                    continue;
+        for &(i, c) in &unfinished {
+            let from = Position::Room(i);
+            let exit = Self::room_exit(i);
+            let depth = self.room_depth(i);
+
+            let mut right = exit - 1;
+            while self.hallway[right] == Cell::Empty {
+                let to = Position::Hallway(right);
+                let dist = depth + 1 + exit - right;
+                result.push((from, to, dist * c.energy()));
+                if right == 0 {
+                    break;
+                } else if right == 1 {
+                    right = 0;
+                } else {
+                    right -= 2;
                 }
-                let to = Position::Hallway(i);
-                if let Some(dist) = self.distance(from, to) {
-                    result.push((from, to, dist * c.energy()));
+            }
+
+            let mut right = exit + 1;
+            while self.hallway[right] == Cell::Empty {
+                let to = Position::Hallway(right);
+                let dist = depth + 1 + right - exit;
+                result.push((from, to, dist * c.energy()));
+                if right == 10 {
+                    break;
+                } else if right == 9 {
+                    right = 10;
+                } else {
+                    right += 2;
                 }
             }
         }
