@@ -3,6 +3,7 @@ use arrayvec::ArrayVec;
 use std::{cmp::Reverse, collections::BinaryHeap, fmt::Display};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(u8)]
 enum Cell {
     Empty,
     Amber,
@@ -47,7 +48,7 @@ enum Position {
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 struct Grid<const D: usize> {
-    hallway: [Cell; 11],
+    hallway: [Cell; 12],
     rooms: [[Cell; D]; 4],
 }
 
@@ -146,7 +147,7 @@ impl<const D: usize> Grid<D> {
         let mut result = ArrayVec::new();
 
         // hallway to room
-        for (i, c) in self.hallway.iter().enumerate() {
+        for (i, c) in self.hallway[..11].iter().enumerate() {
             if c == &Cell::Empty {
                 continue;
             }
@@ -238,7 +239,7 @@ impl<const D: usize> Display for Grid<D> {
         write!(
             f,
             "{}",
-            self.hallway
+            self.hallway[..11]
                 .iter()
                 .map(|c| c.to_string())
                 .collect::<String>()
@@ -262,7 +263,7 @@ fn parse<const D: usize>(data: &str) -> Grid<D> {
         .map(|line| line.chars().collect::<Vec<_>>())
         .collect::<Vec<_>>();
     let mut grid = Grid {
-        hallway: [Cell::Empty; 11],
+        hallway: [Cell::Empty; 12],
         rooms: [[Cell::Empty; D]; 4],
     };
     if D == 4 {
@@ -323,8 +324,8 @@ fn solve<const D: usize, const E: usize>(g: Grid<D>) -> usize {
 
 pub fn main() {
     let data = std::fs::read_to_string("data/2021/day23").unwrap();
-    println!("day23 part1: {}", solve::<2, 4>(parse::<2>(&data)));
-    println!("day23 part2: {}", solve::<4, 6>(parse::<4>(&data)));
+    println!("day23 part1: {}", solve::<2, 6>(parse::<2>(&data)));
+    println!("day23 part2: {}", solve::<4, 8>(parse::<4>(&data)));
 }
 
 #[cfg(test)]
@@ -338,7 +339,7 @@ mod tests {
 ###B#C#B#D###
   #A#D#C#A#  
   #########  ";
-        assert_eq!(12521, solve::<2, 4>(parse::<2>(&data)));
-        assert_eq!(44169, solve::<4, 6>(parse::<4>(&data)));
+        assert_eq!(12521, solve::<2, 6>(parse::<2>(&data)));
+        assert_eq!(44169, solve::<4, 8>(parse::<4>(&data)));
     }
 }
