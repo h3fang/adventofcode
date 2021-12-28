@@ -48,13 +48,13 @@ impl Map {
                 if map.contains_key(&next) {
                     continue;
                 }
-                prog.inputs.push(cmd);
+                prog.inputs.push_back(cmd);
                 prog.run();
-                let t = Tile::from(prog.output);
+                let t = Tile::from(prog.outputs.pop_front().unwrap());
                 map.insert(next, t);
                 if t != Tile::Wall {
                     dfs(prog, map, next);
-                    prog.inputs.push(match cmd {
+                    prog.inputs.push_back(match cmd {
                         1 => 2,
                         2 => 1,
                         3 => 4,
@@ -62,6 +62,7 @@ impl Map {
                         _ => panic!("impossible"),
                     });
                     prog.run();
+                    prog.outputs.pop_front();
                 }
             }
         }

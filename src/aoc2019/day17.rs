@@ -69,9 +69,12 @@ impl std::ops::Add for Position {
 
 fn get_image(p: &mut Intcode) -> String {
     let mut img = String::new();
-    while !p.is_halted() {
+    loop {
         p.run();
-        img.push(p.output as u8 as char);
+        if p.is_halted() {
+            break;
+        }
+        img.push(p.outputs.pop_front().unwrap() as u8 as char);
     }
     img
 }
@@ -261,11 +264,10 @@ fn part2(codes: &[i64], img: Vec<Vec<u8>>) -> i64 {
 
     for s in [fns, p1, p2, p3, "n".into()] {
         for &b in s.as_bytes() {
-            p.inputs.push(b as i64);
+            p.inputs.push_back(b as i64);
         }
-        p.inputs.push(10);
+        p.inputs.push_back(10);
     }
-    p.inputs.reverse();
     // println!("{:?}", p.inputs);
     // let mut row = String::new();
     while !p.is_halted() {
@@ -279,7 +281,7 @@ fn part2(codes: &[i64], img: Vec<Vec<u8>>) -> i64 {
         p.run();
     }
 
-    p.output
+    p.outputs.pop_back().unwrap()
 }
 
 pub fn main() {

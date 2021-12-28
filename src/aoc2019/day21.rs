@@ -2,19 +2,15 @@ use crate::day5::Intcode;
 
 fn execute(codes: &[i64], script: &str) -> usize {
     let mut p = Intcode::new(codes);
-    p.inputs = script
-        .as_bytes()
-        .iter()
-        .map(|b| *b as i64)
-        .rev()
-        .collect::<Vec<_>>();
+    p.inputs.extend(script.as_bytes().iter().map(|b| *b as i64));
     let mut rendered = vec![];
     while !p.is_halted() {
         p.run();
-        if p.output <= u8::MAX as i64 {
-            rendered.push(p.output as u8);
+        let o = p.outputs.pop_front().unwrap();
+        if o <= u8::MAX as i64 {
+            rendered.push(o as u8);
         } else {
-            return p.output as usize;
+            return o as usize;
         }
     }
     println!("{}", unsafe { String::from_utf8_unchecked(rendered) });

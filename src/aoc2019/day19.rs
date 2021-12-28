@@ -3,9 +3,9 @@ use crate::day5::Intcode;
 fn solve(codes: &[i64]) -> (i64, i64) {
     fn is_pulled(codes: &[i64], x: i64, y: i64) -> bool {
         let mut prog = Intcode::new(codes);
-        prog.inputs = vec![y, x];
+        prog.inputs.extend([x, y]);
         prog.run();
-        prog.output == 1
+        prog.outputs.pop_front().unwrap() == 1
     }
     fn upper_bound(codes: &[i64], y: i64, mut left: i64, mut right: i64) -> i64 {
         while left < right {

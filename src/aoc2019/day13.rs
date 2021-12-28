@@ -49,31 +49,32 @@ impl Game {
     fn step(&mut self) {
         loop {
             self.prog.run();
-            let x = self.prog.output;
-            self.prog.run();
-            let y = self.prog.output;
-            self.prog.run();
-            let z = self.prog.output;
 
-            if x == -1 && y == 0 {
-                self.score = z;
-                break;
-            } else {
-                match Tile::from(z) {
-                    Tile::Paddle => self.paddle = (x, y),
-                    Tile::Ball => self.ball = (x, y),
-                    _ => {}
+            if self.prog.outputs.len() == 3 {
+                let x = self.prog.outputs.pop_front().unwrap();
+                let y = self.prog.outputs.pop_front().unwrap();
+                let z = self.prog.outputs.pop_front().unwrap();
+                if x == -1 && y == 0 {
+                    self.score = z;
+                    break;
+                } else {
+                    match Tile::from(z) {
+                        Tile::Paddle => self.paddle = (x, y),
+                        Tile::Ball => self.ball = (x, y),
+                        _ => {}
+                    }
+                    self.grid[x as usize + y as usize * self.width] = Tile::from(z);
+                    self.prog.inputs.clear();
+                    self.prog
+                        .inputs
+                        .push_back((self.ball.0 - self.paddle.0).signum());
                 }
-                self.grid[x as usize + y as usize * self.width] = Tile::from(z);
             }
-            self.prog
-                .inputs
-                .push((self.ball.0 - self.paddle.0).signum());
         }
     }
 
     fn is_gameover(&self) -> bool {
-        self.grid.iter().filter(|t| **t == Tile::Block).count() == 0
+        self.prog.is_halted() || self.grid.iter().filter(|t| **t == Tile::Block).count() == 0
     }
 }
 
@@ -92,12 +93,12 @@ fn part1(codes: &[i64]) -> HashMap<(i64, i64), Tile> {
     let mut prog = Intcode::new(codes);
     while !prog.is_halted() {
         prog.run();
-        let x = prog.output;
-        prog.run();
-        let y = prog.output;
-        prog.run();
-        let tile = prog.output;
-        map.insert((x, y), Tile::from(tile));
+        if prog.outputs.len() >= 3 {
+            let x = prog.outputs.pop_front().unwrap();
+            let y = prog.outputs.pop_front().unwrap();
+            let tile = prog.outputs.pop_front().unwrap();
+            map.insert((x, y), Tile::from(tile));
+        }
     }
     map
 }

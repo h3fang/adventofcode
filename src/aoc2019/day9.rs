@@ -2,16 +2,16 @@ use crate::day5::Intcode;
 
 fn part1(codes: &[i64]) -> i64 {
     let mut prog = Intcode::new(codes);
-    prog.inputs = vec![1];
+    prog.inputs.push_back(1);
     prog.run();
-    prog.output
+    prog.outputs.pop_front().unwrap()
 }
 
 fn part2(codes: &[i64]) -> i64 {
     let mut prog = Intcode::new(codes);
-    prog.inputs = vec![2];
+    prog.inputs.push_back(2);
     prog.run();
-    prog.output
+    prog.outputs.pop_front().unwrap()
 }
 
 pub fn main() {
@@ -40,16 +40,8 @@ mod tests {
             .collect::<Vec<_>>();
 
         let mut prog = Intcode::new(&codes);
-        let mut outputs = vec![];
-        loop {
-            prog.run();
-            if !prog.is_halted() {
-                outputs.push(prog.output);
-            } else {
-                break;
-            }
-        }
-        assert_eq!(codes, outputs);
+        prog.run_till_halt();
+        assert_eq!(codes, prog.outputs.make_contiguous().to_vec());
     }
 
     #[test]
@@ -61,7 +53,7 @@ mod tests {
 
         let mut prog = Intcode::new(&codes);
         prog.run();
-        let n = prog.output.to_string().len();
+        let n = prog.outputs.pop_front().unwrap().to_string().len();
         assert_eq!(16, n);
     }
 
@@ -74,6 +66,6 @@ mod tests {
 
         let mut prog = Intcode::new(&codes);
         prog.run();
-        assert_eq!(1125899906842624, prog.output);
+        assert_eq!(1125899906842624, prog.outputs.pop_front().unwrap());
     }
 }

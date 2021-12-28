@@ -8,9 +8,10 @@ fn part1(codes: &[i64]) -> i64 {
             for i in 0..phases.len() {
                 phases.swap(i, 0);
                 let mut code = Intcode::new(codes);
-                code.inputs = vec![signal, phases[0]];
+                code.inputs.extend([phases[0], signal]);
                 code.run();
-                amp(codes, code.output, &mut phases[1..], result);
+                let output = code.outputs.pop_front().unwrap();
+                amp(codes, output, &mut phases[1..], result);
                 phases.swap(i, 0);
             }
         }
@@ -24,26 +25,31 @@ fn part1(codes: &[i64]) -> i64 {
 
 fn run(codes: &[i64], phases: &[i64]) -> i64 {
     let mut codes = (0..5).map(|_| Intcode::new(codes)).collect::<Vec<_>>();
+    let mut outputs = [0; 5];
     for i in 0..5 {
         if i == 0 {
-            codes[i].inputs = vec![0, phases[0]];
+            codes[i].inputs.extend([phases[0], 0]);
         } else {
-            codes[i].inputs = vec![codes[i - 1].output, phases[i]];
+            codes[i].inputs.extend([phases[i], outputs[i - 1]]);
         }
         codes[i].run();
+        outputs[i] = codes[i].outputs.pop_front().unwrap();
     }
 
     while !codes[4].is_halted() {
         for i in 0..5 {
             if i == 0 {
-                codes[i].inputs = vec![codes[4].output];
+                codes[i].inputs.push_back(outputs[4]);
             } else {
-                codes[i].inputs = vec![codes[i - 1].output];
+                codes[i].inputs.push_back(outputs[i - 1]);
             }
             codes[i].run();
+            if let Some(o) = codes[i].outputs.pop_front() {
+                outputs[i] = o;
+            }
         }
     }
-    codes[4].output
+    outputs[4]
 }
 
 fn permutation(phases: &mut [i64], i: usize, result: &mut i64, codes: &[i64]) {

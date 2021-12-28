@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 fn parameter_modes(mut n: i64) -> [u8; 3] {
     let mut r = [0; 3];
     for m in &mut r {
@@ -11,8 +13,9 @@ pub struct Intcode {
     codes: Vec<i64>,
     ip: usize,
     relative_base: i64,
-    pub inputs: Vec<i64>,
-    pub output: i64,
+    pub inputs: VecDeque<i64>,
+    pub outputs: VecDeque<i64>,
+    pub wait_for_input: bool,
 }
 
 impl Intcode {
@@ -23,8 +26,9 @@ impl Intcode {
             codes: codes.to_vec(),
             ip: 0,
             relative_base: 0,
-            inputs: Vec::new(),
-            output: 0,
+            inputs: Default::default(),
+            outputs: Default::default(),
+            wait_for_input: false,
         }
     }
 
@@ -66,11 +70,17 @@ impl Intcode {
                 }
                 3 => {
                     let c = self.position(&modes, 0);
-                    self.codes[c] = self.inputs.pop().expect("not enough input");
-                    self.ip += 2;
+                    if let Some(num) = self.inputs.pop_front() {
+                        self.codes[c] = num;
+                        self.ip += 2;
+                        self.wait_for_input = false;
+                    } else {
+                        self.wait_for_input = true;
+                        break;
+                    }
                 }
                 4 => {
-                    self.output = self.param(&modes, 0);
+                    self.outputs.push_back(self.param(&modes, 0));
                     self.ip += 2;
                     break;
                 }
@@ -143,14 +153,14 @@ pub fn main() {
         .collect::<Vec<_>>();
 
     let mut code = Intcode::new(&codes);
-    code.inputs = vec![1];
+    code.inputs.push_back(1);
     code.run_till_halt();
-    println!("day5 part1: {}", code.output);
+    println!("day5 part1: {}", code.outputs.pop_front().unwrap());
 
     let mut code = Intcode::new(&codes);
-    code.inputs = vec![5];
+    code.inputs.push_back(5);
     code.run();
-    println!("day5 part2: {}", code.output);
+    println!("day5 part2: {}", code.outputs.pop_front().unwrap());
 }
 
 #[cfg(test)]
@@ -164,18 +174,18 @@ mod tests {
             .map(|t| t.parse::<i64>().unwrap())
             .collect::<Vec<_>>();
         let mut code = Intcode::new(&codes);
-        code.inputs = vec![7];
+        code.inputs.push_back(7);
         code.run();
-        assert_eq!(999, code.output);
+        assert_eq!(999, code.outputs.pop_front().unwrap());
 
         let mut code = Intcode::new(&codes);
-        code.inputs = vec![8];
+        code.inputs.push_back(8);
         code.run();
-        assert_eq!(1000, code.output);
+        assert_eq!(1000, code.outputs.pop_front().unwrap());
 
         let mut code = Intcode::new(&codes);
-        code.inputs = vec![10];
+        code.inputs.push_back(10);
         code.run();
-        assert_eq!(1001, code.output);
+        assert_eq!(1001, code.outputs.pop_front().unwrap());
     }
 }
