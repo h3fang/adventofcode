@@ -1,7 +1,10 @@
 use crate::day5::Intcode;
 use ahash::AHashMap as HashMap;
 use ahash::AHashSet as HashSet;
+use parking_lot::Mutex;
+use rayon::prelude::*;
 use std::cmp::Ordering;
+use std::sync::Arc;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Direction {
@@ -190,87 +193,59 @@ fn check_output(output: &str) -> Ordering {
     }
 }
 
-fn guess_items(
-    prog: &mut Intcode,
-    collected: &mut HashSet<String>,
-    direction: Direction,
-) -> String {
+fn guess_items(prog: &mut Intcode, collected: &HashSet<String>, direction: Direction) -> String {
     fn search(
-        cache: &mut HashMap<u8, Ordering>,
-        prog: &mut Intcode,
+        cache: Arc<Mutex<HashMap<u8, Ordering>>>,
+        prog: &Intcode,
         items: &[String],
         taken: u8,
-        curr: u8,
         direction: &str,
     ) -> Option<String> {
-        let order = if cache
-            .iter()
-            .any(|(&k, &v)| k & taken == taken && v == Ordering::Less)
         {
-            Ordering::Less
-        } else if cache
-            .iter()
-            .any(|(&k, &v)| k & taken == k && v == Ordering::Greater)
-        {
-            Ordering::Greater
-        } else {
-            let output = command_output(prog, direction);
-            let order = check_output(&output);
-            if order == Ordering::Equal {
-                return Some(output);
+            let cache = cache.lock();
+            if cache
+                .iter()
+                .any(|(&k, &v)| k & taken == taken && v == Ordering::Less)
+                || cache
+                    .iter()
+                    .any(|(&k, &v)| k & taken == k && v == Ordering::Greater)
+            {
+                return None;
             }
-            cache.insert(taken, order);
-            order
-        };
-
-        if curr.count_ones() == items.len() as u32 {
-            return None;
         }
-
-        match order {
-            Ordering::Less => {
-                for i in 0..items.len() {
-                    let bit = 1u8 << i;
-                    if curr & bit == 0 && taken & bit == 0 {
-                        run_command(prog, &format!("take {}", items[i]));
-                        let taken = taken | bit;
-                        if let Some(s) = search(cache, prog, items, taken, curr | bit, direction) {
-                            return Some(s);
-                        }
-                        run_command(prog, &format!("drop {}", items[i]));
-                    }
-                }
-                None
+        let mut p = prog.clone();
+        let mut t = taken;
+        for item in items {
+            if t & 1 == 0 {
+                run_command(&mut p, &format!("drop {}", item));
             }
-            Ordering::Equal => unreachable!(),
-            Ordering::Greater => {
-                for i in 0..items.len() {
-                    let bit = 1u8 << i;
-                    if curr & bit == 0 && taken & bit > 0 {
-                        run_command(prog, &format!("drop {}", items[i]));
-                        let taken = taken & !bit;
-                        if let Some(s) = search(cache, prog, items, taken, curr | bit, direction) {
-                            return Some(s);
-                        }
-                        run_command(prog, &format!("take {}", items[i]));
-                    }
-                }
-                None
-            }
+            t >>= 1;
+        }
+        let output = command_output(&mut p, direction);
+        let order = check_output(&output);
+        {
+            cache.lock().insert(taken, order);
+        }
+        if order == Ordering::Equal {
+            Some(output)
+        } else {
+            None
         }
     }
 
     let n = collected.len();
     assert!(n <= 8);
 
-    let mut cache = HashMap::new();
+    let cache = Arc::new(Mutex::new(HashMap::new()));
     let items = collected.iter().cloned().collect::<Vec<_>>();
-    let taken = ((1u16 << n) - (1u16 << (n / 2))) as u8;
-    for item in items.iter().take(n / 2) {
-        run_command(prog, &format!("drop {}", item));
-    }
 
-    let output = search(&mut cache, prog, &items, taken, 0, &direction.to_string()).unwrap();
+    let direction = direction.to_string();
+    let output = (0..(1u16 << n))
+        .into_par_iter()
+        .map(|taken| search(cache.clone(), prog, &items, taken as u8, &direction))
+        .find_first(|output| output.is_some())
+        .unwrap()
+        .unwrap();
 
     let pattern = "You should be able to get in by typing ";
     let i = output.find(pattern).unwrap() + pattern.len();
@@ -310,6 +285,6 @@ pub fn main() {
     let direction = go_to_checkpoint(output, &mut visited, &mut prog, None);
 
     // guess the correct items combination
-    let p1 = guess_items(&mut prog, &mut collected, direction.unwrap());
+    let p1 = guess_items(&mut prog, &collected, direction.unwrap());
     println!("day 25 part1: {}", p1);
 }
