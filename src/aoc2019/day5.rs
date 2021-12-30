@@ -9,6 +9,7 @@ fn parameter_modes(mut n: i64) -> [u8; 3] {
     r
 }
 
+#[derive(Clone)]
 pub struct Intcode {
     codes: Vec<i64>,
     ip: usize,
@@ -138,6 +139,15 @@ impl Intcode {
     pub fn run_till_halt(&mut self) {
         while !self.is_halted() {
             self.run();
+        }
+    }
+
+    pub fn run_till_input(&mut self) {
+        loop {
+            self.run();
+            if self.is_halted() || self.wait_for_input {
+                break;
+            }
         }
     }
 }
