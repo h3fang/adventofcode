@@ -9,11 +9,10 @@ impl Board {
     fn from(lines: &[&str]) -> Self {
         let nums = lines
             .iter()
-            .map(|r| {
+            .flat_map(|r| {
                 r.split_ascii_whitespace()
                     .map(|n| n.parse::<i64>().unwrap())
             })
-            .flatten()
             .collect::<Vec<_>>();
         assert_eq!(LENGTH * LENGTH, nums.len());
         Self { nums }

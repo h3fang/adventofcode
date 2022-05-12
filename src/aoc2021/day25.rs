@@ -67,7 +67,7 @@ fn parse(data: &str) -> Grid {
     let mut height = 0;
     let grid = data
         .lines()
-        .map(|line| {
+        .flat_map(|line| {
             height += 1;
             line.trim().as_bytes().iter().map(|b| match b {
                 b'.' => Cell::Empty,
@@ -76,7 +76,6 @@ fn parse(data: &str) -> Grid {
                 _ => panic!("invalid cell"),
             })
         })
-        .flatten()
         .collect::<Vec<_>>();
     Grid {
         width: grid.len() / height,

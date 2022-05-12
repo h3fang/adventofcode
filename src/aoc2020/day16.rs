@@ -51,8 +51,7 @@ fn part1(ranges: &Ranges, nearby_tickets: &[Vec<usize>]) -> (usize, Vec<Vec<usiz
     let numbers = ranges
         .values()
         .flatten()
-        .map(|r| [r.0, r.1])
-        .flatten()
+        .flat_map(|r| [r.0, r.1])
         .collect::<Vec<_>>();
     let max = numbers.iter().max().unwrap();
     let mut valid = vec![false; max + 1];
@@ -85,7 +84,7 @@ fn part2(ranges: &Ranges, valid_tickets: &[Vec<usize>]) -> usize {
     let ranges = ranges
         .iter()
         .map(|(k, v)| {
-            let max = v.iter().map(|e| [e.0, e.1]).flatten().max().unwrap();
+            let max = v.iter().flat_map(|e| [e.0, e.1]).max().unwrap();
             let mut valid = vec![false; max + 1];
             for r in v {
                 (r.0..=r.1).for_each(|n| {

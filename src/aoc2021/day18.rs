@@ -214,8 +214,7 @@ pub fn main() {
 
     let p2 = numbers
         .iter()
-        .map(|a| numbers.iter().map(|b| (a.clone() + b.clone()).magnitude()))
-        .flatten()
+        .flat_map(|a| numbers.iter().map(|b| (a.clone() + b.clone()).magnitude()))
         .max()
         .unwrap();
     println!("day18 part2: {}", p2);

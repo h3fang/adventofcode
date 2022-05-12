@@ -387,8 +387,7 @@ fn solve(mut scanners: Vec<Scanner>) -> (usize, i32) {
     }
     let p1 = done
         .iter()
-        .map(|s| s.beacons().iter())
-        .flatten()
+        .flat_map(|s| s.beacons().iter())
         .collect::<HashSet<_>>()
         .len();
     let positions = done.iter().map(|s| &s.position).collect::<Vec<_>>();

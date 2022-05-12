@@ -46,6 +46,7 @@ fn parse(content: &str) -> Vec<&str> {
     content.lines().collect()
 }
 
+#[allow(clippy::ptr_arg)]
 fn reduce_part1(exp: &mut Vec<Node>) -> usize {
     let mut it = exp.iter_mut();
     let mut left = it.next().unwrap().value();

@@ -102,8 +102,7 @@ impl NBody {
     {
         self.planets
             .iter()
-            .map(|p| [axis(&p.p), axis(&p.v)])
-            .flatten()
+            .flat_map(|p| [axis(&p.p), axis(&p.v)])
             .collect()
     }
 }
