@@ -1,10 +1,9 @@
 use crate::day5::Intcode;
 use ahash::AHashMap as HashMap;
 use ahash::AHashSet as HashSet;
-use parking_lot::Mutex;
 use rayon::prelude::*;
 use std::cmp::Ordering;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Direction {
@@ -202,7 +201,7 @@ fn guess_items(prog: &mut Intcode, collected: &HashSet<String>, direction: Direc
         direction: &str,
     ) -> Option<String> {
         {
-            let cache = cache.lock();
+            let cache = cache.lock().unwrap();
             if cache
                 .iter()
                 .any(|(&k, &v)| k & taken == taken && v == Ordering::Less)
@@ -224,7 +223,7 @@ fn guess_items(prog: &mut Intcode, collected: &HashSet<String>, direction: Direc
         let output = command_output(&mut p, direction);
         let order = check_output(&output);
         {
-            cache.lock().insert(taken, order);
+            cache.lock().unwrap().insert(taken, order);
         }
         if order == Ordering::Equal {
             Some(output)
