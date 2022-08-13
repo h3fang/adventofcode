@@ -60,8 +60,8 @@ impl Passport {
                         let mut caps = RE.captures_iter(value);
                         if let Some(cap) = caps.next() {
                             let n = cap[1].parse::<u32>().unwrap();
-                            (&cap[2] == "cm" && n >= 150 && n <= 193)
-                                || (&cap[2] == "in" && n >= 59 && n <= 76)
+                            (&cap[2] == "cm" && (150..=193).contains(&n))
+                                || (&cap[2] == "in" && (59..=76).contains(&n))
                         } else {
                             false
                         }
