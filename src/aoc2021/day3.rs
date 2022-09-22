@@ -20,10 +20,7 @@ fn part2(nums: &[&[u8]]) -> i64 {
             let n = candidates.len();
             let ones = candidates.iter().filter(|c| c[i] == b'1').count();
             let common_bit = if ones >= n - ones { a } else { b };
-            candidates = candidates
-                .into_iter()
-                .filter(|c| c[i] == common_bit)
-                .collect();
+            candidates.retain(|c| c[i] == common_bit);
             i += 1;
         }
         let mut result = 0;
