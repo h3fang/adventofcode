@@ -45,7 +45,7 @@ impl Image {
         for yn in [y - 1, y, y + 1] {
             for xn in [x - 1, x, x + 1] {
                 let pixel = img[yn * width + xn];
-                result = (result << 1) + if pixel { 1 } else { 0 };
+                result = (result << 1) + usize::from(pixel);
             }
         }
         result

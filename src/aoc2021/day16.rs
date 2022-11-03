@@ -82,7 +82,7 @@ impl BITSTransmission {
         } else if n + self.idx <= self.data.len() {
             let mut result = 0;
             for &bit in &self.data[self.idx..self.idx + n] {
-                result = (result << 1) + if bit { 1 } else { 0 };
+                result = (result << 1) + u16::from(bit);
             }
             self.idx += n;
             Ok(result)

@@ -35,7 +35,7 @@ fn part1(g: &Graph, r: usize) -> usize {
                 amount / n + 1
             };
             for (input, k) in inputs {
-                result += dfs(g, *input, count * k, remaining);
+                result += dfs(g, input, count * k, remaining);
             }
             result
         } else {
