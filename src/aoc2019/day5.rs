@@ -165,12 +165,12 @@ pub fn main() {
     let mut code = Intcode::new(&codes);
     code.inputs.push_back(1);
     code.run_till_halt();
-    println!("day5 part1: {}", code.outputs.pop_front().unwrap());
+    println!("day5 part1: {}", code.outputs.pop_back().unwrap());
 
     let mut code = Intcode::new(&codes);
     code.inputs.push_back(5);
     code.run();
-    println!("day5 part2: {}", code.outputs.pop_front().unwrap());
+    println!("day5 part2: {}", code.outputs.pop_back().unwrap());
 }
 
 #[cfg(test)]
