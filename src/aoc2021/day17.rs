@@ -1,9 +1,13 @@
-use regex::Regex;
-
 fn parse(data: &str) -> Vec<i64> {
-    let re = Regex::new(r"-?\d+").unwrap();
-    re.find_iter(data)
-        .map(|c| c.as_str().parse::<i64>().unwrap())
+    let (_, coords) = data.trim().split_once(": ").unwrap();
+    let (x, y) = coords.split_once(", ").unwrap();
+    [x, y]
+        .iter()
+        .flat_map(|s| {
+            let (_, range) = s.split_once('=').unwrap();
+            let (low, high) = range.split_once("..").unwrap();
+            [low.parse().unwrap(), high.parse().unwrap()]
+        })
         .collect()
 }
 

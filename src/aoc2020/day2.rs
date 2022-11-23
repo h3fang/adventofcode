@@ -1,19 +1,26 @@
-use lazy_static::lazy_static;
-use regex::Regex;
+use nom::{
+    bytes::complete::tag,
+    character::complete::{alpha1, anychar, char, digit1},
+    combinator::{eof, map_res, recognize},
+    sequence::tuple,
+    IResult,
+};
 
-fn parse(s: &str) -> Option<(usize, usize, char, String)> {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(r"^(\d+)-(\d+) (\w): (\w+)$").unwrap();
-    };
-    if let Some(cap) = RE.captures_iter(s).next() {
-        return Some((
-            cap[1].parse().unwrap(),
-            cap[2].parse().unwrap(),
-            cap[3].chars().next().expect("should not happen"),
-            cap[4].to_string(),
-        ));
+fn parse_nom(s: &str) -> IResult<&str, (usize, usize, char, String)> {
+    fn parse_usize(input: &str) -> IResult<&str, usize> {
+        map_res(recognize(digit1), str::parse)(input)
     }
-    None
+    let (_, (min, _, max, _, c, _, pwd, _)) = tuple((
+        parse_usize,
+        char('-'),
+        parse_usize,
+        char(' '),
+        anychar,
+        tag(": "),
+        alpha1,
+        eof,
+    ))(s)?;
+    Ok(("", (min, max, c, pwd.to_string())))
 }
 
 fn is_valid(min: &usize, max: &usize, c: &char, pwd: &str) -> bool {
@@ -31,7 +38,7 @@ pub fn main() {
     let passwords: Vec<_> = std::fs::read_to_string("data/2020/day2")
         .unwrap()
         .lines()
-        .filter_map(parse)
+        .filter_map(|line| parse_nom(line).map(|r| r.1).ok())
         .collect();
     let n_valid = passwords
         .iter()

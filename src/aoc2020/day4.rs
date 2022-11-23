@@ -1,8 +1,39 @@
 use ahash::AHashMap as HashMap;
-use lazy_static::lazy_static;
-use regex::Regex;
+use nom::{
+    branch::alt,
+    bytes::complete::tag,
+    character::complete::{digit1, hex_digit1},
+    combinator::{eof, map_res, recognize},
+    sequence::tuple,
+    IResult,
+};
 
 const KEYS: &[&str] = &["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
+
+fn parse_u32(input: &str) -> IResult<&str, u32> {
+    map_res(recognize(digit1), str::parse)(input)
+}
+
+fn parse_hcl(input: &str) -> IResult<&str, (&str, &str, &str)> {
+    tuple((tag("#"), hex_digit1, eof))(input)
+}
+
+fn parse_ecl(input: &str) -> IResult<&str, (&str, &str)> {
+    let colors = alt((
+        tag("amb"),
+        tag("blu"),
+        tag("brn"),
+        tag("gry"),
+        tag("grn"),
+        tag("hzl"),
+        tag("oth"),
+    ));
+    tuple((colors, eof))(input)
+}
+
+fn parse_pid(input: &str) -> IResult<&str, (&str, &str)> {
+    tuple((recognize(digit1), eof))(input)
+}
 
 struct Passport {
     fields: HashMap<String, String>,
@@ -54,36 +85,32 @@ impl Passport {
                         }
                     }
                     "hgt" => {
-                        lazy_static! {
-                            static ref RE: Regex = Regex::new(r"^(\d+)(in|cm)$").unwrap();
-                        }
-                        let mut caps = RE.captures_iter(value);
-                        if let Some(cap) = caps.next() {
-                            let n = cap[1].parse::<u32>().unwrap();
-                            (&cap[2] == "cm" && (150..=193).contains(&n))
-                                || (&cap[2] == "in" && (59..=76).contains(&n))
+                        if let Ok((_, (v, u, _))) =
+                            tuple((parse_u32, alt((tag("in"), tag("cm"))), eof))(value)
+                        {
+                            (u == "cm" && (150..=193).contains(&v))
+                                || (u == "in" && (59..=76).contains(&v))
                         } else {
                             false
                         }
                     }
                     "hcl" => {
-                        lazy_static! {
-                            static ref RE: Regex = Regex::new(r"^#[0-9a-f]{6}$").unwrap();
+                        if let Ok((_, (_, hex, _))) = parse_hcl(value) {
+                            hex.len() == 6
+                                && hex
+                                    .chars()
+                                    .all(|c| c.is_ascii_digit() || c.is_ascii_lowercase())
+                        } else {
+                            false
                         }
-                        RE.is_match(value)
                     }
-                    "ecl" => {
-                        lazy_static! {
-                            static ref RE: Regex =
-                                Regex::new(r"^amb|blu|brn|gry|grn|hzl|oth$").unwrap();
-                        }
-                        RE.is_match(value)
-                    }
+                    "ecl" => parse_ecl(value).is_ok(),
                     "pid" => {
-                        lazy_static! {
-                            static ref RE: Regex = Regex::new(r"^\d{9}$").unwrap();
+                        if let Ok((_, (pid, _))) = parse_pid(value) {
+                            pid.len() == 9
+                        } else {
+                            false
                         }
-                        RE.is_match(value)
                     }
                     _ => true,
                 }

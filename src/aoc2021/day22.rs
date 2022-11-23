@@ -1,5 +1,3 @@
-use regex::Regex;
-
 #[derive(Debug, Clone, PartialEq)]
 struct LineSegment {
     start: i32,
@@ -99,15 +97,18 @@ impl Reactor {
 }
 
 fn parse(data: &str) -> Vec<(bool, Cuboid)> {
-    let re = Regex::new(r"-?\d+").unwrap();
     data.lines()
         .map(|line| {
             let p = line.trim().split_once(' ').unwrap();
             let on = p.0 == "on";
-            let cuboid = re
-                .find_iter(p.1)
-                .map(|c| c.as_str().parse().unwrap())
-                .collect::<Vec<_>>();
+            let cuboid =
+                p.1.split(',')
+                    .flat_map(|s| {
+                        let (_, range) = s.split_once('=').unwrap();
+                        let (low, high) = range.split_once("..").unwrap();
+                        [low.parse().unwrap(), high.parse().unwrap()]
+                    })
+                    .collect::<Vec<_>>();
             (on, Cuboid::new(&cuboid))
         })
         .collect()

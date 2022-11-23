@@ -19,8 +19,6 @@ name = "2021"
 path = "src/aoc2021/main.rs"
 
 [dependencies]
-regex = "1"
-lazy_static = "1"
 arrayvec = "0.7"
 ahash = "0.8"
 rayon = "1"

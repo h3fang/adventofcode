@@ -1,18 +1,31 @@
 use ahash::AHashMap as HashMap;
-use regex::Regex;
+use nom::{
+    bytes::complete::tag,
+    character::complete::{alpha1, char as ch, digit1, space1},
+    combinator::{map_res, opt, recognize, rest},
+    sequence::tuple,
+    IResult,
+};
 
-fn split(re: &Regex, bags: &str) -> Vec<(usize, String)> {
-    if bags == "no other bags" {
+fn number(input: &str) -> IResult<&str, usize> {
+    map_res(recognize(digit1), str::parse)(input)
+}
+
+fn color(input: &str) -> IResult<&str, String> {
+    let (r, (a, b, c)) = tuple((alpha1, space1, alpha1))(input)?;
+    Ok((r, format!("{}{}{}", a, b, c)))
+}
+
+fn split(bags: &str) -> Vec<(usize, String)> {
+    if bags == "no other bags." {
         return Vec::new();
     }
 
     bags.split(", ")
         .map(|s| {
-            if let Some(cap) = re.captures(s) {
-                (cap[1].parse().unwrap(), cap[2].to_string())
-            } else {
-                panic!("invalid format: {}", s);
-            }
+            let (_, (num, _, c, _, _)) =
+                tuple((number, ch(' '), color, tag(" bag"), opt(ch('s'))))(s).unwrap();
+            (num, c)
         })
         .collect()
 }
@@ -68,17 +81,12 @@ fn count_contained_bags(
 }
 
 pub fn main() {
-    let r1 = Regex::new(r"^(\w+ \w+) bags contain (.+)\.$").unwrap();
-    let r2 = Regex::new(r"(\d+) (\w+ \w+) bags?").unwrap();
     let mut map = HashMap::new();
-    for line in std::fs::read_to_string("data/2020/day7").unwrap().lines() {
-        if let Some(cap) = r1.captures(line) {
-            let b1 = &cap[1];
-            let b2 = split(&r2, &cap[2]);
-            map.insert(b1.to_string(), b2);
-        } else {
-            panic!("invalid format: {}", line);
-        }
+    let data = std::fs::read_to_string("data/2020/day7").unwrap();
+    for line in data.lines().filter(|line| !line.is_empty()) {
+        let (_, (c, _, r)) = tuple((color, tag(" bags contain "), rest))(line).unwrap();
+        let others = split(r);
+        map.insert(c, others);
     }
 
     // part 1

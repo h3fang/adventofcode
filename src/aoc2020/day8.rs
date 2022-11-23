@@ -1,4 +1,11 @@
-use regex::Regex;
+use nom::{
+    branch::alt,
+    bytes::complete::tag,
+    character::complete::{char, digit1, one_of},
+    combinator::{eof, map_res, recognize},
+    sequence::tuple,
+    IResult,
+};
 
 #[derive(Clone)]
 enum Instruction {
@@ -7,19 +14,20 @@ enum Instruction {
     Nop(i32),
 }
 
-fn parse(line: &str, re: &Regex) -> Instruction {
-    if let Some(cap) = re.captures(line) {
-        let op = &cap[1];
-        let arg = cap[2].parse::<i32>().expect("invalid argument");
-        match op {
-            "jmp" => Instruction::Jmp(arg),
-            "acc" => Instruction::Acc(arg),
-            "nop" => Instruction::Nop(arg),
-            _ => panic!("invalid op code: {}", op),
-        }
-    } else {
-        panic!("invalid line: {}", line);
+fn parse(line: &str) -> IResult<&str, Instruction> {
+    let operator = alt((tag("jmp"), tag("acc"), tag("nop")));
+    fn number(input: &str) -> IResult<&str, i32> {
+        let num = tuple((one_of("+-"), digit1));
+        map_res(recognize(num), str::parse)(input)
     }
+    let (_, (op, _, num, _)) = tuple((operator, char(' '), number, eof))(line)?;
+    let ins = match op {
+        "jmp" => Instruction::Jmp(num),
+        "acc" => Instruction::Acc(num),
+        "nop" => Instruction::Nop(num),
+        _ => panic!("invalid op code: {}", op),
+    };
+    Ok(("", ins))
 }
 
 fn run(instructions: &[Instruction], mut pos: usize) -> (i32, usize) {
@@ -68,12 +76,10 @@ fn find_bug(instructions: &mut [Instruction]) -> i32 {
 }
 
 pub fn main() {
-    let r1 = Regex::new(r"^(\w{3}) ([+|-]\d+)$").unwrap();
-
     let mut instructions = std::fs::read_to_string("data/2020/day8")
         .unwrap()
         .lines()
-        .map(|line| parse(line, &r1))
+        .map(|line| parse(line).map(|r| r.1).unwrap())
         .collect::<Vec<_>>();
 
     // part 1

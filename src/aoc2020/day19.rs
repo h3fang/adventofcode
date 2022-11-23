@@ -1,6 +1,4 @@
 use ahash::AHashMap as HashMap;
-use lazy_static::lazy_static;
-use regex::Regex;
 use std::str::FromStr;
 
 #[derive(Debug, Clone)]
@@ -16,11 +14,8 @@ impl FromStr for Rule {
     type Err = ParseRuleError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        lazy_static! {
-            static ref RE_EXACT: Regex = Regex::new(r#""(\w)""#).unwrap();
-        }
-        if let Some(cap) = RE_EXACT.captures(s) {
-            Ok(Rule::Exact(cap[1].chars().next().unwrap()))
+        if s.as_bytes()[0] == b'"' && s.as_bytes()[2] == b'"' {
+            Ok(Rule::Exact(s.as_bytes()[1] as char))
         } else {
             let rules = s
                 .split(" | ")
