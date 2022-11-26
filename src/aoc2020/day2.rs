@@ -38,7 +38,7 @@ pub fn main() {
     let passwords: Vec<_> = std::fs::read_to_string("data/2020/day2")
         .unwrap()
         .lines()
-        .filter_map(|line| parse_nom(line).map(|r| r.1).ok())
+        .map(|line| parse_nom(line).map(|r| r.1).unwrap())
         .collect();
     let n_valid = passwords
         .iter()

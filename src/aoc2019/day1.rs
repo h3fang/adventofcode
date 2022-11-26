@@ -2,7 +2,7 @@ pub fn main() {
     let numbers: Vec<i64> = std::fs::read_to_string("data/2019/day1")
         .unwrap()
         .lines()
-        .filter_map(|s| s.parse::<i64>().ok())
+        .map(|s| s.parse::<i64>().unwrap())
         .collect();
 
     let total: i64 = numbers.iter().map(|n| n / 3 - 2).sum();

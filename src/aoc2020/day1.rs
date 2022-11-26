@@ -25,7 +25,7 @@ pub fn main() {
     let numbers: Vec<i32> = std::fs::read_to_string("data/2020/day1")
         .unwrap()
         .lines()
-        .filter_map(|s| s.parse::<i32>().ok())
+        .map(|s| s.parse::<i32>().unwrap())
         .collect();
 
     if let Some(n) = two_sum(2020, &numbers) {
