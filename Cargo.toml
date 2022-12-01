@@ -2,7 +2,7 @@
 name = "adventofcode"
 version = "0.3.0"
 edition = "2021"
-default-run = "2021"
+default-run = "2022"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -17,6 +17,10 @@ path = "src/aoc2020/main.rs"
 [[bin]]
 name = "2021"
 path = "src/aoc2021/main.rs"
+
+[[bin]]
+name = "2022"
+path = "src/aoc2022/main.rs"
 
 [dependencies]
 arrayvec = "0.7"
