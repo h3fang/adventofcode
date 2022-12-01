@@ -7,6 +7,10 @@ default-run = "2022"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [[bin]]
+name = "2018"
+path = "src/aoc2018/main.rs"
+
+[[bin]]
 name = "2019"
 path = "src/aoc2019/main.rs"
 
