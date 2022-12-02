@@ -12,16 +12,8 @@ fn part1(strategy: &[(u8, u8)]) -> u32 {
     strategy
         .iter()
         .map(|&(o, m)| {
-            let r = m
-                + 1
-                + if o == (m + 1) % 3 {
-                    0
-                } else if o == m {
-                    3
-                } else {
-                    6
-                };
-            r as u32
+            let win = (m + 3 - o + 1) % 3;
+            (m + 1 + win * 3) as u32
         })
         .sum()
 }
@@ -30,13 +22,7 @@ fn part2(strategy: &[(u8, u8)]) -> u32 {
     strategy
         .iter()
         .map(|&(opponent, outcome)| {
-            let myself = if outcome == 0 {
-                (opponent + 3 - 1) % 3
-            } else if outcome == 1 {
-                opponent
-            } else {
-                (opponent + 1) % 3
-            };
+            let myself = (opponent + 3 + outcome - 1) % 3;
             (myself + 1 + outcome * 3) as u32
         })
         .sum()
