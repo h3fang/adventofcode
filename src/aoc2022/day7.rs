@@ -5,21 +5,25 @@ use nom::{
     branch::alt,
     bytes::complete::{tag, take_while},
     character::complete::{self, line_ending},
+    combinator::all_consuming,
     multi::separated_list0,
     sequence::{preceded, separated_pair, tuple},
     IResult,
 };
 
-#[derive(Debug)]
 enum Entry<'a> {
     Dir(&'a str),
     File(&'a str, usize),
 }
 
-#[derive(Debug)]
 enum Cmd<'a> {
     Cd(&'a str),
     Ls(Vec<Entry<'a>>),
+}
+
+enum FSEntry<'a> {
+    Dir(HashMap<&'a str, Rc<RefCell<FSEntry<'a>>>>),
+    File(usize),
 }
 
 fn parse_file(input: &str) -> IResult<&str, Entry> {
@@ -59,7 +63,7 @@ fn parse_cmd(input: &str) -> IResult<&str, Cmd> {
 }
 
 fn parse(data: &str) -> Rc<RefCell<FSEntry>> {
-    let (_, cmds) = separated_list0(line_ending, parse_cmd)(data.trim()).unwrap();
+    let (_, cmds) = all_consuming(separated_list0(line_ending, parse_cmd))(data.trim()).unwrap();
 
     let root = Rc::new(RefCell::new(FSEntry::Dir(HashMap::default())));
     let mut stack = vec![root.clone()];
@@ -70,13 +74,11 @@ fn parse(data: &str) -> Rc<RefCell<FSEntry>> {
                     stack.pop();
                 }
                 "/" => {
-                    while stack.len() > 1 {
-                        stack.pop();
-                    }
+                    stack.drain(1..);
                 }
                 x => {
-                    let sub = stack.last().unwrap();
                     let sub = {
+                        let sub = stack.last().unwrap();
                         let mut sub = sub.borrow_mut();
                         match &mut *sub {
                             FSEntry::Dir(d) => d
@@ -116,11 +118,6 @@ fn parse(data: &str) -> Rc<RefCell<FSEntry>> {
         }
     }
     root
-}
-
-enum FSEntry<'a> {
-    Dir(HashMap<&'a str, Rc<RefCell<FSEntry<'a>>>>),
-    File(usize),
 }
 
 fn part1(root: &Rc<RefCell<FSEntry>>) -> (usize, usize) {
