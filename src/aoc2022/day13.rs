@@ -10,7 +10,7 @@ use nom::{
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum Item {
-    Value(u32),
+    Value(u8),
     List(Vec<Item>),
 }
 
@@ -39,7 +39,7 @@ fn parse_item(s: &str) -> IResult<&str, Item> {
     if s.as_bytes()[0] == b'[' {
         map(parse_list, Item::List)(s)
     } else {
-        map(complete::u32, Item::Value)(s)
+        map(complete::u8, Item::Value)(s)
     }
 }
 
@@ -75,14 +75,7 @@ fn part2(mut signals: Vec<Vec<Item>>) -> usize {
     signals.sort_unstable();
     dividers
         .iter()
-        .map(|d| {
-            signals
-                .iter()
-                .enumerate()
-                .find_map(|(i, e)| if e == d { Some(i) } else { None })
-                .unwrap()
-                + 1
-        })
+        .map(|d| signals.binary_search(d).unwrap() + 1)
         .product()
 }
 
