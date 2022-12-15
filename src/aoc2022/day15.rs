@@ -58,30 +58,36 @@ fn part1(sensors: &[Vec<i32>], y0: i32) -> usize {
 }
 
 fn find_empty_pos(sensors: &[Vec<i32>], max: i32, y0: i32) -> Option<usize> {
-    let mut m = BTreeMap::new();
+    let mut m = vec![];
     for s in sensors {
         let d = s[4];
         if (s[1] - d..=s[1] + d).contains(&y0) {
             let dx = d - (s[1] - y0).abs();
             let mut x1 = (s[0] - dx).max(0);
             let mut x2 = (s[0] + dx).min(max);
-            let mut merged = vec![];
-            for (&a, &b) in m.range(..=x2) {
+            let mut inserted = false;
+            let mut next = Vec::with_capacity(m.len() + 1);
+            for (a, b) in m {
                 if b < x1 {
-                    continue;
+                    next.push((a, b));
+                } else if x2 + 1 < a {
+                    if !inserted {
+                        next.push((x1, x2));
+                        inserted = true;
+                    }
+                    next.push((a, b));
+                } else if x2 + 1 == a {
+                    x2 = b;
+                    next.push((x1, x2));
+                } else {
+                    x1 = x1.min(a);
+                    x2 = x2.max(b);
                 }
-                x1 = x1.min(a);
-                x2 = x2.max(b);
-                merged.push(a);
             }
-            for x in merged {
-                m.remove(&x);
+            if !inserted {
+                next.push((x1, x2));
             }
-            if let Some(&x3) = m.get(&(x2 + 1)) {
-                m.remove(&(x2 + 1));
-                x2 = x3;
-            }
-            m.insert(x1, x2);
+            m = next;
         }
     }
     let mut prev = 0;
