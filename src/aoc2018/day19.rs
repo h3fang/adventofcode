@@ -13,9 +13,9 @@ use nom::{
 #[derive(Debug)]
 struct Instruction<'a> {
     op: &'a str,
-    in1: u8,
-    in2: u8,
-    out: u8,
+    in1: u64,
+    in2: u64,
+    out: u64,
 }
 
 impl<'a> std::fmt::Display for Instruction<'a> {
@@ -25,56 +25,42 @@ impl<'a> std::fmt::Display for Instruction<'a> {
 }
 
 struct Program {
-    ip_reg: u8,
-    ip: i32,
-    reg: [u32; 6],
+    ip_reg: usize,
+    ip: usize,
+    reg: [u64; 6],
 }
 
 impl Program {
-    fn new(ip_reg: u8) -> Self {
+    fn new(ip_reg: usize) -> Self {
         Self {
             ip_reg,
-            ip: -1,
+            ip: 0,
             reg: [0; 6],
         }
     }
-}
 
-impl Program {
     fn operate(&mut self, ins: &Instruction) {
-        self.reg[self.ip_reg as usize] = (self.ip + 1) as u32;
+        self.reg[self.ip_reg] = self.ip as u64;
         self.reg[ins.out as usize] = match ins.op {
             "addr" => self.reg[ins.in1 as usize] + self.reg[ins.in2 as usize],
-            "addi" => self.reg[ins.in1 as usize] + ins.in2 as u32,
+            "addi" => self.reg[ins.in1 as usize] + ins.in2,
             "mulr" => self.reg[ins.in1 as usize] * self.reg[ins.in2 as usize],
-            "muli" => self.reg[ins.in1 as usize] * ins.in2 as u32,
+            "muli" => self.reg[ins.in1 as usize] * ins.in2,
             "banr" => self.reg[ins.in1 as usize] & self.reg[ins.in2 as usize],
-            "bani" => self.reg[ins.in1 as usize] & ins.in2 as u32,
+            "bani" => self.reg[ins.in1 as usize] & ins.in2,
             "borr" => self.reg[ins.in1 as usize] | self.reg[ins.in2 as usize],
-            "bori" => self.reg[ins.in1 as usize] | ins.in2 as u32,
+            "bori" => self.reg[ins.in1 as usize] | ins.in2,
             "setr" => self.reg[ins.in1 as usize],
-            "seti" => ins.in1 as u32,
-            "gtir" => u32::from(ins.in1 as u32 > self.reg[ins.in2 as usize]),
-            "gtri" => u32::from(self.reg[ins.in1 as usize] > ins.in2 as u32),
-            "gtrr" => u32::from(self.reg[ins.in1 as usize] > self.reg[ins.in2 as usize]),
-            "eqir" => u32::from(ins.in1 as u32 == self.reg[ins.in2 as usize]),
-            "eqri" => u32::from(self.reg[ins.in1 as usize] == ins.in2 as u32),
-            "eqrr" => u32::from(self.reg[ins.in1 as usize] == self.reg[ins.in2 as usize]),
+            "seti" => ins.in1,
+            "gtir" => u64::from(ins.in1 > self.reg[ins.in2 as usize]),
+            "gtri" => u64::from(self.reg[ins.in1 as usize] > ins.in2),
+            "gtrr" => u64::from(self.reg[ins.in1 as usize] > self.reg[ins.in2 as usize]),
+            "eqir" => u64::from(ins.in1 == self.reg[ins.in2 as usize]),
+            "eqri" => u64::from(self.reg[ins.in1 as usize] == ins.in2),
+            "eqrr" => u64::from(self.reg[ins.in1 as usize] == self.reg[ins.in2 as usize]),
             _ => unreachable!(),
         };
-        self.ip = self.reg[self.ip_reg as usize] as i32;
-    }
-
-    fn run(&mut self, instructions: &[Instruction]) -> u32 {
-        loop {
-            let ip = self.ip + 1;
-            if ip < 0 || ip >= instructions.len() as i32 {
-                break;
-            }
-            self.operate(&instructions[ip as usize]);
-            // println!("{:2} {} {:?}", ip, &instructions[ip as usize], self.reg);
-        }
-        self.reg[0]
+        self.ip = self.reg[self.ip_reg] as usize + 1;
     }
 }
 
@@ -86,11 +72,11 @@ fn parse_instruction(s: &str) -> IResult<&str, Instruction> {
     let (r, (op, _, in1, _, in2, _, out)) = tuple((
         take(4usize),
         ch(' '),
-        character::complete::u8,
+        character::complete::u64,
         ch(' '),
-        character::complete::u8,
+        character::complete::u64,
         ch(' '),
-        character::complete::u8,
+        character::complete::u64,
     ))(s)?;
     Ok((r, Instruction { op, in1, in2, out }))
 }
@@ -99,6 +85,7 @@ fn parse_instructions(s: &str) -> IResult<&str, Vec<Instruction>> {
     separated_list1(line_ending, parse_instruction)(s)
 }
 
+#[allow(unused)]
 fn parse(data: &str) -> (u8, Vec<Instruction>) {
     let (_, r) =
         all_consuming(separated_pair(parse_ip, line_ending, parse_instructions))(data.trim())
@@ -107,10 +94,12 @@ fn parse(data: &str) -> (u8, Vec<Instruction>) {
 }
 
 #[allow(unused)]
-fn part1_sim(ip_reg: u8, instructions: &[Instruction]) -> u32 {
+fn part1_sim(ip_reg: usize, instructions: &[Instruction]) -> u64 {
     let mut p = Program::new(ip_reg);
-    p.ip_reg = ip_reg;
-    p.run(instructions)
+    while p.ip < instructions.len() {
+        p.operate(&instructions[p.ip]);
+    }
+    p.reg[0]
 }
 
 fn sum_of_factors(n: u64) -> u64 {
@@ -126,21 +115,10 @@ fn sum_of_factors(n: u64) -> u64 {
     r
 }
 
-fn part1(_ip_reg: u8, _instructions: &[Instruction]) -> u64 {
-    // reverse engineered from input
-    sum_of_factors(919)
-}
-
-fn part2(_ip_reg: u8, _instructions: &[Instruction]) -> u64 {
-    // reverse engineered from input
-    sum_of_factors(10551319)
-}
-
+/// reverse engineered solution, dependent on input
 pub fn main() {
-    let data = std::fs::read_to_string("data/2018/day19").unwrap();
-    let (ip_reg, instructions) = parse(&data);
-    println!("part1: {}", part1(ip_reg, &instructions));
-    println!("part2: {}", part2(ip_reg, &instructions));
+    println!("part1: {}", sum_of_factors(919));
+    println!("part2: {}", sum_of_factors(10551319));
 }
 
 #[cfg(test)]
@@ -159,6 +137,6 @@ setr 1 0 0
 seti 8 0 4
 seti 9 0 5";
         let (ip_reg, instructions) = parse(&data);
-        assert_eq!(6, part1_sim(ip_reg, &instructions));
+        assert_eq!(6, part1_sim(ip_reg as usize, &instructions));
     }
 }
