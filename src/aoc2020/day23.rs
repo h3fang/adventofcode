@@ -2,7 +2,6 @@ fn parse(content: &str) -> (Vec<u32>, Vec<u32>) {
     let nums = content
         .chars()
         .filter_map(|c| c.to_digit(10))
-        .map(|n| n as u32)
         .collect::<Vec<_>>();
     let mut r1 = vec![0; nums.len() + 1];
     let mut prev = 0;

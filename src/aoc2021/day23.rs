@@ -218,7 +218,7 @@ impl<const D: usize> Grid<D> {
         };
         match to {
             Position::Hallway(i) => {
-                debug_assert_eq!(g.hallway[i as usize], 0);
+                debug_assert_eq!(g.hallway[i], 0);
                 g.hallway[i] = c;
             }
             Position::Room(i) => {

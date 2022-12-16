@@ -24,7 +24,7 @@ fn parse_nom(s: &str) -> IResult<&str, (usize, usize, char, String)> {
 }
 
 fn is_valid(min: &usize, max: &usize, c: &char, pwd: &str) -> bool {
-    let n = pwd.chars().filter(|e| e == c).count() as usize;
+    let n = pwd.chars().filter(|e| e == c).count();
     n >= *min && n <= *max
 }
 

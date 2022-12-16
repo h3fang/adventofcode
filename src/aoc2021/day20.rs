@@ -25,17 +25,17 @@ impl Image {
                 }
             })
         });
-        let height = (bounds.2 - bounds.0 + 4 * 50) as usize;
-        let width = (bounds.3 - bounds.1 + 4 * 50) as usize;
+        let height = bounds.2 - bounds.0 + 4 * 50;
+        let width = bounds.3 - bounds.1 + 4 * 50;
         let mut img = vec![false; width * height];
         for (x, y) in pixels {
             img[(y + 2 * 50) * width + x + 2 * 50] = true;
         }
         let bounds = (
-            (bounds.0 + 2 * 50) as usize,
-            (bounds.1 + 2 * 50) as usize,
-            (bounds.2 + 2 * 50) as usize,
-            (bounds.3 + 2 * 50) as usize,
+            bounds.0 + 2 * 50,
+            bounds.1 + 2 * 50,
+            bounds.2 + 2 * 50,
+            bounds.3 + 2 * 50,
         );
         Self { img, width, bounds }
     }

@@ -275,14 +275,10 @@ fn parse(content: &str) -> (Grid, Grid4) {
         .collect::<Vec<_>>();
     let m = layer.len() as i64;
     let n = layer[0].len() as i64;
-    let mut grid = Grid::new(
-        m as i64 + 2 + 2 * CYCLES,
-        n as i64 + 2 + 2 * CYCLES,
-        1 + 2 + 2 * CYCLES,
-    );
+    let mut grid = Grid::new(m + 2 + 2 * CYCLES, n + 2 + 2 * CYCLES, 1 + 2 + 2 * CYCLES);
     let mut grid4 = Grid4::new(
-        m as i64 + 2 + 2 * CYCLES,
-        n as i64 + 2 + 2 * CYCLES,
+        m + 2 + 2 * CYCLES,
+        n + 2 + 2 * CYCLES,
         1 + 2 + 2 * CYCLES,
         1 + 2 + 2 * CYCLES,
     );

@@ -61,7 +61,7 @@ fn part1(coords: &[(i32, i32)]) -> usize {
             if infinite.contains(&k) {
                 None
             } else {
-                Some(grid.iter().flatten().filter(|e| **e == k as i32).count())
+                Some(grid.iter().flatten().filter(|e| **e == k).count())
             }
         })
         .max()

@@ -28,7 +28,7 @@ fn parse_tree(mut nums: &[i32]) -> (&[i32], TreeNode) {
 }
 
 fn part1(root: &TreeNode) -> i64 {
-    root.children.iter().map(|r| part1(r) as i64).sum::<i64>()
+    root.children.iter().map(part1).sum::<i64>()
         + root.metadata.iter().map(|&m| m as i64).sum::<i64>()
 }
 

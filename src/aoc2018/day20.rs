@@ -94,8 +94,8 @@ fn get_map_boundbox(m: &HashMap<(i16, i16), u8>) -> ((i16, i16), (i16, i16)) {
 fn draw_map(m: &HashMap<(i16, i16), u8>) -> String {
     let (min, max) = get_map_boundbox(m);
     // one extra column width for '\n'
-    let width = (max.0 as i16 - min.0 as i16) as usize + 2;
-    let height = (max.1 as i16 - min.1 as i16) as usize + 1;
+    let width = (max.0 - min.0) as usize + 2;
+    let height = (max.1 - min.1) as usize + 1;
     let mut map = vec![b'#'; width * height];
     for i in 0..height {
         map[(i + 1) * width - 1] = b'\n';
