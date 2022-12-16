@@ -3,6 +3,10 @@ use std::collections::BTreeMap;
 use ahash::HashSet;
 use rayon::prelude::*;
 
+fn manhattan_distance(x1: i32, y1: i32, x2: i32, y2: i32) -> i32 {
+    (x1 - x2).abs() + (y1 - y2).abs()
+}
+
 fn parse(data: &str) -> Vec<Vec<i32>> {
     data.trim()
         .lines()
@@ -15,7 +19,7 @@ fn parse(data: &str) -> Vec<Vec<i32>> {
                     p[2..].parse().unwrap()
                 })
                 .collect::<Vec<i32>>();
-            p.push((p[0] - p[2]).abs() + (p[1] - p[3]).abs());
+            p.push(manhattan_distance(p[0], p[1], p[2], p[3]));
             p
         })
         .collect()
@@ -104,11 +108,52 @@ fn find_empty_pos(sensors: &[Vec<i32>], max: i32, y0: i32) -> Option<usize> {
     }
 }
 
-fn part2(sensors: &[Vec<i32>], max: i32) -> usize {
+#[allow(unused)]
+fn part2_scanline(sensors: &[Vec<i32>], max: i32) -> usize {
     (0..=max)
         .into_par_iter()
         .find_map_first(|y0| find_empty_pos(sensors, max, y0).map(|x| x * 400_0000 + y0 as usize))
-        .unwrap() as usize
+        .unwrap()
+}
+
+/// Let m be the area size limit, n be the number of sensors.
+///
+/// Previous method has time complexity O(mn^2).
+///
+/// The distress beacon must be next to sensor's scan area's edges.
+/// We can rotate the map and check the intersections of these points
+/// if any of them are not in the range of any sensor.
+/// This will have time complexity O(n^2).
+fn part2(sensors: &[Vec<i32>], max: i32) -> usize {
+    let mut us = HashSet::default();
+    let mut vs = HashSet::default();
+    for s in sensors {
+        let d = s[4] + 1;
+        let u0 = s[0] - s[1];
+        let v0 = s[0] + s[1];
+        us.insert(u0 - d);
+        us.insert(u0 + d);
+        vs.insert(v0 - d);
+        vs.insert(v0 + d);
+    }
+
+    for u in us {
+        for &v in &vs {
+            let x = (u + v) / 2;
+            let y = (v - u) / 2;
+            if x < 0 || y < 0 || x >= max || y >= max {
+                continue;
+            }
+            if sensors
+                .iter()
+                .all(|s| manhattan_distance(x, y, s[0], s[1]) > s[4])
+            {
+                return x as usize * 400_0000 + y as usize;
+            }
+        }
+    }
+
+    unreachable!()
 }
 
 pub fn main() {
@@ -141,6 +186,7 @@ Sensor at x=14, y=3: closest beacon is at x=15, y=3
 Sensor at x=20, y=1: closest beacon is at x=15, y=3";
         let sensors = parse(&data);
         assert_eq!(26, part1(&sensors, 10));
+        assert_eq!(56000011, part2_scanline(&sensors, 20));
         assert_eq!(56000011, part2(&sensors, 20));
     }
 }
