@@ -1,4 +1,8 @@
-use std::{cmp::Reverse, collections::VecDeque};
+use std::{
+    cmp::Reverse,
+    collections::VecDeque,
+    sync::atomic::{AtomicU16, Ordering},
+};
 
 use ahash::HashMap;
 use rayon::prelude::*;
@@ -13,17 +17,22 @@ struct Map {
     valves: Vec<Valve>,
     paths: Vec<Vec<i8>>,
     m: usize,
+    cache: Vec<AtomicU16>,
 }
 
 impl Map {
     fn new(start: u8, valves: Vec<Valve>) -> Self {
         let m = valves.iter().filter(|v| v.flow_rate > 0).count();
         let paths = shortest_paths(&valves);
+        let cache = (0..30 * (m + 1) * (1 << m))
+            .map(|_| AtomicU16::new(u16::MAX))
+            .collect();
         Self {
             start,
             valves,
             paths,
             m,
+            cache,
         }
     }
 }
@@ -88,61 +97,52 @@ fn shortest_paths(valves: &[Valve]) -> Vec<Vec<i8>> {
         .collect()
 }
 
-fn dfs(
-    t: i8,
-    curr: u8,
-    valves_to_open: u16,
-    m: &Map,
-    cache: &mut HashMap<(i8, u8, u16), u16>,
-) -> u16 {
+fn dfs(t: i8, curr: u8, valves_to_open: u16, map: &Map) -> u16 {
     if t <= 1 {
         return 0;
     }
-    if let Some(&p) = cache.get(&(t, curr, valves_to_open)) {
+    let idx = (t - 1) as usize * (map.m + 1) * (1 << map.m)
+        + curr as usize * (1 << map.m)
+        + valves_to_open as usize;
+    let p = map.cache[idx].load(Ordering::Relaxed);
+    if p < u16::MAX {
         return p;
     }
     let mut result = 0;
-    for next in 0..m.m as u8 {
+    for next in 0..map.m as u8 {
         if valves_to_open & (1 << next) == 0 {
             continue;
         }
-        let dist = m.paths[curr as usize][next as usize];
+        let dist = map.paths[curr as usize][next as usize];
         let t1 = t - (dist + 1);
         if t1 <= 0 {
             continue;
         }
-        let p = m.valves[next as usize].flow_rate * t1 as u16;
-        result = result.max(p + dfs(t1, next, valves_to_open - (1 << next), m, cache));
+        let p = map.valves[next as usize].flow_rate * t1 as u16;
+        result = result.max(p + dfs(t1, next, valves_to_open - (1 << next), map));
     }
-    cache.insert((t, curr, valves_to_open), result);
+    map.cache[idx].store(result, Ordering::Relaxed);
     result
 }
 
-fn part1(
-    t: i8,
-    start: u8,
-    valves_to_open: u16,
-    m: &Map,
-    cache: &mut HashMap<(i8, u8, u16), u16>,
-) -> u16 {
-    let max = dfs(t, start, valves_to_open, m, cache);
+fn part1(t: i8, start: u8, valves_to_open: u16, map: &Map) -> u16 {
+    let max = dfs(t, start, valves_to_open, map);
     if valves_to_open & (1 << start) > 0 {
-        let p = m.valves[start as usize].flow_rate * (t - 1) as u16
-            + dfs(t - 1, start, valves_to_open - (1 << start), m, cache);
+        let p = map.valves[start as usize].flow_rate * (t - 1) as u16
+            + dfs(t - 1, start, valves_to_open - (1 << start), map);
         max.max(p)
     } else {
         max
     }
 }
 
-fn part2(m: &Map) -> u16 {
-    let valves_to_open = (1 << m.m) - 1;
+fn part2(map: &Map) -> u16 {
+    let valves_to_open = (1 << map.m) - 1;
     (1..=valves_to_open / 2)
         .into_par_iter()
         .map(|a| {
-            let mut cache = HashMap::default();
             let b = (!a) & valves_to_open;
-            part1(26, m.start, a, m, &mut cache) + part1(26, m.start, b, m, &mut cache)
+            part1(26, map.start, a, map) + part1(26, map.start, b, map)
         })
         .max()
         .unwrap()
@@ -151,11 +151,7 @@ fn part2(m: &Map) -> u16 {
 pub fn main() {
     let data = std::fs::read_to_string("data/2022/day16").unwrap();
     let map = parse(&data);
-    let mut cache = HashMap::default();
-    println!(
-        "part1: {}",
-        part1(30, map.start, (1 << map.m) - 1, &map, &mut cache)
-    );
+    println!("part1: {}", part1(30, map.start, (1 << map.m) - 1, &map));
     println!("part2: {}", part2(&map));
 }
 
@@ -177,11 +173,7 @@ Valve HH has flow rate=22; tunnel leads to valve GG
 Valve II has flow rate=0; tunnels lead to valves AA, JJ
 Valve JJ has flow rate=21; tunnel leads to valve II";
         let map = parse(&data);
-        let mut cache = HashMap::default();
-        assert_eq!(
-            1651,
-            part1(30, map.start, (1 << map.m) - 1, &map, &mut cache)
-        );
+        assert_eq!(1651, part1(30, map.start, (1 << map.m) - 1, &map));
         assert_eq!(1707, part2(&map));
     }
 }
