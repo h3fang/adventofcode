@@ -1,48 +1,69 @@
-use std::collections::VecDeque;
+use std::{cmp::Reverse, collections::VecDeque};
 
 use ahash::HashMap;
 use rayon::prelude::*;
 
 struct Valve {
-    flow_rate: u64,
+    flow_rate: u16,
     connected: Vec<u8>,
 }
 
-fn parse(data: &str) -> (u8, Vec<Valve>, u64) {
-    let mut ids = HashMap::default();
-    data.trim().lines().for_each(|line| {
-        let id = [line.as_bytes()[6], line.as_bytes()[7]];
-        let i = ids.len() as u8;
-        ids.insert(id, i);
-    });
-    let start = *ids.get(&[b'A', b'A']).unwrap();
-    let mut valves = Vec::with_capacity(ids.len());
-    data.trim().lines().for_each(|line| {
-        let (p1, p2) = line.split_once("; ").unwrap();
-        let (_id, flow_rate) = p1.split_once('=').unwrap();
-        let flow_rate = flow_rate.parse().unwrap();
-        let connected = p2
-            .trim_start_matches(|c: char| c.is_ascii_lowercase() || c.is_ascii_whitespace())
-            .split(", ")
-            .map(|v| *ids.get(&[v.as_bytes()[0], v.as_bytes()[1]]).unwrap())
-            .collect();
-        valves.push(Valve {
-            flow_rate,
-            connected,
-        });
-    });
-    let valves_to_open =
-        valves.iter().enumerate().fold(
-            0u64,
-            |acc, (i, v)| {
-                if v.flow_rate > 0 {
-                    acc | (1 << i)
-                } else {
-                    acc
-                }
-            },
-        );
-    (start, valves, valves_to_open)
+struct Map {
+    start: u8,
+    valves: Vec<Valve>,
+    paths: Vec<Vec<i8>>,
+    m: usize,
+}
+
+impl Map {
+    fn new(start: u8, valves: Vec<Valve>) -> Self {
+        let m = valves.iter().filter(|v| v.flow_rate > 0).count();
+        let paths = shortest_paths(&valves);
+        Self {
+            start,
+            valves,
+            paths,
+            m,
+        }
+    }
+}
+
+fn parse(data: &str) -> Map {
+    let mut valves = data
+        .trim()
+        .lines()
+        .map(|line| {
+            let (p1, p2) = line.split_once("; ").unwrap();
+            let (id, flow_rate) = p1.split_once('=').unwrap();
+            let id = &id[6..8];
+            let flow_rate = flow_rate.parse().unwrap();
+            let connected = p2
+                .trim_start_matches(|c: char| c.is_ascii_lowercase() || c.is_ascii_whitespace())
+                .split(", ")
+                .collect::<Vec<_>>();
+            (id, flow_rate, connected)
+        })
+        .collect::<Vec<_>>();
+    valves.sort_unstable_by_key(|v| (Reverse(v.1), v.0));
+
+    let ids = valves
+        .iter()
+        .enumerate()
+        .map(|(i, v)| (v.0, i as u8))
+        .collect::<HashMap<_, _>>();
+    let start = *ids.get("AA").unwrap();
+
+    let valves = valves
+        .into_iter()
+        .map(|(_id, flow_rate, conn)| {
+            let connected = conn.iter().map(|c| *ids.get(c).unwrap()).collect();
+            Valve {
+                flow_rate,
+                connected,
+            }
+        })
+        .collect::<Vec<_>>();
+    Map::new(start, valves)
 }
 
 fn shortest_paths_from(start: u8, valves: &[Valve]) -> Vec<i8> {
@@ -70,94 +91,58 @@ fn shortest_paths(valves: &[Valve]) -> Vec<Vec<i8>> {
 fn dfs(
     t: i8,
     curr: u8,
-    opened: u64,
-    valves: &[Valve],
-    paths: &[Vec<i8>],
-    valves_to_open: u64,
-    cache: &mut HashMap<(i8, u8, u64), u64>,
-) -> u64 {
-    if opened == valves_to_open || t <= 1 {
+    valves_to_open: u16,
+    m: &Map,
+    cache: &mut HashMap<(i8, u8, u16), u16>,
+) -> u16 {
+    if t <= 1 {
         return 0;
     }
-    if let Some(&p) = cache.get(&(t, curr, opened)) {
+    if let Some(&p) = cache.get(&(t, curr, valves_to_open)) {
         return p;
     }
     let mut result = 0;
-    for next in 0..valves.len() as u8 {
-        if valves_to_open & (1 << next) == 0 || opened & (1 << next) > 0 {
+    for next in 0..m.m as u8 {
+        if valves_to_open & (1 << next) == 0 {
             continue;
         }
-        let dist = paths[curr as usize][next as usize];
+        let dist = m.paths[curr as usize][next as usize];
         let t1 = t - (dist + 1);
         if t1 <= 0 {
             continue;
         }
-        let p = valves[next as usize].flow_rate * t1 as u64;
-        result = result.max(
-            p + dfs(
-                t1,
-                next,
-                opened | (1 << next),
-                valves,
-                paths,
-                valves_to_open,
-                cache,
-            ),
-        );
+        let p = m.valves[next as usize].flow_rate * t1 as u16;
+        result = result.max(p + dfs(t1, next, valves_to_open - (1 << next), m, cache));
     }
-    cache.insert((t, curr, opened), result);
+    cache.insert((t, curr, valves_to_open), result);
     result
 }
 
-fn part1(start: u8, valves: &[Valve], paths: &[Vec<i8>], valves_to_open: u64, t_max: i8) -> u64 {
-    let mut cache = HashMap::default();
-    let max = dfs(t_max, start, 0, valves, paths, valves_to_open, &mut cache);
+fn part1(
+    t: i8,
+    start: u8,
+    valves_to_open: u16,
+    m: &Map,
+    cache: &mut HashMap<(i8, u8, u16), u16>,
+) -> u16 {
+    let max = dfs(t, start, valves_to_open, m, cache);
     if valves_to_open & (1 << start) > 0 {
-        let p = valves[start as usize].flow_rate * (t_max - 1) as u64
-            + dfs(
-                t_max - 1,
-                start,
-                1 << start,
-                valves,
-                paths,
-                valves_to_open,
-                &mut cache,
-            );
+        let p = m.valves[start as usize].flow_rate * (t - 1) as u16
+            + dfs(t - 1, start, valves_to_open - (1 << start), m, cache);
         max.max(p)
     } else {
         max
     }
 }
 
-fn combinations(valves_to_open: u64, k: u32, result: &mut Vec<u64>) {
-    fn dfs(valves_to_open: u64, k: u32, i: u32, curr: u64, result: &mut Vec<u64>) {
-        if curr.count_ones() == k {
-            result.push(curr);
-        } else if i >= u64::BITS - valves_to_open.leading_zeros() {
-            return;
-        } else if valves_to_open & (1 << i) == 0 {
-            dfs(valves_to_open, k, i + 1, curr, result);
-        } else {
-            dfs(valves_to_open, k, i + 1, curr, result);
-            dfs(valves_to_open, k, i + 1, curr | (1 << i), result);
-        }
-    }
-    dfs(valves_to_open, k, 0, 0, result);
-}
-
-fn part2(start: u8, valves: &[Valve], paths: &[Vec<i8>], valves_to_open: u64) -> u64 {
-    let mut tasks = Vec::with_capacity(1 << valves_to_open.count_ones());
-    for k in 1..=valves_to_open.count_ones() / 2 {
-        combinations(valves_to_open, k, &mut tasks);
-    }
-    tasks
+fn part2(m: &Map) -> u16 {
+    let valves_to_open = (1 << m.m) - 1;
+    (1..=valves_to_open / 2)
         .into_par_iter()
         .map(|a| {
-            let b = (!a) & valves_to_open;
             let mut cache = HashMap::default();
-            let a = dfs(26, start, 0, valves, paths, a, &mut cache);
-            cache.clear();
-            a + dfs(26, start, 0, valves, paths, b, &mut cache)
+            let b = (!a) & valves_to_open;
+            part1(26, m.start, a, m, &mut cache) + part1(26, m.start, b, m, &mut cache)
         })
         .max()
         .unwrap()
@@ -165,13 +150,13 @@ fn part2(start: u8, valves: &[Valve], paths: &[Vec<i8>], valves_to_open: u64) ->
 
 pub fn main() {
     let data = std::fs::read_to_string("data/2022/day16").unwrap();
-    let (start, valves, valves_to_open) = parse(&data);
-    let paths = shortest_paths(&valves);
+    let map = parse(&data);
+    let mut cache = HashMap::default();
     println!(
         "part1: {}",
-        part1(start, &valves, &paths, valves_to_open, 30)
+        part1(30, map.start, (1 << map.m) - 1, &map, &mut cache)
     );
-    println!("part2: {}", part2(start, &valves, &paths, valves_to_open));
+    println!("part2: {}", part2(&map));
 }
 
 #[cfg(test)]
@@ -191,9 +176,12 @@ Valve GG has flow rate=0; tunnels lead to valves FF, HH
 Valve HH has flow rate=22; tunnel leads to valve GG
 Valve II has flow rate=0; tunnels lead to valves AA, JJ
 Valve JJ has flow rate=21; tunnel leads to valve II";
-        let (start, valves, valves_to_open) = parse(&data);
-        let paths = shortest_paths(&valves);
-        assert_eq!(1651, part1(start, &valves, &paths, valves_to_open, 30));
-        assert_eq!(1707, part2(start, &valves, &paths, valves_to_open));
+        let map = parse(&data);
+        let mut cache = HashMap::default();
+        assert_eq!(
+            1651,
+            part1(30, map.start, (1 << map.m) - 1, &map, &mut cache)
+        );
+        assert_eq!(1707, part2(&map));
     }
 }
