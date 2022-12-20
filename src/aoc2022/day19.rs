@@ -32,38 +32,63 @@ struct Factory {
 }
 
 impl Factory {
-    fn collect_resources(&mut self) {
+    fn collect_resources(&mut self, dt: u8) {
         self.im
             .resources
             .iter_mut()
             .zip(self.im.robots)
-            .for_each(|(e, n)| *e += n);
-        self.geode += self.geode_robot;
+            .for_each(|(e, n)| *e += n * dt);
+        self.geode += self.geode_robot * dt;
     }
 
-    fn try_build_robot(&self, i: usize, bp: &Blueprint) -> Option<Factory> {
-        // do not build intermediate robot more than the maximum required by the blueprint
-        if (i == 3 || (i < 3 && self.im.robots[i] < bp.max[i]))
-            && self
-                .im
-                .resources
-                .into_iter()
-                .zip(bp.resources[i])
-                .all(|(a, b)| a >= b)
+    /// Do not build an intermediate robot if we can build the highest demanding robot
+    /// (that depends on it's output) in t-1 minutes (without the last minute) with current
+    /// resources and robots' output in t-2 minutes.
+    fn no_need_to_build(&self, t: u16, i: usize, bp: &Blueprint) -> bool {
+        i < 3
+            && (self.im.resources[i] as u16 + self.im.robots[i] as u16 * (t - 2)
+                >= (t - 1) * bp.max[i] as u16)
+    }
+
+    /// Number of minutes we need to wait to fullfill the resource requirements.
+    fn wait_for_resources(&self, requirements: [Int; 3]) -> Option<u8> {
+        let mut max = 0;
+        for i in 0..3 {
+            if self.im.resources[i] < requirements[i] {
+                if self.im.robots[i] == 0 {
+                    return None;
+                }
+                let t = (requirements[i] - self.im.resources[i] + self.im.robots[i] - 1)
+                    / self.im.robots[i];
+                max = max.max(t);
+            }
+        }
+        Some(max)
+    }
+
+    fn try_build_robot(&self, t: u8, i: usize, bp: &Blueprint) -> Option<(u8, Factory)> {
+        if !self.no_need_to_build(t as u16, i, bp)
+            && (0..3).all(|j| self.im.robots[j] > 0 || self.im.resources[j] >= bp.resources[i][j])
         {
             let mut f1 = self.clone();
+            let Some(t1) = self.wait_for_resources(bp.resources[i]) else {
+                return None;
+            };
+            if t1 + 1 >= t {
+                return None;
+            }
+            f1.collect_resources(t1 + 1);
             f1.im
                 .resources
                 .iter_mut()
                 .zip(bp.resources[i])
                 .for_each(|(r, n)| *r -= n);
-            f1.collect_resources();
             if i == 3 {
                 f1.geode_robot += 1;
             } else {
                 f1.im.robots[i] += 1;
             }
-            Some(f1)
+            Some((t - t1 - 1, f1))
         } else {
             None
         }
@@ -99,35 +124,38 @@ fn bt(
     best: &mut u16,
     cache: &mut HashMap<(u8, Intermediate), Int>,
 ) -> Int {
-    if t == 0 {
+    if t <= 1 {
+        if t == 1 {
+            f.geode += f.geode_robot;
+        }
         *best = (*best).max(f.geode as u16);
         return f.geode;
     }
+
     let key = (t, f.im);
     let geodes = f.geode_robot * t as Int + f.geode;
     if let Some(&r) = cache.get(&key) {
         return r + geodes;
     }
 
-    // maximum possible geodes we can get assume we build a geode robot every day
+    // maximum possible geodes we can get assuming unlimited intermediate resources
     let max_possible = geodes as u16 + t as u16 * (t as u16 - 1) / 2;
     if max_possible <= *best {
         return 0;
     }
 
-    // if we can build a geode robot, choose to build it
-    let max = if let Some(f1) = f.try_build_robot(3, bp) {
-        bt(t - 1, f1, bp, best, cache)
-    } else {
-        let mut max = 0;
-        for i in 0..3 {
-            if let Some(f1) = f.try_build_robot(i, bp) {
-                max = max.max(bt(t - 1, f1, bp, best, cache));
-            }
+    // The assumption "If we can build a geode robot, choose to build it rather
+    // than other choices." is wrong. (There are couter examples)
+
+    // Fast forward to the minute we can build a type of robot.
+    // This cut the branches significantly!!!
+    let mut max = 0;
+    for i in 0..4 {
+        if let Some((t1, f1)) = f.try_build_robot(t, i, bp) {
+            max = max.max(bt(t1, f1, bp, best, cache));
         }
-        f.collect_resources();
-        max.max(bt(t - 1, f, bp, best, cache))
-    };
+    }
+
     cache.insert(key, max.saturating_sub(geodes));
     max
 }
