@@ -1,94 +1,75 @@
 use ahash::HashMap;
 use rayon::prelude::*;
 
-type Int = u8;
+type Int = u16;
 
-#[derive(Debug)]
 struct Blueprint {
     resources: [[Int; 3]; 4],
     max: [Int; 3],
 }
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq)]
-struct Intermediate {
-    resources: [Int; 3],
-    robots: [Int; 3],
+struct Factory {
+    resources: [Int; 4],
+    robots: [Int; 4],
 }
 
-impl Default for Intermediate {
+impl Default for Factory {
     fn default() -> Self {
         Self {
             resources: Default::default(),
-            robots: [1, 0, 0],
+            robots: [1, 0, 0, 0],
         }
     }
 }
 
-#[derive(Default, Clone)]
-struct Factory {
-    im: Intermediate,
-    geode_robot: Int,
-    geode: Int,
-}
-
 impl Factory {
     fn collect_resources(&mut self, dt: u8) {
-        self.im
-            .resources
+        self.resources
             .iter_mut()
-            .zip(self.im.robots)
-            .for_each(|(e, n)| *e += n * dt);
-        self.geode += self.geode_robot * dt;
-    }
-
-    /// Do not build an intermediate robot if we can build the highest demanding robot
-    /// (that depends on it's output) in t-1 minutes (without the last minute) with current
-    /// resources and robots' output in t-2 minutes.
-    fn no_need_to_build(&self, t: u16, i: usize, bp: &Blueprint) -> bool {
-        i < 3
-            && (self.im.resources[i] as u16 + self.im.robots[i] as u16 * (t - 2)
-                >= (t - 1) * bp.max[i] as u16)
+            .zip(self.robots)
+            .for_each(|(e, n)| *e += n * dt as u16);
     }
 
     /// Number of minutes we need to wait to fullfill the resource requirements.
     fn wait_for_resources(&self, requirements: [Int; 3]) -> Option<u8> {
         let mut max = 0;
-        for i in 0..3 {
-            if self.im.resources[i] < requirements[i] {
-                if self.im.robots[i] == 0 {
+        for (r, (req, robot)) in self
+            .resources
+            .into_iter()
+            .zip(requirements.into_iter().zip(self.robots))
+        {
+            if r < req {
+                if robot == 0 {
                     return None;
                 }
-                let t = (requirements[i] - self.im.resources[i] + self.im.robots[i] - 1)
-                    / self.im.robots[i];
+                let t = (req - r + robot - 1) / robot;
                 max = max.max(t);
             }
         }
-        Some(max)
+        Some(max as u8)
     }
 
+    /// Do not build an intermediate robot if there are enough robot for the
+    /// highest demanding recipe in the blueprint (that depends on it's output).
     fn try_build_robot(&self, t: u8, i: usize, bp: &Blueprint) -> Option<(u8, Factory)> {
-        if !self.no_need_to_build(t as u16, i, bp)
-            && (0..3).all(|j| self.im.robots[j] > 0 || self.im.resources[j] >= bp.resources[i][j])
+        if (i == 3 || self.robots[i] < bp.max[i])
+            && (0..3).all(|j| self.robots[j] > 0 || self.resources[j] >= bp.resources[i][j])
         {
-            let mut f1 = self.clone();
-            let Some(t1) = self.wait_for_resources(bp.resources[i]) else {
+            let mut f1 = *self;
+            let Some(dt) = self.wait_for_resources(bp.resources[i]) else {
                 return None;
             };
-            if t1 + 1 >= t {
+            if dt + 1 >= t {
                 return None;
             }
-            f1.collect_resources(t1 + 1);
-            f1.im
-                .resources
+            f1.collect_resources(dt + 1);
+            f1.resources
                 .iter_mut()
                 .zip(bp.resources[i])
                 .for_each(|(r, n)| *r -= n);
-            if i == 3 {
-                f1.geode_robot += 1;
-            } else {
-                f1.im.robots[i] += 1;
-            }
-            Some((t - t1 - 1, f1))
+            f1.robots[i] += 1;
+            Some((t - dt - 1, f1))
         } else {
             None
         }
@@ -117,29 +98,32 @@ fn parse(data: &str) -> Vec<Blueprint> {
         .collect()
 }
 
-fn bt(
+fn dfs(
     t: u8,
-    mut f: Factory,
+    f: Factory,
     bp: &Blueprint,
-    best: &mut u16,
-    cache: &mut HashMap<(u8, Intermediate), Int>,
+    best: &mut Int,
+    cache: &mut HashMap<(u8, Factory), Int>,
 ) -> Int {
     if t <= 1 {
-        if t == 1 {
-            f.geode += f.geode_robot;
-        }
-        *best = (*best).max(f.geode as u16);
-        return f.geode;
+        let geodes = if t == 1 {
+            f.resources[3] + f.robots[3]
+        } else {
+            f.resources[3]
+        };
+        *best = (*best).max(geodes);
+        return geodes;
     }
 
-    let key = (t, f.im);
-    let geodes = f.geode_robot * t as Int + f.geode;
+    let key = (t, f);
     if let Some(&r) = cache.get(&key) {
-        return r + geodes;
+        return r;
     }
+
+    let mut max = f.resources[3] + f.robots[3] * t as Int;
 
     // maximum possible geodes we can get assuming unlimited intermediate resources
-    let max_possible = geodes as u16 + t as u16 * (t as u16 - 1) / 2;
+    let max_possible = max + t as Int * (t as Int - 1) / 2;
     if max_possible <= *best {
         return 0;
     }
@@ -149,45 +133,40 @@ fn bt(
 
     // Fast forward to the minute we can build a type of robot.
     // This cut the branches significantly!!!
-    let mut max = 0;
     for i in 0..4 {
         if let Some((t1, f1)) = f.try_build_robot(t, i, bp) {
-            max = max.max(bt(t1, f1, bp, best, cache));
+            max = max.max(dfs(t1, f1, bp, best, cache));
         }
     }
 
-    cache.insert(key, max.saturating_sub(geodes));
+    cache.insert(key, max);
     max
 }
 
-fn part1(blueprints: &[Blueprint]) -> usize {
+fn solve(blueprints: &[Blueprint]) -> (usize, usize) {
     blueprints
         .par_iter()
         .enumerate()
-        .map(|(i, b)| {
+        .map(|(i, bp)| {
             let mut cache = HashMap::default();
-            let geodes = bt(24, Factory::default(), b, &mut 0, &mut cache) as usize;
-            (i + 1) * geodes
+            let f = Factory::default();
+            let p1 = (i + 1) * dfs(24, f, bp, &mut 0, &mut cache) as usize;
+            let p2 = if i < 3 {
+                dfs(32, f, bp, &mut 0, &mut cache) as usize
+            } else {
+                1
+            };
+            (p1, p2)
         })
-        .sum()
-}
-
-fn part2(blueprints: &[Blueprint]) -> usize {
-    blueprints
-        .par_iter()
-        .take(3)
-        .map(|b| {
-            let mut cache = HashMap::default();
-            bt(32, Factory::default(), b, &mut 0, &mut cache) as usize
-        })
-        .product()
+        .reduce(|| (0, 1), |r, e| (r.0 + e.0, r.1 * e.1))
 }
 
 pub fn main() {
     let data = std::fs::read_to_string("data/2022/day19").unwrap();
     let blueprints = parse(&data);
-    println!("part1: {}", part1(&blueprints));
-    println!("part2: {}", part2(&blueprints));
+    let (p1, p2) = solve(&blueprints);
+    println!("part1: {}", p1);
+    println!("part2: {}", p2);
 }
 
 #[cfg(test)]
@@ -200,7 +179,8 @@ mod tests {
 Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 2 ore. Each obsidian robot costs 3 ore and 14 clay. Each geode robot costs 2 ore and 7 obsidian.
 Blueprint 2: Each ore robot costs 2 ore. Each clay robot costs 3 ore. Each obsidian robot costs 3 ore and 8 clay. Each geode robot costs 3 ore and 12 obsidian.";
         let blueprints = parse(&data);
-        assert_eq!(33, part1(&blueprints));
-        assert_eq!(56 * 62, part2(&blueprints));
+        let (p1, p2) = solve(&blueprints);
+        assert_eq!(33, p1);
+        assert_eq!(56 * 62, p2);
     }
 }
