@@ -24,13 +24,6 @@ impl Default for Factory {
 }
 
 impl Factory {
-    fn collect_resources(&mut self, dt: u8) {
-        self.resources
-            .iter_mut()
-            .zip(self.robots)
-            .for_each(|(e, n)| *e += n * dt as u16);
-    }
-
     /// Number of minutes we need to wait to fullfill the resource requirements.
     fn wait_for_resources(&self, requirements: [Int; 3]) -> Option<u8> {
         let mut max = 0;
@@ -63,11 +56,14 @@ impl Factory {
             if dt + 1 >= t {
                 return None;
             }
-            f1.collect_resources(dt + 1);
             f1.resources
                 .iter_mut()
-                .zip(bp.resources[i])
-                .for_each(|(r, n)| *r -= n);
+                .zip(
+                    self.robots
+                        .into_iter()
+                        .zip(bp.resources[i].into_iter().chain([0])),
+                )
+                .for_each(|(e, (r, req))| *e = *e + r * (dt + 1) as u16 - req);
             f1.robots[i] += 1;
             Some((t - dt - 1, f1))
         } else {
