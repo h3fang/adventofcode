@@ -1,4 +1,6 @@
-use ahash::{HashMap, HashSet, HashSetExt};
+use std::collections::hash_map::Entry;
+
+use ahash::{HashMap, HashMapExt, HashSet};
 
 fn parse(data: &str) -> Vec<&[u8]> {
     data.trim().lines().map(|line| line.as_bytes()).collect()
@@ -64,27 +66,32 @@ fn propose(elves: &HashSet<(i16, i16)>, d: u8, (i, j): (i16, i16)) -> Option<(i1
     None
 }
 
-fn spread(elves: &HashSet<(i16, i16)>, d: u8) -> (HashSet<(i16, i16)>, bool) {
-    let mut m: HashMap<_, Vec<(i16, i16)>> = HashMap::default();
-    let mut next = HashSet::with_capacity(elves.len());
-    for &p in elves {
+fn spread(elves: &mut HashSet<(i16, i16)>, d: u8) -> bool {
+    // only the adjacent elve in the proposed direction can propose the same position
+    let mut m: HashMap<_, Option<(i16, i16)>> = HashMap::with_capacity(elves.len());
+    for &p in elves.iter() {
         if let Some(p1) = propose(elves, d, p) {
-            m.entry(p1).or_default().push(p);
-        } else {
-            next.insert(p);
+            match m.entry(p1) {
+                Entry::Occupied(mut e) => {
+                    if e.get().is_some() {
+                        e.insert(None);
+                    }
+                }
+                Entry::Vacant(e) => {
+                    e.insert(Some(p));
+                }
+            };
         }
     }
     let mut moved = false;
-    for (pos, proposed) in m {
-        if proposed.len() == 1 {
-            next.insert(pos);
+    for (proposed, original) in m {
+        if let Some(p) = original {
+            elves.remove(&p);
+            elves.insert(proposed);
             moved = true;
-        } else {
-            next.extend(proposed);
         }
     }
-    assert_eq!(elves.len(), next.len());
-    (next, moved)
+    moved
 }
 
 fn solve(map: &[&[u8]]) -> (usize, usize) {
@@ -99,8 +106,7 @@ fn solve(map: &[&[u8]]) -> (usize, usize) {
     let mut p1 = 0;
     let mut p2 = 0;
     for i in 0.. {
-        let (next, moved) = spread(&elves, (i % 4) as u8);
-        elves = next;
+        let moved = spread(&mut elves, (i % 4) as u8);
         if !moved && p2 == 0 {
             p2 = i + 1;
         }
