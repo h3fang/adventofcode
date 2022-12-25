@@ -1,6 +1,6 @@
 use std::{cmp::Reverse, collections::BinaryHeap};
 
-use ahash::{HashMap, HashSet};
+use ahash::HashMap;
 
 fn gcd(a: usize, b: usize) -> usize {
     if b == 0 {
@@ -19,7 +19,7 @@ struct Map {
     height: i16,
     entry: i16,
     exit: i16,
-    blizzards: Vec<HashSet<(i16, i16)>>,
+    blizzards: Vec<Vec<bool>>,
 }
 
 fn parse(data: &str) -> Map {
@@ -36,17 +36,20 @@ fn parse(data: &str) -> Map {
     let period = lcm(h, w);
     let blizzards = (0..period)
         .map(|t| {
-            let mut b = HashSet::default();
+            let mut b = vec![false; height * width];
             for (i, row) in g.iter().enumerate().skip(1).take(h) {
                 for (j, &c) in row.iter().enumerate().skip(1).take(w) {
-                    match c {
-                        b'>' => b.insert((i as i16, 1 + ((j - 1 + t) % w) as i16)),
-                        b'<' => b.insert((i as i16, 1 + ((j - 1 + w - t % w) % w) as i16)),
-                        b'v' => b.insert((1 + ((i - 1 + t) % h) as i16, j as i16)),
-                        b'^' => b.insert((1 + ((i - 1 + h - t % h) % h) as i16, j as i16)),
-                        b'.' => false,
+                    if c == b'.' {
+                        continue;
+                    }
+                    let k = match c {
+                        b'>' => i * width + 1 + ((j - 1 + t) % w),
+                        b'<' => i * width + 1 + ((j - 1 + w - t % w) % w),
+                        b'v' => (1 + ((i - 1 + t) % h)) * width + j,
+                        b'^' => (1 + ((i - 1 + h - t % h) % h)) * width + j,
                         _ => unreachable!(),
                     };
+                    b[k] = true;
                 }
             }
             b
@@ -83,7 +86,7 @@ fn shortest_path(map: &Map, (i0, j0): (i16, i16), end: (i16, i16), t0: usize) ->
                 || j1 >= map.width - 1
                 || (i1 == 0 && j1 != map.entry)
                 || (i1 == map.height - 1 && j1 != map.exit)
-                || blizz.contains(&(i1, j1))
+                || blizz[(map.width as usize) * i1 as usize + j1 as usize]
             {
                 continue;
             }
