@@ -1,125 +1,156 @@
-use std::collections::hash_map::Entry;
+struct Map {
+    width: usize,
+    height: usize,
+    grid: Vec<bool>,
+}
 
-use ahash::{HashMap, HashMapExt, HashSet};
+impl Map {
+    /// The elves will be at most one cell away from each other,
+    /// so a (3 * width) by (3 * height) grid will be sufficient.
+    fn new(width: usize, height: usize) -> Self {
+        Self {
+            width,
+            height,
+            grid: vec![false; width * height * 9],
+        }
+    }
+
+    #[inline]
+    fn index(&self, i: usize, j: usize) -> usize {
+        3 * self.width * (self.height + i) + j + self.width
+    }
+
+    #[inline]
+    fn neighbors(&self, k: usize) -> [usize; 8] {
+        let w = self.width * 3;
+        [
+            k - w - 1,
+            k - w,
+            k - w + 1,
+            k - 1,
+            k + 1,
+            k + w - 1,
+            k + w,
+            k + w + 1,
+        ]
+    }
+
+    #[inline]
+    fn direction(&self, k: usize, d: u8) -> [usize; 3] {
+        let w = self.width * 3;
+        match d {
+            0 => [k - w - 1, k - w, k - w + 1],
+            1 => [k + w - 1, k + w, k + w + 1],
+            2 => [k - w - 1, k - 1, k + w - 1],
+            3 => [k - w + 1, k + 1, k + w + 1],
+            _ => unreachable!(),
+        }
+    }
+
+    #[inline]
+    fn propose(&self, d: u8, k: usize) -> Option<usize> {
+        if self.neighbors(k).into_iter().any(|p| self.grid[p]) {
+            for d1 in d..d + 4 {
+                let ps = self.direction(k, d1 % 4);
+                if ps.into_iter().all(|p| !self.grid[p]) {
+                    return Some(ps[1]);
+                }
+            }
+        }
+        None
+    }
+
+    fn spread(&mut self, d: u8) -> bool {
+        // only the adjacent elve in the proposed direction can propose the same position
+        let mut g = self.grid.clone();
+        let mut moved = 0;
+        for (k, &c) in self.grid.iter().enumerate() {
+            if !c {
+                continue;
+            }
+            if let Some(p) = self.propose(d, k) {
+                if g[p] {
+                    g[p] = false;
+                    g[2 * p - k] = true;
+                    moved -= 1;
+                } else {
+                    g[k] = false;
+                    g[p] = true;
+                    moved += 1;
+                }
+            }
+        }
+        self.grid = g;
+        moved > 0
+    }
+
+    fn boundbox(&self) -> ((usize, usize), (usize, usize)) {
+        let mut min = (usize::MAX, usize::MAX);
+        let mut max = (usize::MIN, usize::MIN);
+        let w = self.width * 3;
+        for (k, &c) in self.grid.iter().enumerate() {
+            if !c {
+                continue;
+            }
+            let i = k / w;
+            let j = k % w;
+            min.0 = min.0.min(i);
+            min.1 = min.1.min(j);
+            max.0 = max.0.max(i);
+            max.1 = max.1.max(j);
+        }
+        (min, max)
+    }
+
+    #[allow(unused)]
+    fn print(&self) {
+        let (min, max) = self.boundbox();
+        for i in min.0..=max.0 {
+            let k0 = i * 3 * self.width;
+            let r = self.grid[k0 + min.1..=k0 + max.1]
+                .iter()
+                .map(|&c| if c { b'#' } else { b'.' })
+                .collect::<Vec<_>>();
+            println!("{}", std::str::from_utf8(&r).unwrap());
+        }
+    }
+}
 
 fn parse(data: &str) -> Vec<&[u8]> {
     data.trim().lines().map(|line| line.as_bytes()).collect()
 }
 
-fn boundbox(elves: &HashSet<(i16, i16)>) -> ((i16, i16), (i16, i16)) {
-    let mut min = (i16::MAX, i16::MAX);
-    let mut max = (i16::MIN, i16::MIN);
-    for &(i, j) in elves {
-        min.0 = min.0.min(i);
-        min.1 = min.1.min(j);
-        max.0 = max.0.max(i);
-        max.1 = max.1.max(j);
-    }
-    (min, max)
-}
-
-fn neighbors(i: i16, j: i16) -> [(i16, i16); 8] {
-    [
-        (i - 1, j - 1),
-        (i - 1, j),
-        (i - 1, j + 1),
-        (i, j - 1),
-        (i, j + 1),
-        (i + 1, j - 1),
-        (i + 1, j),
-        (i + 1, j + 1),
-    ]
-}
-
-fn direction(i: i16, j: i16, d: u8) -> [(i16, i16); 3] {
-    match d {
-        0 => [(i - 1, j - 1), (i - 1, j), (i - 1, j + 1)],
-        1 => [(i + 1, j - 1), (i + 1, j), (i + 1, j + 1)],
-        2 => [(i - 1, j - 1), (i, j - 1), (i + 1, j - 1)],
-        3 => [(i - 1, j + 1), (i, j + 1), (i + 1, j + 1)],
-        _ => unreachable!(),
-    }
-}
-
-// fn print_map(elves: &HashSet<(i16, i16)>) {
-//     let (min, max) = boundbox(elves);
-//     let w = max.1 - min.1 + 1;
-//     let h = max.0 - min.0 + 1;
-//     let mut map = vec![vec![b'.'; w as usize]; h as usize];
-//     for &(i, j) in elves {
-//         map[(i - min.0) as usize][(j - min.1) as usize] = b'#';
-//     }
-//     for r in map {
-//         println!("{}", std::str::from_utf8(&r).unwrap());
-//     }
-// }
-
-fn propose(elves: &HashSet<(i16, i16)>, d: u8, (i, j): (i16, i16)) -> Option<(i16, i16)> {
-    if neighbors(i, j).iter().any(|p| elves.contains(p)) {
-        for d1 in d..d + 4 {
-            let ps = direction(i, j, d1 % 4);
-            if ps.iter().all(|p| !elves.contains(p)) {
-                return Some(ps[1]);
-            }
-        }
-    }
-    None
-}
-
-fn spread(elves: &mut HashSet<(i16, i16)>, d: u8) -> bool {
-    // only the adjacent elve in the proposed direction can propose the same position
-    let mut m: HashMap<_, Option<(i16, i16)>> = HashMap::with_capacity(elves.len());
-    for &p in elves.iter() {
-        if let Some(p1) = propose(elves, d, p) {
-            match m.entry(p1) {
-                Entry::Occupied(mut e) => {
-                    if e.get().is_some() {
-                        e.insert(None);
-                    }
-                }
-                Entry::Vacant(e) => {
-                    e.insert(Some(p));
-                }
-            };
-        }
-    }
-    let mut moved = false;
-    for (proposed, original) in m {
-        if let Some(p) = original {
-            elves.remove(&p);
-            elves.insert(proposed);
-            moved = true;
-        }
-    }
-    moved
-}
-
 fn solve(map: &[&[u8]]) -> (usize, usize) {
-    let mut elves = HashSet::default();
+    let height = map.len();
+    let width = map[0].len();
+    let mut m = Map::new(width, height);
+    let mut n_evles = 0;
     for (i, r) in map.iter().enumerate() {
         for (j, c) in r.iter().enumerate() {
             if *c == b'#' {
-                elves.insert((i as i16, j as i16));
+                let k = m.index(i, j);
+                m.grid[k] = true;
+                n_evles += 1;
             }
         }
     }
     let mut p1 = 0;
     let mut p2 = 0;
     for i in 0.. {
-        let moved = spread(&mut elves, (i % 4) as u8);
+        let moved = m.spread((i % 4) as u8);
         if !moved && p2 == 0 {
             p2 = i + 1;
         }
         if i == 9 {
-            let (min, max) = boundbox(&elves);
-            let area = (max.0 - min.0 + 1) as usize * (max.1 - min.1 + 1) as usize;
-            p1 = area - elves.len();
+            let (min, max) = m.boundbox();
+            let area = (max.0 - min.0 + 1) * (max.1 - min.1 + 1);
+            p1 = area - n_evles;
         }
         if p1 > 0 && p2 > 0 {
             break;
         }
     }
-    // print_map(&elves);
+    // m.print();
     (p1, p2)
 }
 
