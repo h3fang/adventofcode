@@ -116,7 +116,7 @@ fn part2_scanline(sensors: &[Vec<i32>], max: i32) -> usize {
         .unwrap()
 }
 
-/// Let m be the area size limit, n be the number of sensors.
+/// Let m be the search area side length, n be the number of sensors.
 ///
 /// Previous method has time complexity O(mn^2).
 ///
@@ -141,7 +141,7 @@ fn part2(sensors: &[Vec<i32>], max: i32) -> usize {
         for &v in &vs {
             let x = (u + v) / 2;
             let y = (v - u) / 2;
-            if x < 0 || y < 0 || x >= max || y >= max {
+            if x < 0 || y < 0 || x > max || y > max {
                 continue;
             }
             if sensors
