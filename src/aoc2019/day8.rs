@@ -23,7 +23,7 @@ fn part1(image: &str) -> usize {
 fn part2(image: &str) {
     let img = image.as_bytes();
     let layers = img.chunks_exact(LAYER_SIZE).collect::<Vec<_>>();
-    let mut rendered = vec![b' '; LAYER_SIZE];
+    let mut rendered = [b' '; LAYER_SIZE];
     for i in 0..HEIGHT {
         for j in 0..WIDTH {
             for layer in &layers {

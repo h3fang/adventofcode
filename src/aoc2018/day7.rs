@@ -14,7 +14,7 @@ fn parse(data: &str) -> Vec<(u8, u8)> {
 
 fn part1(reqs: &[(u8, u8)]) -> String {
     let mut g = vec![vec![]; 26];
-    let mut in_degs = vec![0; 26];
+    let mut in_degs = [0; 26];
     for r in reqs {
         g[r.0 as usize].push(r.1);
         in_degs[r.1 as usize] += 1;
@@ -40,7 +40,7 @@ fn part1(reqs: &[(u8, u8)]) -> String {
 
 fn part2(reqs: &[(u8, u8)], n: usize, step: usize) -> usize {
     let mut graph = vec![vec![]; 26];
-    let mut in_degs = vec![0; 26];
+    let mut in_degs = [0; 26];
     for r in reqs {
         graph[r.0 as usize].push(r.1);
         in_degs[r.1 as usize] += 1;

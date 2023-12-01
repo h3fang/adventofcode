@@ -41,7 +41,7 @@ pub fn main() {
         .map(|s| s.chars().collect::<Vec<_>>())
         .collect();
     let map = Map::new(tile);
-    let slops = vec![(1, 1), (1, 3), (1, 5), (1, 7), (2, 1)];
+    let slops = [(1, 1), (1, 3), (1, 5), (1, 7), (2, 1)];
     let n_trees = slops
         .iter()
         .map(|&(dx, dy)| count_trees(&map, dx, dy))

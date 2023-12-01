@@ -82,8 +82,7 @@ fn evaluate(exp: &str, reduce: fn(&mut Vec<Node>) -> usize) -> usize {
         .map(Node::from)
         .filter(|c| c != &Node::None)
         .collect::<Vec<_>>();
-    let mut stack = Vec::new();
-    stack.reserve(exp.len());
+    let mut stack = Vec::with_capacity(exp.len());
 
     for c in exp {
         match c {

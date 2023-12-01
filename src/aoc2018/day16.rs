@@ -110,10 +110,7 @@ fn try_opcode(op: i32, sample: &Sample) -> bool {
 }
 
 fn num_of_candidates(sample: &Sample) -> usize {
-    (0..16)
-        .into_iter()
-        .filter(|&op| try_opcode(op, sample))
-        .count()
+    (0..16).filter(|&op| try_opcode(op, sample)).count()
 }
 
 fn part1(samples: &[Sample]) -> usize {

@@ -31,7 +31,7 @@ fn mixing(nums: &mut [i64], key: i64, repeat: usize) -> i64 {
     [1000, 2000, 3000]
         .into_iter()
         .map(|d| {
-            let j = q[((i + d) % n)];
+            let j = q[(i + d) % n];
             nums[j]
         })
         .sum()

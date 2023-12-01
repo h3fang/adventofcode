@@ -46,8 +46,7 @@ fn parse(content: &str) -> (Vec<Rule>, Vec<&str>) {
 
     let messages = lines.collect::<Vec<_>>();
     let max_rules = map.keys().max().unwrap();
-    let mut rules = Vec::new();
-    rules.reserve(max_rules + 1);
+    let mut rules = Vec::with_capacity(max_rules + 1);
     for i in 0..=*max_rules {
         if let Some(r) = map.get(&i) {
             rules.push(r.clone());

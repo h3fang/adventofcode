@@ -3,7 +3,7 @@ fn parse(data: &str) -> Vec<&[u8]> {
 }
 
 fn priority(item: u8) -> u8 {
-    if (b'a'..=b'z').contains(&item) {
+    if item.is_ascii_lowercase() {
         (item - b'a') + 1
     } else {
         (item - b'A') + 27

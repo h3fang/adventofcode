@@ -14,6 +14,7 @@ enum Item {
     List(Vec<Item>),
 }
 
+#[allow(clippy::non_canonical_partial_ord_impl)]
 impl PartialOrd for Item {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         match (self, other) {
