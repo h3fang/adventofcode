@@ -1,6 +1,6 @@
 use adventofcode::days;
 
-days!(1, 2, 3);
+days!(1, 2, 3, 4);
 
 fn main() {
     if let Some(day) = std::env::args().nth(1) {
