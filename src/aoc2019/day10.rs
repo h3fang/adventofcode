@@ -1,3 +1,5 @@
+use std::f64::consts::{FRAC_PI_2, TAU};
+
 fn gcd(a: i64, b: i64) -> i64 {
     if b == 0 {
         a
@@ -68,22 +70,13 @@ struct Position {
 
 impl Ord for Position {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        if self.x == 0 && self.y > 0 {
-            if other.x == 0 && other.y > 0 {
-                self.y.cmp(&other.y)
-            } else {
-                std::cmp::Ordering::Less
-            }
-        } else if self.x * other.y == self.y * other.x {
-            (self.x * self.x + self.y * self.y).cmp(&(other.x * other.x + other.y * other.y))
+        if self.is_on_same_ray(other) {
+            self.square_length().cmp(&other.square_length())
         } else {
-            let theta1 = (-self.x as f64).atan2(-self.y as f64);
-            let theta2 = (-other.x as f64).atan2(-other.y as f64);
-            if theta1 < theta2 {
-                std::cmp::Ordering::Less
-            } else {
-                std::cmp::Ordering::Greater
-            }
+            let theta1 = self.angle();
+            let theta2 = other.angle();
+            assert!(theta1 != theta2);
+            theta1.partial_cmp(&theta2).unwrap()
         }
     }
 }
@@ -95,8 +88,21 @@ impl PartialOrd for Position {
 }
 
 impl Position {
-    fn is_collinear(&self, other: &Self) -> bool {
-        self.x * other.y == self.y * other.x
+    #[inline]
+    fn square_length(&self) -> i64 {
+        self.x * self.x + self.y * self.y
+    }
+
+    #[inline]
+    fn angle(&self) -> f64 {
+        (-(self.y as f64).atan2(self.x as f64) + FRAC_PI_2).rem_euclid(TAU)
+    }
+
+    #[inline]
+    fn is_on_same_ray(&self, other: &Self) -> bool {
+        self.x.signum() == other.x.signum()
+            && self.y.signum() == other.y.signum()
+            && self.x * other.y == self.y * other.x
     }
 }
 
@@ -114,17 +120,14 @@ fn part2(map: &[&[u8]], (x0, y0): (usize, usize), n: usize) -> i64 {
     }
     asteroids.sort_unstable();
     let mut i = 0;
-    let mut prev = asteroids.remove(i);
-    for _ in 1..=n {
-        while i < asteroids.len() && asteroids[i].is_collinear(&prev) {
+    let mut prev = Position { x: 0, y: 0 };
+    for _ in 0..n {
+        prev = asteroids.remove(i);
+        while i < asteroids.len() && asteroids[i].is_on_same_ray(&prev) {
             i += 1;
             if i == asteroids.len() {
                 i = 0;
             }
-        }
-        prev = asteroids.remove(i);
-        if i == asteroids.len() {
-            i = 0;
         }
     }
     (prev.x + x0 as i64) * 100 + y0 as i64 - prev.y
