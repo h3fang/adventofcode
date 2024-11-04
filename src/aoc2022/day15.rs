@@ -15,7 +15,7 @@ fn parse(data: &str) -> Vec<Vec<i32>> {
                 .split_ascii_whitespace()
                 .filter(|p| p.contains('='))
                 .map(|p| {
-                    let p = p.trim_end_matches(|c| c == ',' || c == ':');
+                    let p = p.trim_end_matches([',', ':']);
                     p[2..].parse().unwrap()
                 })
                 .collect::<Vec<i32>>();

@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{fmt::Display, str::FromStr};
 
 #[derive(Debug)]
 enum Command {
@@ -7,8 +7,13 @@ enum Command {
     Forward(i64),
 }
 
-#[derive(Debug)]
 struct InvalidCommand(String);
+
+impl Display for InvalidCommand {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "invalid command, source: {}", self.0)
+    }
+}
 
 impl FromStr for Command {
     type Err = InvalidCommand;
@@ -61,12 +66,17 @@ fn part2(cmds: &[Command]) -> i64 {
 }
 
 pub fn main() {
-    let cmds: Vec<Command> = std::fs::read_to_string("data/2021/day2")
+    let cmds: Result<Vec<Command>, _> = std::fs::read_to_string("data/2021/day2")
         .unwrap()
         .lines()
-        .map(|s| s.parse().unwrap())
+        .map(|s| s.parse())
         .collect();
 
-    println!("day2 part1: {}", part1(&cmds));
-    println!("day2 part2: {}", part2(&cmds));
+    match cmds {
+        Ok(cmds) => {
+            println!("day2 part1: {}", part1(&cmds));
+            println!("day2 part2: {}", part2(&cmds));
+        }
+        Err(e) => println!("failed to parse input, error: {e}"),
+    }
 }

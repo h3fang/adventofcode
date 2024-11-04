@@ -50,9 +50,7 @@ impl Factory {
             && (0..3).all(|j| self.robots[j] > 0 || self.resources[j] >= bp.resources[i][j])
         {
             let mut f1 = *self;
-            let Some(dt) = self.wait_for_resources(bp.resources[i]) else {
-                return None;
-            };
+            let dt = self.wait_for_resources(bp.resources[i])?;
             if dt + 1 >= t {
                 return None;
             }

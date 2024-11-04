@@ -142,7 +142,7 @@ impl Tower {
 
     fn clear_top(&mut self) {
         while let Some(t) = self.chamber.last() {
-            if t != &[b'.', b'.', b'.', b'.', b'.', b'.', b'.'] {
+            if t != b"......." {
                 break;
             }
             self.chamber.pop();
