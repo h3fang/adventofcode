@@ -2,11 +2,6 @@ use ahash::AHashMap as HashMap;
 use ahash::AHashSet as HashSet;
 use std::collections::BTreeMap;
 
-#[derive(Debug, Clone, PartialEq, PartialOrd)]
-struct Ingredient {
-    name: String,
-}
-
 fn parse(content: &str) -> Vec<(HashSet<&str>, HashSet<&str>)> {
     content
         .lines()
