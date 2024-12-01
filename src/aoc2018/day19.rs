@@ -18,7 +18,7 @@ struct Instruction<'a> {
     out: u64,
 }
 
-impl<'a> std::fmt::Display for Instruction<'a> {
+impl std::fmt::Display for Instruction<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{} {:2} {:2} {}", self.op, self.in1, self.in2, self.out)
     }

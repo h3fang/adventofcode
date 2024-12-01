@@ -36,7 +36,7 @@ impl Factory {
                 if robot == 0 {
                     return None;
                 }
-                let t = (req - r + robot - 1) / robot;
+                let t = (req - r).div_ceil(robot);
                 max = max.max(t);
             }
         }

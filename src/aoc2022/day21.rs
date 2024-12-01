@@ -57,7 +57,7 @@ enum Arg<'a> {
     Num(i64),
 }
 
-impl<'a> std::fmt::Display for Arg<'a> {
+impl std::fmt::Display for Arg<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Arg::Id(id) => write!(f, "{}", id),
@@ -72,7 +72,7 @@ enum Exp<'a> {
     Op((Arg<'a>, u8, Arg<'a>)),
 }
 
-impl<'a> std::fmt::Display for Exp<'a> {
+impl std::fmt::Display for Exp<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Exp::Num(n) => write!(f, "{}", n),
@@ -117,7 +117,7 @@ fn find_exp<'a>(
 }
 
 fn find_value(m: &HashMap<&str, Exp>, exp: Exp, value: i64) -> i64 {
-    let Exp::Op((a,b,c)) = exp else {
+    let Exp::Op((a, b, c)) = exp else {
         unreachable!();
     };
     match (a, c) {
@@ -150,7 +150,7 @@ fn find_value(m: &HashMap<&str, Exp>, exp: Exp, value: i64) -> i64 {
 /// otherwise we have to solve the algebraic equation numerically.
 fn part2(jobs: &HashMap<&str, Job>) -> i64 {
     let mut m = HashMap::default();
-    let Job::Op((a, _b,c)) = *jobs.get("root").unwrap() else {
+    let Job::Op((a, _b, c)) = *jobs.get("root").unwrap() else {
         unreachable!();
     };
     let a = find_exp(jobs, &mut m, a);
