@@ -25,6 +25,7 @@ fn part2(mut input: &str) -> i32 {
         if input.starts_with("don't()") {
             if let Some(i) = input.find("do()") {
                 input = &input[i + "do()".len()..];
+                continue;
             } else {
                 break;
             }
