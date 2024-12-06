@@ -1,4 +1,5 @@
 use ahash::{HashSet, HashSetExt};
+use rayon::prelude::*;
 
 const DIRS: [(i32, i32); 4] = [(-1, 0), (0, 1), (1, 0), (0, -1)];
 
@@ -65,14 +66,11 @@ fn is_loop(map: &[&[u8]], (mut i, mut j): (i32, i32), obstacle: (i32, i32)) -> b
     }
 }
 
-fn part2(map: &[&[u8]], start: (i32, i32), path: HashSet<(i32, i32)>) -> usize {
-    let mut result = 0;
-    for (i, j) in path {
-        if (i, j) != start && is_loop(map, start, (i, j)) {
-            result += 1;
-        }
-    }
-    result
+fn part2(map: &[&[u8]], start: (i32, i32), mut path: HashSet<(i32, i32)>) -> usize {
+    path.remove(&start);
+    path.into_par_iter()
+        .filter(|&p| is_loop(map, start, p))
+        .count()
 }
 
 pub fn main() {
