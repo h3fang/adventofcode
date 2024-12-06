@@ -24,18 +24,18 @@ fn part1(map: &[&[u8]], (mut i, mut j): (i32, i32)) -> HashSet<(i32, i32)> {
     let mut visited = HashSet::with_capacity((m * n) as usize);
     loop {
         visited.insert((i, j));
-        let dir = &DIRS[d as usize];
-        let (i1, j1) = (i + dir.0, j + dir.1);
-        if i1 < 0 || j1 < 0 || i1 == m || j1 == n {
-            return visited;
-        }
-        if map[i1 as usize][j1 as usize] == b'#' {
-            d = (d + 1) % 4;
-            let dir = &DIRS[d as usize];
-            i += dir.0;
-            j += dir.1;
-        } else {
-            (i, j) = (i1, j1);
+        loop {
+            let (di, dj) = DIRS[d as usize];
+            let (i1, j1) = (i + di, j + dj);
+            if i1 < 0 || j1 < 0 || i1 == m || j1 == n {
+                return visited;
+            }
+            if map[i1 as usize][j1 as usize] == b'#' {
+                d = (d + 1) % 4;
+            } else {
+                (i, j) = (i1, j1);
+                break;
+            }
         }
     }
 }
