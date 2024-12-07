@@ -245,7 +245,7 @@ T55J5 684
 KK677 28
 KTJJT 220
 QQQJA 483";
-        let input = parse(&data);
+        let input = parse(data);
         assert_eq!(6440, part1(&input));
         assert_eq!(5905, part2(&input));
     }

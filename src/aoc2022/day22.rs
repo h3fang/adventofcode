@@ -145,7 +145,7 @@ mod tests {
         ......#.
 
 10R5L5R10L4R5L5";
-        let (map, path) = parse(&data);
+        let (map, path) = parse(data);
         assert_eq!(6032, part1(&map, &path));
         // assert_eq!(5031, part2(&map, &path));
     }

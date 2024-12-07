@@ -192,7 +192,7 @@ pppw: cczh / lfqf
 lgvd: ljgn * ptdq
 drzm: hmdt - zczc
 hmdt: 32";
-        let jobs = parse(&data);
+        let jobs = parse(data);
         assert_eq!(152, part1(&jobs));
         assert_eq!(301, part2(&jobs));
     }

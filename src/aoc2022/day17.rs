@@ -226,7 +226,7 @@ mod tests {
     #[test]
     fn case1() {
         let data = ">>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>";
-        let jets = parse(&data);
+        let jets = parse(data);
         let mut tower = Tower::new(jets);
         assert_eq!(3068, part1(&mut tower));
         assert_eq!(1514285714288, part2(&mut tower));

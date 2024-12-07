@@ -57,7 +57,7 @@ mod tests {
         let data = "
 Time:      7  15   30
 Distance:  9  40  200";
-        let input = parse(&data);
+        let input = parse(data);
         assert_eq!(288, part1(input));
         assert_eq!(71503, part2(input));
     }

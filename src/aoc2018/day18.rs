@@ -146,7 +146,7 @@ mod tests {
 ||...#|.#|
 |.||||..|.
 ...#.|..|.";
-        let mut map = parse(&data);
+        let mut map = parse(data);
         assert_eq!(1147, part1(&mut map));
     }
 }

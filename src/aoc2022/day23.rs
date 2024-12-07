@@ -176,7 +176,7 @@ mod tests {
 #.###..
 ##.#.##
 .#..#..";
-        let map = parse(&data);
+        let map = parse(data);
         let (p1, p2) = solve(&map);
         assert_eq!(110, p1);
         assert_eq!(20, p2);
@@ -191,7 +191,7 @@ mod tests {
 .....
 ..##.
 .....";
-        let map = parse(&data);
+        let map = parse(data);
         let (p1, p2) = solve(&map);
         assert_eq!(25, p1);
         assert_eq!(4, p2);

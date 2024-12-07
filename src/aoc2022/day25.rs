@@ -87,7 +87,7 @@ mod tests {
 12
 1=
 122";
-        let nums = parse(&data);
+        let nums = parse(data);
         assert_eq!("2=-1=0", part1(&nums));
     }
 }

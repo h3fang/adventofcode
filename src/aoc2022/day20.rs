@@ -58,7 +58,7 @@ mod tests {
 -2
 0
 4";
-        let mut nums = parse(&data);
+        let mut nums = parse(data);
         assert_eq!(3, mixing(&mut nums, 1, 1));
         assert_eq!(1623178306, mixing(&mut nums, 811589153, 10));
     }

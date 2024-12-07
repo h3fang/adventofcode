@@ -101,7 +101,7 @@ mod tests {
         5 B, 7 C => 1 BC
         4 C, 1 A => 1 CA
         2 AB, 3 BC, 4 CA => 1 FUEL";
-        let g = create_graph(&data);
+        let g = create_graph(data);
         assert_eq!(165, part1(&g, 1));
     }
 
@@ -113,7 +113,7 @@ mod tests {
         7 A, 1 C => 1 D
         7 A, 1 D => 1 E
         7 A, 1 E => 1 FUEL";
-        let g = create_graph(&data);
+        let g = create_graph(data);
         assert_eq!(31, part1(&g, 1));
     }
 
@@ -136,7 +136,7 @@ mod tests {
         121 ORE => 7 VRPVC
         7 XCVML => 6 RJRHP
         5 BHXH, 4 VRPVC => 5 LTCX";
-        let g = create_graph(&data);
+        let g = create_graph(data);
         assert_eq!(2210736, part1(&g, 1));
     }
 }

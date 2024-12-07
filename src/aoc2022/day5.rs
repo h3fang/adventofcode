@@ -81,7 +81,7 @@ move 1 from 2 to 1
 move 3 from 1 to 3
 move 2 from 2 to 1
 move 1 from 1 to 2";
-        let (stacks, procedure) = parse(&data);
+        let (stacks, procedure) = parse(data);
         assert_eq!("CMZ", part1(stacks.clone(), &procedure));
         assert_eq!("MCD", part2(stacks, &procedure));
     }

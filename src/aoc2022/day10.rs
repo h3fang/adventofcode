@@ -249,7 +249,7 @@ addx -11
 noop
 noop
 noop";
-        let program = parse(&data);
+        let program = parse(data);
         assert_eq!(13140, part1(&program));
 
         let p2 = "##..##..##..##..##..##..##..##..##..##..

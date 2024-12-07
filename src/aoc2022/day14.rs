@@ -143,7 +143,7 @@ mod tests {
         let data = "
 498,4 -> 498,6 -> 496,6
 503,4 -> 502,4 -> 502,9 -> 494,9";
-        let scan = parse(&data);
+        let scan = parse(data);
         assert_eq!(24, part1(&scan));
         assert_eq!(93, part2(&scan));
     }

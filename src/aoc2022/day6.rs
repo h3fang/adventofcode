@@ -36,7 +36,7 @@ mod tests {
     #[test]
     fn case1() {
         let data = "mjqjpqmgbljsphdztnvjfqwrcgsmlb";
-        let signal = parse(&data);
+        let signal = parse(data);
         assert_eq!(7, marker(signal, 4));
         assert_eq!(19, marker(signal, 14));
     }
@@ -44,7 +44,7 @@ mod tests {
     #[test]
     fn case2() {
         let data = "bvwbjplbgvbhsrlpgdmjqwftvncz";
-        let signal = parse(&data);
+        let signal = parse(data);
         assert_eq!(5, marker(signal, 4));
         assert_eq!(23, marker(signal, 14));
     }
@@ -52,7 +52,7 @@ mod tests {
     #[test]
     fn case3() {
         let data = "nppdvjthqldpwncqszvftbrmjlhg";
-        let signal = parse(&data);
+        let signal = parse(data);
         assert_eq!(6, marker(signal, 4));
         assert_eq!(23, marker(signal, 14));
     }
@@ -60,7 +60,7 @@ mod tests {
     #[test]
     fn case4() {
         let data = "nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg";
-        let signal = parse(&data);
+        let signal = parse(data);
         assert_eq!(10, marker(signal, 4));
         assert_eq!(29, marker(signal, 14));
     }
@@ -68,7 +68,7 @@ mod tests {
     #[test]
     fn case5() {
         let data = "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw";
-        let signal = parse(&data);
+        let signal = parse(data);
         assert_eq!(11, marker(signal, 4));
         assert_eq!(26, marker(signal, 14));
     }

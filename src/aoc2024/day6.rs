@@ -99,7 +99,7 @@ mod tests {
 ........#.
 #.........
 ......#...";
-        let map = parse(&input);
+        let map = parse(input);
         let start = find_guard(&map);
         let path = part1(&map, start);
         assert_eq!(41, path.len());

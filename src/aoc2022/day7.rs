@@ -204,7 +204,7 @@ $ ls
 8033020 d.log
 5626152 d.ext
 7214296 k";
-        let root = parse(&data);
+        let root = parse(data);
         let (p1, total) = part1(&root);
         assert_eq!(95437, p1);
         assert_eq!(24933642, part2(&root, total));

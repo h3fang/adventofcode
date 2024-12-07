@@ -227,7 +227,7 @@ mod tests {
     #[test]
     fn case1() {
         let data = "[[[[4,3],4],4],[7,[[8,4],9]]]\n[1,1]";
-        let mut numbers = parse(&data);
+        let mut numbers = parse(data);
         let mut n = numbers.remove(0);
         for rhs in numbers {
             n = n + rhs;

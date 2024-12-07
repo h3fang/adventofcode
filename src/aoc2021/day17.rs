@@ -63,7 +63,7 @@ mod tests {
     #[test]
     fn case1() {
         let data = "target area: x=20..30, y=-10..-5";
-        let limits = parse(&data);
+        let limits = parse(data);
         let (p1, p2) = solve(&limits);
         assert_eq!(45, p1);
         assert_eq!(112, p2);

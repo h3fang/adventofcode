@@ -139,7 +139,7 @@ temperature-to-humidity map:
 humidity-to-location map:
 60 56 37
 56 93 4";
-        let (seeds, maps) = parse(&data);
+        let (seeds, maps) = parse(data);
         assert_eq!(35, part1(&seeds, &maps));
         assert_eq!(46, part2(&seeds, &maps));
     }

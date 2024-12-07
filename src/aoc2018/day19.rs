@@ -136,7 +136,7 @@ addr 1 2 3
 setr 1 0 0
 seti 8 0 4
 seti 9 0 5";
-        let (ip_reg, instructions) = parse(&data);
+        let (ip_reg, instructions) = parse(data);
         assert_eq!(6, part1_sim(ip_reg as usize, &instructions));
     }
 }

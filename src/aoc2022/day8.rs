@@ -134,7 +134,7 @@ mod tests {
 65332
 33549
 35390";
-        let map = parse(&data);
+        let map = parse(data);
         assert_eq!(21, part1(&map));
         assert_eq!(8, part2(&map));
     }

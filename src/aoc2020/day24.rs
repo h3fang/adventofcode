@@ -165,7 +165,7 @@ eneswnwswnwsenenwnwnwwseeswneewsenese
 neswnwewnwnwseenwseesewsenwsweewe
 wseweeenwnesenwwwswnew";
 
-        let directions = parse(&content);
+        let directions = parse(content);
 
         // part 1
         let (n_black, mut tiles) = part1(&directions);

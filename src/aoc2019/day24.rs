@@ -259,7 +259,7 @@ mod tests {
         #..##
         ..#..
         #....";
-        let grid = Grid::parse(&data);
+        let grid = Grid::parse(data);
         assert_eq!(2129920, part1(Grid(grid.0)));
         assert_eq!(99, part2(grid, 10));
     }

@@ -335,7 +335,7 @@ mod tests {
 ###B#C#B#D###
   #A#D#C#A#  
   #########  ";
-        assert_eq!(12521, solve::<2, 6>(parse::<2>(&data)));
-        assert_eq!(44169, solve::<4, 8>(parse::<4>(&data)));
+        assert_eq!(12521, solve::<2, 6>(parse::<2>(data)));
+        assert_eq!(44169, solve::<4, 8>(parse::<4>(data)));
     }
 }

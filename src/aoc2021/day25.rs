@@ -113,7 +113,7 @@ mod tests {
         .vv..>.>v.
         v.v..>>v.v
         ....v..v.>";
-        let mut grid = parse(&data);
+        let mut grid = parse(data);
         assert_eq!(58, part1(&mut grid));
     }
 }

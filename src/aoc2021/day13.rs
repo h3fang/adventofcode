@@ -101,7 +101,7 @@ mod tests {
 
         fold along y=7
         fold along x=5";
-        let (mut points, fold_lines) = parse(&data);
+        let (mut points, fold_lines) = parse(data);
         print_grid(&points);
         points = fold(points, fold_lines[0]);
         assert_eq!(17, points.len());

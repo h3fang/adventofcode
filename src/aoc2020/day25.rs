@@ -52,7 +52,7 @@ mod tests {
     #[test]
     fn input1() {
         let content = "5764801\n17807724";
-        let (card_pub, door_pub) = parse(&content);
+        let (card_pub, door_pub) = parse(content);
 
         // part 1
         assert_eq!(14897079, part1(card_pub, door_pub));

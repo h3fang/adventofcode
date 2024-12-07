@@ -92,7 +92,7 @@ mod tests {
  0,0,0,6
  9,0,0,0
 12,0,0,0";
-        let points = parse(&data);
+        let points = parse(data);
         assert_eq!(2, part1(&points));
     }
 
@@ -109,7 +109,7 @@ mod tests {
 -1,0,-1,0
 0,2,1,-2
 3,0,0,0";
-        let points = parse(&data);
+        let points = parse(data);
         assert_eq!(4, part1(&points));
     }
 
@@ -126,7 +126,7 @@ mod tests {
 2,-2,0,-1
 1,-1,0,-1
 3,2,0,2";
-        let points = parse(&data);
+        let points = parse(data);
         assert_eq!(3, part1(&points));
     }
 
@@ -143,7 +143,7 @@ mod tests {
 -2,2,3,-1
 1,2,2,0
 -1,-2,0,-2";
-        let points = parse(&data);
+        let points = parse(data);
         assert_eq!(8, part1(&points));
     }
 }

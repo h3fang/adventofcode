@@ -66,7 +66,7 @@ mod tests {
 1 3 2 4 5
 8 6 4 4 1
 1 3 6 7 9";
-        let levels = parse(&data);
+        let levels = parse(data);
         assert_eq!(2, part1(&levels));
         assert_eq!(4, part2(&levels));
     }

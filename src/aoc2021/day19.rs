@@ -551,7 +551,7 @@ mod tests {
         -652,-548,-490
         30,-46,-14";
 
-        let scanners = parse(&data);
+        let scanners = parse(data);
         assert_eq!((79, 3621), solve(scanners));
     }
 }

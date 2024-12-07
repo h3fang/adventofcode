@@ -53,7 +53,7 @@ mod tests {
 2-8,3-7
 6-6,4-6
 2-6,4-8";
-        let assignments = parse(&data);
+        let assignments = parse(data);
         assert_eq!(2, part1(&assignments));
         assert_eq!(4, part2(&assignments));
     }

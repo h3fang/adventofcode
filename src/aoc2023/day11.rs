@@ -71,7 +71,7 @@ mod tests {
 .......#..
 #...#.....
 ";
-        let image = parse(&data);
+        let image = parse(data);
         assert_eq!(374, expand(&image, 2));
         assert_eq!(1030, expand(&image, 10));
         assert_eq!(8410, expand(&image, 100));

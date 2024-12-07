@@ -46,7 +46,7 @@ mod tests {
 1   3
 3   9
 3   3";
-        let (mut l1, mut l2) = parse(&data);
+        let (mut l1, mut l2) = parse(data);
         assert_eq!(11, part1(&mut l1, &mut l2));
         assert_eq!(31, part2(&l1, &l2));
     }

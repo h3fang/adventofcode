@@ -172,7 +172,7 @@ mod tests {
         let data = "
 Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 2 ore. Each obsidian robot costs 3 ore and 14 clay. Each geode robot costs 2 ore and 7 obsidian.
 Blueprint 2: Each ore robot costs 2 ore. Each clay robot costs 3 ore. Each obsidian robot costs 3 ore and 8 clay. Each geode robot costs 3 ore and 12 obsidian.";
-        let blueprints = parse(&data);
+        let blueprints = parse(data);
         let (p1, p2) = solve(&blueprints);
         assert_eq!(33, p1);
         assert_eq!(56 * 62, p2);

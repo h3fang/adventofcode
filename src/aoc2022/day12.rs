@@ -110,7 +110,7 @@ abcryxxl
 accszExk
 acctuvwj
 abdefghi";
-        let map = parse(&data);
+        let map = parse(data);
         assert_eq!(31, part1(&map));
         assert_eq!(29, part2(&map));
     }

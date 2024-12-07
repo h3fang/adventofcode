@@ -130,7 +130,7 @@ mod tests {
 #>v.><>#
 #<^v^^>#
 ######.#";
-        let map = parse(&data);
+        let map = parse(data);
         let (p1, p2) = solve(&map);
         assert_eq!(18, p1);
         assert_eq!(54, p2);

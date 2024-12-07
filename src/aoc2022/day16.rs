@@ -172,7 +172,7 @@ Valve GG has flow rate=0; tunnels lead to valves FF, HH
 Valve HH has flow rate=22; tunnel leads to valve GG
 Valve II has flow rate=0; tunnels lead to valves AA, JJ
 Valve JJ has flow rate=21; tunnel leads to valve II";
-        let map = parse(&data);
+        let map = parse(data);
         assert_eq!(1651, part1(30, map.start, (1 << map.m) - 1, &map));
         assert_eq!(1707, part2(&map));
     }

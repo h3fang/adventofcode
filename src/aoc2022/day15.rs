@@ -184,7 +184,7 @@ Sensor at x=17, y=20: closest beacon is at x=21, y=22
 Sensor at x=16, y=7: closest beacon is at x=15, y=3
 Sensor at x=14, y=3: closest beacon is at x=15, y=3
 Sensor at x=20, y=1: closest beacon is at x=15, y=3";
-        let sensors = parse(&data);
+        let sensors = parse(data);
         assert_eq!(26, part1(&sensors, 10));
         assert_eq!(56000011, part2_scanline(&sensors, 20));
         assert_eq!(56000011, part2(&sensors, 20));

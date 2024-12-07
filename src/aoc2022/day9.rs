@@ -85,7 +85,7 @@ R 4
 D 1
 L 5
 R 2";
-        let motions = parse(&data);
+        let motions = parse(data);
         assert_eq!(13, part1(&motions));
         assert_eq!(1, part2(&motions));
     }
@@ -101,7 +101,7 @@ R 17
 D 10
 L 25
 U 20";
-        let motions = parse(&data);
+        let motions = parse(data);
         assert_eq!(88, part1(&motions));
         assert_eq!(36, part2(&motions));
     }

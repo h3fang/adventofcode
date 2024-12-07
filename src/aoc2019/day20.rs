@@ -268,7 +268,7 @@ FG..#########.....#
   ###########.#####  
              Z       
              Z       ";
-        let maze = Maze::from_lines(&data);
+        let maze = Maze::from_lines(data);
         assert_eq!(23, part1(&maze));
         assert_eq!(26, part2(&maze));
     }
@@ -312,7 +312,7 @@ YN......#               VT..#....QG
   #########.###.###.#############  
            B   J   C               
            U   P   P               ";
-        let maze = Maze::from_lines(&data);
+        let maze = Maze::from_lines(data);
         assert_eq!(58, part1(&maze));
     }
 
@@ -355,7 +355,7 @@ RE....#.#                           #......RF
   #############.#.#.###.###################  
                A O F   N                     
                A A D   M                     ";
-        let maze = Maze::from_lines(&data);
+        let maze = Maze::from_lines(data);
         assert_eq!(396, part2(&maze));
     }
 }

@@ -56,7 +56,7 @@ mod tests {
 0 3 6 9 12 15
 1 3 6 10 15 21
 10 13 16 21 30 45";
-        let signals = parse(&data);
+        let signals = parse(data);
         assert_eq!(114, part1(&signals));
         assert_eq!(2, part2(&signals));
     }

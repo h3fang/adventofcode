@@ -96,7 +96,7 @@ mod tests {
         BC -> B
         CC -> N
         CN -> C";
-        let (first, last, pairs, rules) = parse(&data);
+        let (first, last, pairs, rules) = parse(data);
         assert_eq!(1588, polymerization(first, last, pairs.clone(), &rules, 10));
         assert_eq!(
             2188189693529,

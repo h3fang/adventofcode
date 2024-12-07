@@ -184,7 +184,7 @@ mod tests {
         let data = "deal with increment 7
         deal into new stack
         deal into new stack";
-        let actions = parse(&data);
+        let actions = parse(data);
         let deck_size = 10i64;
         let mut s = Shuffle::new(deck_size);
         s.compose(&actions);
@@ -198,7 +198,7 @@ mod tests {
         let data = "cut 6
         deal with increment 7
         deal into new stack";
-        let actions = parse(&data);
+        let actions = parse(data);
         let deck_size = 10i64;
         let mut s = Shuffle::new(deck_size);
         s.compose(&actions);
@@ -212,7 +212,7 @@ mod tests {
         let data = "deal with increment 7
         deal with increment 9
         cut -2";
-        let actions = parse(&data);
+        let actions = parse(data);
         let deck_size = 10i64;
         let mut s = Shuffle::new(deck_size);
         s.compose(&actions);
@@ -233,7 +233,7 @@ mod tests {
         deal with increment 9
         deal with increment 3
         cut -1";
-        let actions = parse(&data);
+        let actions = parse(data);
         let deck_size = 10i64;
         let mut s = Shuffle::new(deck_size);
         s.compose(&actions);

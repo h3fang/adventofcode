@@ -90,7 +90,7 @@ DDD = (DDD, DDD)
 EEE = (EEE, EEE)
 GGG = (GGG, GGG)
 ZZZ = (ZZZ, ZZZ)";
-        let (instruction, network) = parse(&data);
+        let (instruction, network) = parse(data);
         assert_eq!(2, part1(instruction, &network));
     }
 
@@ -103,7 +103,7 @@ AAA = (BBB, BBB)
 BBB = (AAA, ZZZ)
 ZZZ = (ZZZ, ZZZ)
 ";
-        let (instruction, network) = parse(&data);
+        let (instruction, network) = parse(data);
         assert_eq!(6, part1(instruction, &network));
     }
 
@@ -121,7 +121,7 @@ LR
 22Z = (22B, 22B)
 XXX = (XXX, XXX)
 ";
-        let (instruction, network) = parse(&data);
+        let (instruction, network) = parse(data);
         assert_eq!(6, part2(instruction, &network));
     }
 }

@@ -174,7 +174,7 @@ x=506, y=1..2
 x=498, y=10..13
 x=504, y=10..13
 y=13, x=498..504";
-        let mut map = parse(&data);
+        let mut map = parse(data);
         map.flow();
         assert_eq!(57, part1(&map));
         assert_eq!(29, part2(&map));

@@ -112,7 +112,7 @@ mod tests {
 .L-J.
 .....
 ";
-        let mut grid = parse(&data);
+        let mut grid = parse(data);
         let mut dist = vec![vec![u32::MAX; grid[0].len()]; grid.len()];
         assert_eq!(4, part1(&mut grid, &mut dist));
     }
@@ -126,7 +126,7 @@ SJ.L7
 |F--J
 LJ...
 ";
-        let mut grid = parse(&data);
+        let mut grid = parse(data);
         let mut dist = vec![vec![u32::MAX; grid[0].len()]; grid.len()];
         assert_eq!(8, part1(&mut grid, &mut dist));
     }
@@ -144,7 +144,7 @@ LJ...
 .L--J.L--J.
 ...........
 ";
-        let mut grid = parse(&data);
+        let mut grid = parse(data);
         let mut dist = vec![vec![u32::MAX; grid[0].len()]; grid.len()];
         part1(&mut grid, &mut dist);
         assert_eq!(4, part2(&grid, &dist));
@@ -163,7 +163,7 @@ LJ...
 .L--JL--J.
 ..........
 ";
-        let mut grid = parse(&data);
+        let mut grid = parse(data);
         let mut dist = vec![vec![u32::MAX; grid[0].len()]; grid.len()];
         part1(&mut grid, &mut dist);
         assert_eq!(4, part2(&grid, &dist));
@@ -183,7 +183,7 @@ L--J.L7...LJS7F-7L7.
 ....FJL-7.||.||||...
 ....L---J.LJ.LJLJ...
 ";
-        let mut grid = parse(&data);
+        let mut grid = parse(data);
         let mut dist = vec![vec![u32::MAX; grid[0].len()]; grid.len()];
         part1(&mut grid, &mut dist);
         assert_eq!(8, part2(&grid, &dist));
@@ -203,7 +203,7 @@ L---JF-JLJ.||-FJLJJ7
 L.L7LFJ|||||FJL7||LJ
 L7JLJL-JLJLJL--JLJ.L
 ";
-        let mut grid = parse(&data);
+        let mut grid = parse(data);
         let mut dist = vec![vec![u32::MAX; grid[0].len()]; grid.len()];
         part1(&mut grid, &mut dist);
         assert_eq!(10, part2(&grid, &dist));

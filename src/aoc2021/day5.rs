@@ -72,12 +72,11 @@ mod tests {
             .lines()
             .map(|r| {
                 r.split("->")
-                    .map(|p| {
+                    .flat_map(|p| {
                         p.split(",")
                             .map(|n| n.trim().parse::<i64>().unwrap())
                             .collect::<Vec<_>>()
                     })
-                    .flatten()
                     .collect::<Vec<_>>()
             })
             .collect::<Vec<_>>();

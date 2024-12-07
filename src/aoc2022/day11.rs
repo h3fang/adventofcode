@@ -205,7 +205,7 @@ Monkey 3:
   Test: divisible by 17
     If true: throw to monkey 0
     If false: throw to monkey 1";
-        let monkeys = parse(&data);
+        let monkeys = parse(data);
         assert_eq!(10605, part1(monkeys.clone()));
         assert_eq!(2713310158, part2(monkeys));
     }

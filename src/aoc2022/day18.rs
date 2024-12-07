@@ -119,7 +119,7 @@ mod tests {
 3,2,5
 2,1,5
 2,3,5";
-        let scan = parse(&data);
+        let scan = parse(data);
         assert_eq!(64, part1(&scan));
         assert_eq!(58, part2(&scan));
     }
@@ -129,7 +129,7 @@ mod tests {
         let data = "
 1,1,1
 2,1,1";
-        let scan = parse(&data);
+        let scan = parse(data);
         assert_eq!(10, part1(&scan));
     }
 }

@@ -117,7 +117,7 @@ mod tests {
 
 [1,[2,[3,[4,[5,6,7]]]],8,9]
 [1,[2,[3,[4,[5,6,0]]]],8,9]";
-        let signals = parse(&data);
+        let signals = parse(data);
         assert_eq!(13, part1(&signals));
         assert_eq!(140, part2(signals));
     }

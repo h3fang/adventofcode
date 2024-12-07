@@ -198,7 +198,7 @@ broadcaster -> a, b, c
 %b -> c
 %c -> inv
 &inv -> a";
-        let (_, modules) = parse(&data);
+        let (_, modules) = parse(data);
         assert_eq!(32000000, part1(modules));
     }
 
@@ -210,7 +210,7 @@ broadcaster -> a
 &inv -> b
 %b -> con
 &con -> output";
-        let (_, modules) = parse(&data);
+        let (_, modules) = parse(data);
         assert_eq!(11687500, part1(modules));
     }
 

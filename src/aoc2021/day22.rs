@@ -170,7 +170,7 @@ mod tests {
         on x=-41..9,y=-7..43,z=-33..15
         on x=-54112..-39298,y=-85059..-49293,z=-27449..7877
         on x=967..23432,y=45373..81175,z=27513..53682";
-        let steps = parse(&data);
+        let steps = parse(data);
         let p1 = steps
             .iter()
             .filter(|(_, c)| c.is_within(50))
@@ -241,7 +241,7 @@ mod tests {
         off x=-70369..-16548,y=22648..78696,z=-1892..86821
         on x=-53470..21291,y=-120233..-33476,z=-44150..38147
         off x=-93533..-4276,y=-16170..68771,z=-104985..-24507";
-        let steps = parse(&data);
+        let steps = parse(data);
         let p1 = steps
             .iter()
             .filter(|(_, c)| c.is_within(50))
