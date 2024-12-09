@@ -1,4 +1,7 @@
-use std::collections::VecDeque;
+use std::{
+    cmp::Reverse,
+    collections::{BinaryHeap, VecDeque},
+};
 
 fn parse(input: &str) -> &[u8] {
     input.trim().as_bytes()
@@ -54,46 +57,44 @@ fn part2(mut map: &[u8]) -> usize {
         map = &map[..map.len() - 1];
     }
 
-    let mut i = 0;
-    let mut s = Vec::with_capacity(map.len() / 2);
+    let mut empty = vec![BinaryHeap::default(); 10];
     let mut pos = Vec::with_capacity(map.len());
+    let mut p = 0;
     for c in map.chunks(2) {
         let a = (c[0] - b'0') as u32;
-        pos.push(i);
-        i += a;
+        pos.push(p);
+        p += a;
 
         if c.len() == 2 {
-            pos.push(i);
+            pos.push(p);
             let b = (c[1] - b'0') as u32;
-            s.push((i, b));
-            i += b;
+            empty[b as usize].push(Reverse(p));
+            p += b;
         }
     }
     let mut result = 0;
     for i in (0..map.len()).rev().step_by(2) {
         let size = (map[i] - b'0') as u32;
-        let id = i / 2;
-        let mut moved = false;
-        for (k, (j, len)) in s.iter_mut().enumerate() {
-            if *j > pos[i] {
-                s.resize(k, (0, 0));
-                break;
-            }
-            if *len >= size {
-                result += id * (*j + *j + size - 1) as usize * size as usize / 2;
-                if *len > size {
-                    *j += size;
-                    *len -= size;
-                } else {
-                    s.remove(k);
+        let min = (size..10)
+            .filter_map(|len| {
+                if let Some(&Reverse(p)) = empty[len as usize].peek() {
+                    if p < pos[i] {
+                        return Some((p, len));
+                    }
                 }
-                moved = true;
-                break;
+                None
+            })
+            .min();
+        let p = if let Some((j, len)) = min {
+            if len > size {
+                empty[(len - size) as usize].push(Reverse(j + size));
             }
-        }
-        if !moved {
-            result += id * (pos[i] + pos[i] + size - 1) as usize * size as usize / 2;
-        }
+            empty[len as usize].pop();
+            j
+        } else {
+            pos[i]
+        };
+        result += i / 2 * (p + p + size - 1) as usize * size as usize / 2;
     }
     result
 }
