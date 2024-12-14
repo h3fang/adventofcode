@@ -41,13 +41,7 @@ fn solve(machines: &[ClawMachine], offset: i64) -> i64 {
             let p = [m.prize[0] + offset, m.prize[1] + offset];
             let det = m.a[0] * m.b[1] - m.a[1] * m.b[0];
             if det == 0 {
-                let x = if m.a[0] > 3 * m.b[0] { m.a } else { m.b };
-                let (a, b) = (p[0] / x[0], p[1] / x[1]);
-                if a == b && a * x[0] == p[0] && b * x[1] == p[1] {
-                    return if x == m.a { 3 * a } else { a };
-                } else {
-                    return 0;
-                }
+                panic!("requires integer linear programming to solve this");
             }
             let a = (m.b[1] * p[0] - m.b[0] * p[1]) / det;
             let b = (-m.a[1] * p[0] + m.a[0] * p[1]) / det;
