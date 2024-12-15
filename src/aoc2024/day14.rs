@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 
-fn parse(input: &str) -> Vec<[i16; 4]> {
+fn parse(input: &str) -> Vec<[i32; 4]> {
     input
         .trim()
         .lines()
@@ -18,11 +18,11 @@ fn parse(input: &str) -> Vec<[i16; 4]> {
         .collect()
 }
 
-fn part1(robots: &[[i16; 4]], width: i32, height: i32) -> usize {
+fn part1(robots: &[[i32; 4]], width: i32, height: i32) -> usize {
     let mut c = [0; 4];
     for r in robots.iter() {
-        let w = ((r[0] as i32 + r[2] as i32 * 100) % width + width) % width;
-        let h = ((r[1] as i32 + r[3] as i32 * 100) % height + height) % height;
+        let w = ((r[0] + r[2] * 100) % width + width) % width;
+        let h = ((r[1] + r[3] * 100) % height + height) % height;
         match (w.cmp(&(&width / 2)), h.cmp(&(&height / 2))) {
             (Ordering::Less, Ordering::Less) => c[0] += 1,
             (Ordering::Less, Ordering::Greater) => c[1] += 1,
@@ -47,38 +47,67 @@ fn consecutive_pixels(r: &[bool]) -> usize {
     max
 }
 
-fn part2(mut robots: Vec<[i16; 4]>, width: i16, height: i16) -> i16 {
-    let mut img = vec![false; width as usize * height as usize];
-    for i in 0..width * height {
-        robots.iter_mut().for_each(|r| {
-            r[0] = (r[0] + r[2] + width) % width;
-            r[1] = (r[1] + r[3] + height) % height;
-        });
-
-        img.fill(false);
-        for r in &robots {
-            img[(r[1] * width + r[0]) as usize] = true;
-        }
-        if img
-            .chunks(width as usize)
-            .any(|r| consecutive_pixels(r) > 8)
-        {
-            // println!("{}", i + 1);
-            // for r in img.chunks(width as usize) {
-            //     let row: String = r.iter().map(|&x| if x { '#' } else { ' ' }).collect();
-            //     println!("{row}");
-            // }
-            return i + 1;
-        }
+fn extended_gcd(a: i32, b: i32) -> (i32, i32, i32) {
+    let (mut r0, mut r1) = (a, b);
+    let (mut s0, mut s1) = (1, 0);
+    let (mut t0, mut t1) = (0, 1);
+    while r1 != 0 {
+        let q = r0 / r1;
+        let old = (r1, s1, t1);
+        (r1, s1, t1) = (r0 - q * r1, s0 - q * s1, t0 - q * t1);
+        (r0, s0, t0) = old;
     }
-    unreachable!()
+    (r0, s0, t0)
+}
+
+fn mod_inv(x: i32, n: i32) -> i32 {
+    let (g, x, _) = extended_gcd(x, n);
+    assert_eq!(g, 1);
+    (x % n + n) % n
+}
+
+fn chinese_remainder(residues: &[i32], mods: &[i32]) -> i32 {
+    let n: i32 = mods.iter().product();
+    residues
+        .iter()
+        .zip(mods)
+        .map(|(&r, &m)| {
+            let ni = n / m;
+            r * mod_inv(ni, m) * ni
+        })
+        .sum::<i32>()
+        % n
+}
+
+fn part2(robots: &[[i32; 4]], width: i32, height: i32) -> i32 {
+    // [2, 72] can be found by examine the first 100 seconds
+    let k = chinese_remainder(&[2, 72], &[width, height]);
+    let mut img = vec![false; width as usize * height as usize];
+    for r in robots {
+        let w = ((r[0] + r[2] * k) % width + width) % width;
+        let h = ((r[1] + r[3] * k) % height + height) % height;
+        img[(h * width + w) as usize] = true;
+    }
+    if img
+        .chunks(width as usize)
+        .all(|r| consecutive_pixels(r) <= 8)
+    {
+        unreachable!();
+    }
+
+    // for r in img.chunks(width as usize) {
+    //     let row: String = r.iter().map(|&x| if x { '#' } else { ' ' }).collect();
+    //     println!("{row}");
+    // }
+
+    k
 }
 
 pub fn main() {
     let input: String = std::fs::read_to_string("data/2024/day14").unwrap();
     let robots = parse(&input);
     println!("part1: {}", part1(&robots, 101, 103));
-    println!("part2: {}", part2(robots, 101, 103));
+    println!("part2: {}", part2(&robots, 101, 103));
 }
 
 #[cfg(test)]
@@ -102,5 +131,12 @@ p=2,4 v=2,-3
 p=9,5 v=-3,-3";
         let robots = parse(input);
         assert_eq!(12, part1(&robots, 11, 7));
+    }
+
+    #[test]
+    fn egcd() {
+        assert_eq!((2, -9, 47), extended_gcd(240, 46));
+        assert_eq!((1, 4, -31), extended_gcd(101, 13));
+        assert_eq!((1, 13, -9), extended_gcd(25, 36));
     }
 }
