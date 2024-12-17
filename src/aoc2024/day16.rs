@@ -48,6 +48,9 @@ fn solve(map: &[&[u8]]) -> (i32, i32) {
                 continue;
             }
             let s1 = s + if d1 == d { 1 } else { 1001 };
+            if s1 > best {
+                continue;
+            }
             let k1 = index(i1, j1, d1) as usize;
             match s1.cmp(&scores[k1]) {
                 std::cmp::Ordering::Less => {
