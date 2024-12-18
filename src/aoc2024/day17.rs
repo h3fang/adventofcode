@@ -1,4 +1,4 @@
-use ahash::{HashSet, HashSetExt};
+use std::collections::VecDeque;
 
 #[derive(Clone, Copy)]
 struct Computer {
@@ -78,22 +78,22 @@ fn part1(mut computer: Computer, program: &[u8]) -> String {
 }
 
 fn part2(mut computer: Computer, program: &[u8]) -> u64 {
-    let mut candidates = HashSet::default();
-    candidates.insert(0);
+    let mut q = VecDeque::with_capacity(program.len() * 2);
+    q.push_back(0);
     for &p in program.iter().rev() {
-        let mut next = HashSet::with_capacity(candidates.len());
-        for prev in candidates {
+        let n = q.len();
+        for _ in 0..n {
+            let prev = q.pop_front().unwrap();
             for da in 0u64..8 {
                 let a = (prev << 3) + da;
                 let b = ((a & 7) ^ (a >> ((a & 7) ^ 7))) & 7;
                 if b as u8 == p {
-                    next.insert(a);
+                    q.push_back(a);
                 }
             }
         }
-        candidates = next;
     }
-    let result = candidates.into_iter().min().unwrap();
+    let result = q.into_iter().min().unwrap();
     computer.a = result;
     let output = computer.run(program);
     assert_eq!(output, program);
