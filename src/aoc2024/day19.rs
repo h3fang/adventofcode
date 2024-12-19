@@ -1,5 +1,3 @@
-use ahash::{HashMap, HashMapExt, HashSet};
-
 fn parse(input: &str) -> (Vec<&str>, Vec<&str>) {
     let (patterns, designs) = input.trim().split_once("\n\n").unwrap();
     let patterns = patterns.split(", ").collect();
@@ -7,36 +5,63 @@ fn parse(input: &str) -> (Vec<&str>, Vec<&str>) {
     (patterns, designs)
 }
 
-fn different_ways<'a>(
-    design: &'a [u8],
-    patterns: &HashSet<&'a [u8]>,
-    cache: &mut HashMap<&'a [u8], usize>,
-) -> usize {
-    if design.is_empty() {
-        return 1;
+fn color_index(b: u8) -> usize {
+    match b {
+        b'w' => 0,
+        b'u' => 1,
+        b'b' => 2,
+        b'r' => 3,
+        b'g' => 4,
+        _ => unreachable!(),
     }
-    if let Some(&r) = cache.get(design) {
-        return r;
+}
+
+#[derive(Default)]
+struct Trie {
+    next: [Option<Box<Trie>>; 5],
+    is_end: bool,
+}
+
+impl Trie {
+    fn insert(&mut self, w: &[u8]) {
+        let mut t = self;
+        for &b in w {
+            let i = color_index(b);
+            t = t.next[i].get_or_insert_default();
+        }
+        t.is_end = true;
     }
-    let mut result = 0;
-    for i in 1..=design.len() {
-        if patterns.contains(&design[..i]) {
-            result += different_ways(&design[i..], patterns, cache);
+}
+
+fn different_ways(design: &[u8], trie: &Trie) -> usize {
+    let n = design.len();
+    let mut f = vec![0; n + 1];
+    f[0] = 1;
+    for i in 0..n {
+        let mut t = trie;
+        for (j, &b) in design.iter().enumerate().skip(i) {
+            if let Some(next) = &t.next[color_index(b)] {
+                if next.is_end {
+                    f[j + 1] += f[i];
+                }
+                t = next;
+            } else {
+                break;
+            }
         }
     }
-    cache.insert(design, result);
-    result
+    f[n]
 }
 
 fn solve(patterns: &[&str], designs: &[&str]) -> (usize, usize) {
-    let patterns: HashSet<&[u8]> = patterns.iter().map(|p| p.as_bytes()).collect();
-    let mut cache = HashMap::with_capacity(designs.len() * patterns.len());
+    let mut trie = Trie::default();
+    for w in patterns {
+        trie.insert(w.as_bytes());
+    }
     let (mut p1, mut p2) = (0, 0);
     for d in designs {
-        let w = different_ways(d.as_bytes(), &patterns, &mut cache);
-        if w > 0 {
-            p1 += 1;
-        }
+        let w = different_ways(d.as_bytes(), &trie);
+        p1 += usize::from(w > 0);
         p2 += w;
     }
     (p1, p2)
