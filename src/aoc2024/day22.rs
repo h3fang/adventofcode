@@ -39,7 +39,6 @@ fn sequence(s: &mut i64, profits: &mut HashMap<u32, i32>) {
 fn solve(mut secrets: Vec<i64>) -> (i64, i32) {
     let mut maps = HashMap::with_capacity(19 * 19 * 19 * 19);
     secrets.iter_mut().for_each(|x| sequence(x, &mut maps));
-    println!("{}", maps.len());
     let p1 = secrets.into_iter().sum();
     let p2 = *maps.values().max().unwrap();
     (p1, p2)
