@@ -68,47 +68,60 @@ fn shortest_paths(keypad: &[u8], from: u8, to: u8) -> Vec<Vec<u8>> {
     result
 }
 
-fn button_presses(
-    keypad: &[u8],
-    code: Vec<u8>,
-    depth: u8,
-    curr: &mut [u8],
-    cache: &mut HashMap<(Vec<u8>, u8, u8), usize>,
-) -> usize {
-    let k = (code, depth, curr[depth as usize]);
+fn directional(code: Vec<u8>, depth: u8, cache: &mut HashMap<(Vec<u8>, u8), usize>) -> usize {
+    let k = (code, depth);
     if let Some(&r) = cache.get(&k) {
         return r;
     }
-    let mut result = 0;
+    let (mut result, mut curr) = (0, b'A');
     for &b in &k.0 {
-        let paths = shortest_paths(keypad, curr[depth as usize], b);
-        result += if depth == 0 {
+        let paths = shortest_paths(DIRECTIONAL, curr, b);
+        result += if depth == 1 {
             paths.iter().map(|p| p.len()).min().unwrap()
         } else {
             paths
                 .into_iter()
-                .map(|p| button_presses(DIRECTIONAL, p, depth - 1, curr, cache))
+                .map(|p| directional(p, depth - 1, cache))
                 .min()
                 .unwrap()
         };
-        curr[depth as usize] = b;
+        curr = b;
     }
     cache.insert(k, result);
     result
 }
 
+fn numerical(
+    from: u8,
+    to: u8,
+    depth: u8,
+    cache_num: &mut HashMap<(u8, u8), usize>,
+    cache_dir: &mut HashMap<(Vec<u8>, u8), usize>,
+) -> usize {
+    if let Some(&r) = cache_num.get(&(from, to)) {
+        return r;
+    }
+    let result = shortest_paths(NUMERICAL, from, to)
+        .into_iter()
+        .map(|p| directional(p, depth, cache_dir))
+        .min()
+        .unwrap();
+
+    cache_num.insert((from, to), result);
+    result
+}
+
 fn solve(codes: &[&[u8]], depth: u8) -> usize {
-    let mut cache = HashMap::with_capacity(2048);
+    let mut cache_num = HashMap::with_capacity(11 * 11);
+    let mut cache_dir = HashMap::with_capacity(1024);
     codes
         .iter()
         .map(|code| {
-            let len = button_presses(
-                NUMERICAL,
-                code.to_vec(),
-                depth,
-                &mut vec![b'A'; depth as usize + 1],
-                &mut cache,
-            );
+            let (mut len, mut curr) = (0, b'A');
+            for &b in *code {
+                len += numerical(curr, b, depth, &mut cache_num, &mut cache_dir);
+                curr = b;
+            }
             let num: usize = std::str::from_utf8(&code[..code.len() - 1])
                 .unwrap()
                 .parse()
