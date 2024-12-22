@@ -1,3 +1,10 @@
+use std::sync::{
+    atomic::{AtomicI32, Ordering},
+    Arc,
+};
+
+use rayon::prelude::*;
+
 fn parse(input: &str) -> Vec<i64> {
     input
         .trim()
@@ -12,7 +19,7 @@ fn pseudorandom(mut x: i64) -> i64 {
     ((x << 11) ^ x) & 0xFFFFFF
 }
 
-fn sequence(s: &mut i64, profits: &mut [i32]) {
+fn sequence(s: &mut i64, profits: Arc<Vec<AtomicI32>>) {
     let (mut p1, mut w) = ((*s % 10) as i8, 0);
     for _ in 0..4 {
         *s = pseudorandom(*s);
@@ -20,7 +27,7 @@ fn sequence(s: &mut i64, profits: &mut [i32]) {
         w = w * 19 + (p2 - p1 + 9) as u32;
         p1 = p2;
     }
-    profits[w as usize] += p1 as i32;
+    profits[w as usize].fetch_add(p1 as i32, Ordering::Relaxed);
     let mut seen = vec![false; 19 * 19 * 19 * 19];
     for _ in 0..2000 - 4 {
         *s = pseudorandom(*s);
@@ -30,16 +37,25 @@ fn sequence(s: &mut i64, profits: &mut [i32]) {
         p1 = p2;
         if !seen[w as usize] {
             seen[w as usize] = true;
-            profits[w as usize] += p1 as i32;
+            profits[w as usize].fetch_add(p1 as i32, Ordering::Relaxed);
         }
     }
 }
 
 fn solve(mut secrets: Vec<i64>) -> (i64, i32) {
-    let mut maps = vec![0; 19 * 19 * 19 * 19];
-    secrets.iter_mut().for_each(|x| sequence(x, &mut maps));
+    let maps = (0..19 * 19 * 19 * 19)
+        .map(|_| AtomicI32::new(0))
+        .collect::<Vec<_>>();
+    let maps = Arc::new(maps);
+    secrets
+        .par_iter_mut()
+        .for_each(|x| sequence(x, maps.clone()));
     let p1 = secrets.into_iter().sum();
-    let p2 = *maps.iter().max().unwrap();
+    let p2 = maps
+        .iter()
+        .map(|x| x.load(Ordering::Relaxed))
+        .max()
+        .unwrap();
     (p1, p2)
 }
 
