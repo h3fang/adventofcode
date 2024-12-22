@@ -1,8 +1,4 @@
-use std::collections::hash_map::Entry;
-
-use ahash::{HashMap, HashMapExt, HashSet};
-use arrayvec::ArrayVec;
-use rayon::prelude::*;
+use ahash::{HashMap, HashMapExt, HashSet, HashSetExt};
 
 fn parse(input: &str) -> Vec<i64> {
     input
@@ -18,42 +14,34 @@ fn pseudorandom(mut x: i64) -> i64 {
     ((x * 2048) ^ x) % 16777216
 }
 
-fn sequence(s: &mut i64) -> HashMap<ArrayVec<i8, 4>, i8> {
-    let mut prices = Vec::with_capacity(2000);
-    let mut changes = Vec::with_capacity(1999);
-    prices.push((*s % 10) as i8);
-    for _ in 0..2000 {
-        let s1 = pseudorandom(*s);
-        prices.push((s1 % 10) as i8);
-        changes.push((s1 % 10 - *s % 10) as i8);
-        *s = s1;
+fn sequence(s: &mut i64, profits: &mut HashMap<u32, i32>) {
+    let (mut p1, mut w) = ((*s % 10) as i8, 0);
+    for _ in 0..4 {
+        *s = pseudorandom(*s);
+        let p2 = (*s % 10) as i8;
+        w = w * 19 + (p2 - p1 + 9) as u32;
+        p1 = p2;
     }
-    let mut m = HashMap::with_capacity(1997);
-    for (i, w) in changes.windows(4).enumerate() {
-        let w = ArrayVec::try_from(w).unwrap();
-        match m.entry(w) {
-            Entry::Occupied(_e) => {}
-            Entry::Vacant(e) => {
-                e.insert(prices[i + 4]);
-            }
+    *profits.entry(w).or_default() += p1 as i32;
+    let mut seen = HashSet::with_capacity(1997);
+    for _ in 0..2000 - 4 {
+        *s = pseudorandom(*s);
+        let p2 = (*s % 10) as i8;
+        w %= 19 * 19 * 19;
+        w = w * 19 + (p2 - p1 + 9) as u32;
+        p1 = p2;
+        if seen.insert(w) {
+            *profits.entry(w).or_default() += p1 as i32;
         }
     }
-    m
 }
 
-fn solve(mut secrets: Vec<i64>) -> (i64, i64) {
-    let maps = secrets.par_iter_mut().map(sequence).collect::<Vec<_>>();
+fn solve(mut secrets: Vec<i64>) -> (i64, i32) {
+    let mut maps = HashMap::with_capacity(19 * 19 * 19 * 19);
+    secrets.iter_mut().for_each(|x| sequence(x, &mut maps));
+    println!("{}", maps.len());
     let p1 = secrets.into_iter().sum();
-    let keys: HashSet<_> = maps.iter().flat_map(|m| m.keys()).collect();
-    let p2 = keys
-        .par_iter()
-        .map(|&k| {
-            maps.iter()
-                .map(|m| m.get(k).cloned().unwrap_or(0) as i64)
-                .sum()
-        })
-        .max()
-        .unwrap();
+    let p2 = *maps.values().max().unwrap();
     (p1, p2)
 }
 
