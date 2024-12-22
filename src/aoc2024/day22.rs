@@ -1,5 +1,3 @@
-use ahash::{HashMap, HashMapExt, HashSet, HashSetExt};
-
 fn parse(input: &str) -> Vec<i64> {
     input
         .trim()
@@ -9,12 +7,12 @@ fn parse(input: &str) -> Vec<i64> {
 }
 
 fn pseudorandom(mut x: i64) -> i64 {
-    x = ((x * 64) ^ x) % 16777216;
-    x = ((x / 32) ^ x) % 16777216;
-    ((x * 2048) ^ x) % 16777216
+    x = ((x << 6) ^ x) & 0xFFFFFF;
+    x = ((x >> 5) ^ x) & 0xFFFFFF;
+    ((x << 11) ^ x) & 0xFFFFFF
 }
 
-fn sequence(s: &mut i64, profits: &mut HashMap<u32, i32>) {
+fn sequence(s: &mut i64, profits: &mut [i32]) {
     let (mut p1, mut w) = ((*s % 10) as i8, 0);
     for _ in 0..4 {
         *s = pseudorandom(*s);
@@ -22,25 +20,26 @@ fn sequence(s: &mut i64, profits: &mut HashMap<u32, i32>) {
         w = w * 19 + (p2 - p1 + 9) as u32;
         p1 = p2;
     }
-    *profits.entry(w).or_default() += p1 as i32;
-    let mut seen = HashSet::with_capacity(1997);
+    profits[w as usize] += p1 as i32;
+    let mut seen = vec![false; 19 * 19 * 19 * 19];
     for _ in 0..2000 - 4 {
         *s = pseudorandom(*s);
         let p2 = (*s % 10) as i8;
         w %= 19 * 19 * 19;
         w = w * 19 + (p2 - p1 + 9) as u32;
         p1 = p2;
-        if seen.insert(w) {
-            *profits.entry(w).or_default() += p1 as i32;
+        if !seen[w as usize] {
+            seen[w as usize] = true;
+            profits[w as usize] += p1 as i32;
         }
     }
 }
 
 fn solve(mut secrets: Vec<i64>) -> (i64, i32) {
-    let mut maps = HashMap::with_capacity(19 * 19 * 19 * 19);
+    let mut maps = vec![0; 19 * 19 * 19 * 19];
     secrets.iter_mut().for_each(|x| sequence(x, &mut maps));
     let p1 = secrets.into_iter().sum();
-    let p2 = *maps.values().max().unwrap();
+    let p2 = *maps.iter().max().unwrap();
     (p1, p2)
 }
 
