@@ -29,6 +29,7 @@ fn sequence(s: &mut i64, profits: Arc<Vec<AtomicI32>>) {
     }
     profits[w as usize].fetch_add(p1 as i32, Ordering::Relaxed);
     let mut seen = vec![false; 19 * 19 * 19 * 19];
+    seen[w as usize] = true;
     for _ in 0..2000 - 4 {
         *s = pseudorandom(*s);
         let p2 = (*s % 10) as i8;
