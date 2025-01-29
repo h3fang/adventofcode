@@ -1,8 +1,8 @@
 use nom::character::complete::i32 as n_i32;
-use nom::{bytes::complete::tag, sequence::tuple, IResult};
+use nom::{bytes::complete::tag, IResult, Parser};
 
 fn mul(input: &str) -> IResult<&str, i32> {
-    let (input, (_, a, _, b, _)) = tuple((tag("mul("), n_i32, tag(","), n_i32, tag(")")))(input)?;
+    let (input, (_, a, _, b, _)) = (tag("mul("), n_i32, tag(","), n_i32, tag(")")).parse(input)?;
     Ok((input, a * b))
 }
 

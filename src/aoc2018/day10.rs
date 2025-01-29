@@ -2,31 +2,31 @@ use nom::{
     bytes::complete::tag,
     character::complete::{char as ch, digit1, space0},
     combinator::{eof, map_res, opt, recognize},
-    sequence::tuple,
-    IResult,
+    IResult, Parser,
 };
 
 type Vec2 = (i32, i32);
 
 fn parse_i32(input: &str) -> IResult<&str, i32> {
-    let num = tuple((space0, opt(ch('-')), digit1));
-    map_res(recognize(num), |s: &str| s.trim_start().parse())(input)
+    let num = (space0, opt(ch('-')), digit1);
+    map_res(recognize(num), |s: &str| s.trim_start().parse()).parse(input)
 }
 
 fn parse_vec2(input: &str) -> IResult<&str, Vec2> {
-    let (r, (_, x, _, y, _)) = tuple((ch('<'), parse_i32, tag(", "), parse_i32, ch('>')))(input)?;
+    let (r, (_, x, _, y, _)) = (ch('<'), parse_i32, tag(", "), parse_i32, ch('>')).parse(input)?;
     Ok((r, (x, y)))
 }
 
 fn parse_star(input: &str) -> IResult<&str, (Vec2, Vec2)> {
-    let (r, (_, vp, _, _, ve, _)) = tuple((
+    let (r, (_, vp, _, _, ve, _)) = (
         tag("position="),
         parse_vec2,
         ch(' '),
         tag("velocity="),
         parse_vec2,
         eof,
-    ))(input)?;
+    )
+        .parse(input)?;
     Ok((r, (vp, ve)))
 }
 

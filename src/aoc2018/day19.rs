@@ -6,8 +6,8 @@ use nom::{
     },
     combinator::all_consuming,
     multi::separated_list1,
-    sequence::{preceded, separated_pair, tuple},
-    IResult,
+    sequence::{preceded, separated_pair},
+    IResult, Parser,
 };
 
 #[derive(Debug)]
@@ -65,11 +65,11 @@ impl Program {
 }
 
 fn parse_ip(s: &str) -> IResult<&str, u8> {
-    preceded(tag("#ip "), character::complete::u8)(s)
+    preceded(tag("#ip "), character::complete::u8).parse(s)
 }
 
 fn parse_instruction(s: &str) -> IResult<&str, Instruction> {
-    let (r, (op, _, in1, _, in2, _, out)) = tuple((
+    let (r, (op, _, in1, _, in2, _, out)) = (
         take(4usize),
         ch(' '),
         character::complete::u64,
@@ -77,19 +77,20 @@ fn parse_instruction(s: &str) -> IResult<&str, Instruction> {
         character::complete::u64,
         ch(' '),
         character::complete::u64,
-    ))(s)?;
+    )
+        .parse(s)?;
     Ok((r, Instruction { op, in1, in2, out }))
 }
 
 fn parse_instructions(s: &str) -> IResult<&str, Vec<Instruction>> {
-    separated_list1(line_ending, parse_instruction)(s)
+    separated_list1(line_ending, parse_instruction).parse(s)
 }
 
 #[allow(unused)]
 fn parse(data: &str) -> (u8, Vec<Instruction>) {
-    let (_, r) =
-        all_consuming(separated_pair(parse_ip, line_ending, parse_instructions))(data.trim())
-            .unwrap();
+    let (_, r) = all_consuming(separated_pair(parse_ip, line_ending, parse_instructions))
+        .parse(data.trim())
+        .unwrap();
     r
 }
 

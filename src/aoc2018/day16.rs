@@ -6,8 +6,7 @@ use nom::{
     },
     combinator::{map_res, recognize},
     multi::{count, separated_list1},
-    sequence::tuple,
-    IResult,
+    IResult, Parser,
 };
 
 type Vec4 = [i32; 4];
@@ -42,41 +41,42 @@ fn operate(reg: &mut [i32], ins: &Vec4) {
 }
 
 fn parse_num(input: &str) -> IResult<&str, i32> {
-    map_res(recognize(digit1), str::parse)(input)
+    map_res(recognize(digit1), str::parse).parse(input)
 }
 
 fn parse_registers(input: &str) -> IResult<&str, Vec<i32>> {
     let (r, (_, nums, _)) =
-        tuple((ch('['), separated_list1(tag(", "), parse_num), ch(']')))(input)?;
+        (ch('['), separated_list1(tag(", "), parse_num), ch(']')).parse(input)?;
     Ok((r, nums))
 }
 
 fn parse_registers_before(input: &str) -> IResult<&str, Vec4> {
-    let (r, (_, _, nums)) = tuple((tag("Before:"), space1, parse_registers))(input)?;
+    let (r, (_, _, nums)) = (tag("Before:"), space1, parse_registers).parse(input)?;
     let nums = [nums[0], nums[1], nums[2], nums[3]];
     Ok((r, nums))
 }
 
 fn parse_registers_after(input: &str) -> IResult<&str, Vec4> {
-    let (r, (_, _, nums)) = tuple((tag("After:"), space1, parse_registers))(input)?;
+    let (r, (_, _, nums)) = (tag("After:"), space1, parse_registers).parse(input)?;
     let nums = [nums[0], nums[1], nums[2], nums[3]];
     Ok((r, nums))
 }
 
 fn parse_instruction(input: &str) -> IResult<&str, Vec4> {
-    let (r, nums) = (separated_list1(ch(' '), parse_num))(input)?;
+    let (r, nums) = (separated_list1(ch(' '), parse_num)).parse(input)?;
     let nums = [nums[0], nums[1], nums[2], nums[3]];
     Ok((r, nums))
 }
 
 fn parse_sample(input: &str) -> IResult<&str, Sample> {
-    let (r, (before, _, instruction, _, after)) = tuple((
+    let (r, (before, _, instruction, _, after)) = (
         parse_registers_before,
         line_ending,
         parse_instruction,
         line_ending,
         parse_registers_after,
-    ))(input)?;
+    )
+        .parse(input)?;
     Ok((
         r,
         Sample {
@@ -88,16 +88,16 @@ fn parse_sample(input: &str) -> IResult<&str, Sample> {
 }
 
 fn parse_samples(input: &str) -> IResult<&str, Vec<Sample>> {
-    separated_list1(count(line_ending, 2), parse_sample)(input)
+    separated_list1(count(line_ending, 2), parse_sample).parse(input)
 }
 
 fn parse_program(input: &str) -> IResult<&str, Vec<Vec4>> {
-    separated_list1(line_ending, parse_instruction)(input)
+    separated_list1(line_ending, parse_instruction).parse(input)
 }
 
 fn parse(data: &str) -> (Vec<Sample>, Vec<Vec4>) {
     let (_, (samples, _, program)) =
-        tuple((parse_samples, count(line_ending, 4), parse_program))(data).unwrap();
+        (parse_samples, count(line_ending, 4), parse_program).parse(data).unwrap();
     (samples, program)
 }
 

@@ -2,15 +2,14 @@ use nom::{
     bytes::complete::tag,
     character::complete::{alpha1, anychar, char, digit1},
     combinator::{eof, map_res, recognize},
-    sequence::tuple,
-    IResult,
+    IResult, Parser,
 };
 
 fn parse_nom(s: &str) -> IResult<&str, (usize, usize, char, String)> {
     fn parse_usize(input: &str) -> IResult<&str, usize> {
-        map_res(recognize(digit1), str::parse)(input)
+        map_res(recognize(digit1), str::parse).parse(input)
     }
-    let (_, (min, _, max, _, c, _, pwd, _)) = tuple((
+    let (_, (min, _, max, _, c, _, pwd, _)) = (
         parse_usize,
         char('-'),
         parse_usize,
@@ -19,7 +18,8 @@ fn parse_nom(s: &str) -> IResult<&str, (usize, usize, char, String)> {
         tag(": "),
         alpha1,
         eof,
-    ))(s)?;
+    )
+        .parse(s)?;
     Ok(("", (min, max, c, pwd.to_string())))
 }
 

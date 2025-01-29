@@ -4,18 +4,17 @@ use nom::{
     bytes::complete::tag,
     character::complete::{digit1, hex_digit1},
     combinator::{eof, map_res, recognize},
-    sequence::tuple,
-    IResult,
+    IResult, Parser,
 };
 
 const KEYS: &[&str] = &["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
 
 fn parse_u32(input: &str) -> IResult<&str, u32> {
-    map_res(recognize(digit1), str::parse)(input)
+    map_res(recognize(digit1), str::parse).parse(input)
 }
 
 fn parse_hcl(input: &str) -> IResult<&str, (&str, &str, &str)> {
-    tuple((tag("#"), hex_digit1, eof))(input)
+    (tag("#"), hex_digit1, eof).parse(input)
 }
 
 fn parse_ecl(input: &str) -> IResult<&str, (&str, &str)> {
@@ -28,11 +27,11 @@ fn parse_ecl(input: &str) -> IResult<&str, (&str, &str)> {
         tag("hzl"),
         tag("oth"),
     ));
-    tuple((colors, eof))(input)
+    (colors, eof).parse(input)
 }
 
 fn parse_pid(input: &str) -> IResult<&str, (&str, &str)> {
-    tuple((recognize(digit1), eof))(input)
+    (recognize(digit1), eof).parse(input)
 }
 
 struct Passport {
@@ -86,7 +85,7 @@ impl Passport {
                     }
                     "hgt" => {
                         if let Ok((_, (v, u, _))) =
-                            tuple((parse_u32, alt((tag("in"), tag("cm"))), eof))(value)
+                            (parse_u32, alt((tag("in"), tag("cm"))), eof).parse(value)
                         {
                             (u == "cm" && (150..=193).contains(&v))
                                 || (u == "in" && (59..=76).contains(&v))

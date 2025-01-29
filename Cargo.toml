@@ -39,8 +39,8 @@ aoc-proc = {path = "aoc-proc"}
 arrayvec = "0.7"
 ahash = "0.8"
 rayon = "1"
-nom = "7"
-rand = "0.8"
+nom = "8"
+rand = "0.9"
 
 [profile.release]
 strip = true

@@ -3,16 +3,15 @@ use nom::{
     bytes::complete::tag,
     character::complete::{alpha1, char as ch, digit1, space1},
     combinator::{map_res, opt, recognize, rest},
-    sequence::tuple,
-    IResult,
+    IResult, Parser,
 };
 
 fn number(input: &str) -> IResult<&str, usize> {
-    map_res(recognize(digit1), str::parse)(input)
+    map_res(recognize(digit1), str::parse).parse(input)
 }
 
 fn color(input: &str) -> IResult<&str, String> {
-    let (r, (a, b, c)) = tuple((alpha1, space1, alpha1))(input)?;
+    let (r, (a, b, c)) = (alpha1, space1, alpha1).parse(input)?;
     Ok((r, format!("{}{}{}", a, b, c)))
 }
 
@@ -23,8 +22,9 @@ fn split(bags: &str) -> Vec<(usize, String)> {
 
     bags.split(", ")
         .map(|s| {
-            let (_, (num, _, c, _, _)) =
-                tuple((number, ch(' '), color, tag(" bag"), opt(ch('s'))))(s).unwrap();
+            let (_, (num, _, c, _, _)) = (number, ch(' '), color, tag(" bag"), opt(ch('s')))
+                .parse(s)
+                .unwrap();
             (num, c)
         })
         .collect()
@@ -84,7 +84,7 @@ pub fn main() {
     let mut map = HashMap::new();
     let data = std::fs::read_to_string("data/2020/day7").unwrap();
     for line in data.lines().filter(|line| !line.is_empty()) {
-        let (_, (c, _, r)) = tuple((color, tag(" bags contain "), rest))(line).unwrap();
+        let (_, (c, _, r)) = (color, tag(" bags contain "), rest).parse(line).unwrap();
         let others = split(r);
         map.insert(c, others);
     }

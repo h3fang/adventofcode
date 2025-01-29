@@ -5,7 +5,7 @@ use nom::{
     combinator::map,
     multi::separated_list0,
     sequence::{preceded, terminated},
-    IResult,
+    IResult, Parser,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -38,9 +38,9 @@ fn compare_list(a: &[Item], b: &[Item]) -> Option<Ordering> {
 
 fn parse_item(s: &str) -> IResult<&str, Item> {
     if s.as_bytes()[0] == b'[' {
-        map(parse_list, Item::List)(s)
+        map(parse_list, Item::List).parse(s)
     } else {
-        map(complete::u8, Item::Value)(s)
+        map(complete::u8, Item::Value).parse(s)
     }
 }
 
@@ -51,7 +51,8 @@ fn parse_list(s: &str) -> IResult<&str, Vec<Item>> {
             separated_list0(complete::char(','), parse_item),
             complete::char(']'),
         ),
-    )(s)
+    )
+    .parse(s)
 }
 
 fn parse(data: &str) -> Vec<Vec<Item>> {

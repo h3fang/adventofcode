@@ -7,8 +7,8 @@ use nom::{
     character::complete::{self, line_ending},
     combinator::all_consuming,
     multi::separated_list0,
-    sequence::{preceded, separated_pair, tuple},
-    IResult,
+    sequence::{preceded, separated_pair},
+    IResult, Parser,
 };
 
 enum Entry<'a> {
@@ -31,39 +31,44 @@ fn parse_file(input: &str) -> IResult<&str, Entry> {
         complete::u64,
         complete::char(' '),
         take_while(|c: char| c != '\r' && c != '\n'),
-    )(input)?;
+    )
+    .parse(input)?;
     Ok((r, Entry::File(name, size as usize)))
 }
 
 fn parse_dir(input: &str) -> IResult<&str, Entry> {
-    let (r, name) = preceded(tag("dir "), take_while(|c: char| c != '\r' && c != '\n'))(input)?;
+    let (r, name) =
+        preceded(tag("dir "), take_while(|c: char| c != '\r' && c != '\n')).parse(input)?;
     Ok((r, Entry::Dir(name)))
 }
 
 fn parse_entry(input: &str) -> IResult<&str, Entry> {
-    alt((parse_file, parse_dir))(input)
+    alt((parse_file, parse_dir)).parse(input)
 }
 
 fn parse_ls_output(input: &str) -> IResult<&str, Vec<Entry>> {
-    separated_list0(line_ending, parse_entry)(input)
+    separated_list0(line_ending, parse_entry).parse(input)
 }
 
 fn parse_ls(input: &str) -> IResult<&str, Cmd> {
-    let (r, entries) = preceded(tuple((tag("ls"), line_ending)), parse_ls_output)(input)?;
+    let (r, entries) = preceded((tag("ls"), line_ending), parse_ls_output).parse(input)?;
     Ok((r, Cmd::Ls(entries)))
 }
 
 fn parse_cd(input: &str) -> IResult<&str, Cmd> {
-    let (r, arg) = preceded(tag("cd "), take_while(|c: char| c != '\r' && c != '\n'))(input)?;
+    let (r, arg) =
+        preceded(tag("cd "), take_while(|c: char| c != '\r' && c != '\n')).parse(input)?;
     Ok((r, Cmd::Cd(arg)))
 }
 
 fn parse_cmd(input: &str) -> IResult<&str, Cmd> {
-    preceded(tag("$ "), alt((parse_cd, parse_ls)))(input)
+    preceded(tag("$ "), alt((parse_cd, parse_ls))).parse(input)
 }
 
 fn parse(data: &str) -> Rc<RefCell<FSEntry>> {
-    let (_, cmds) = all_consuming(separated_list0(line_ending, parse_cmd))(data.trim()).unwrap();
+    let (_, cmds) = all_consuming(separated_list0(line_ending, parse_cmd))
+        .parse(data.trim())
+        .unwrap();
 
     let root = Rc::new(RefCell::new(FSEntry::Dir(HashMap::default())));
     let mut stack = vec![root.clone()];

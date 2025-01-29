@@ -3,8 +3,7 @@ use nom::{
     bytes::complete::tag,
     character::complete::{char, digit1, one_of},
     combinator::{eof, map_res, recognize},
-    sequence::tuple,
-    IResult,
+    IResult, Parser,
 };
 
 #[derive(Clone)]
@@ -17,10 +16,10 @@ enum Instruction {
 fn parse(line: &str) -> IResult<&str, Instruction> {
     let operator = alt((tag("jmp"), tag("acc"), tag("nop")));
     fn number(input: &str) -> IResult<&str, i32> {
-        let num = tuple((one_of("+-"), digit1));
-        map_res(recognize(num), str::parse)(input)
+        let num = (one_of("+-"), digit1);
+        map_res(recognize(num), str::parse).parse(input)
     }
-    let (_, (op, _, num, _)) = tuple((operator, char(' '), number, eof))(line)?;
+    let (_, (op, _, num, _)) = (operator, char(' '), number, eof).parse(line)?;
     let ins = match op {
         "jmp" => Instruction::Jmp(num),
         "acc" => Instruction::Acc(num),

@@ -6,6 +6,7 @@ use nom::{
     multi::separated_list1,
     sequence::preceded,
     IResult,
+    Parser,
 };
 
 #[derive(Debug)]
@@ -15,7 +16,7 @@ enum Instruction {
 }
 
 fn parse_addx(s: &str) -> IResult<&str, Instruction> {
-    let (r, arg) = preceded(tag("addx "), cc::i64)(s)?;
+    let (r, arg) = preceded(tag("addx "), cc::i64).parse(s)?;
     Ok((r, Instruction::Addx(arg)))
 }
 
@@ -25,11 +26,11 @@ fn parse_noop(s: &str) -> IResult<&str, Instruction> {
 }
 
 fn parse_instructions(s: &str) -> IResult<&str, Vec<Instruction>> {
-    separated_list1(line_ending, alt((parse_addx, parse_noop)))(s)
+    separated_list1(line_ending, alt((parse_addx, parse_noop))).parse(s)
 }
 
 fn parse(data: &str) -> Vec<Instruction> {
-    all_consuming(parse_instructions)(data.trim()).unwrap().1
+    all_consuming(parse_instructions).parse(data.trim()).unwrap().1
 }
 
 fn part1(instructions: &[Instruction]) -> i64 {

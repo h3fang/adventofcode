@@ -24,7 +24,7 @@ fn parse(data: &str) -> HashMap<usize, (Vec<usize>, usize)> {
 }
 
 fn contract(mut graph: HashMap<usize, (Vec<usize>, usize)>) -> Option<usize> {
-    let mut rng = thread_rng();
+    let mut rng = rand::rng();
 
     // Karger's algorithm
     // safety: different keys (u and v) of the hash map are accessed separately
