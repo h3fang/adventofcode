@@ -21,7 +21,7 @@ fn blink(stones: &[u64], times: &[usize]) -> Vec<usize> {
                 if x == 0 {
                     *next.entry(1).or_default() += c;
                 } else if x.ilog10() % 2 == 1 {
-                    let base = 10u64.pow((x.ilog10() + 1) / 2);
+                    let base = 10u64.pow(x.ilog10().div_ceil(2));
                     *next.entry(x / base).or_default() += c;
                     *next.entry(x % base).or_default() += c;
                 } else {

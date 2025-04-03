@@ -5,13 +5,7 @@ fn parse(content: &str) -> (usize, Vec<Option<usize>>) {
         .next()
         .unwrap()
         .split(',')
-        .map(|e| {
-            if let Ok(n) = e.parse::<usize>() {
-                Some(n)
-            } else {
-                None
-            }
-        })
+        .map(|e| e.parse::<usize>().ok())
         .collect::<Vec<_>>();
     (timestamp, buses)
 }

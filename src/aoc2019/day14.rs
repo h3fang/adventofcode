@@ -69,7 +69,7 @@ fn part2(g: &Graph) -> usize {
     let mut left = 0;
     let mut right = TOTAL;
     while left < right {
-        let mid = (left + right + 1) / 2;
+        let mid = (left + right).div_ceil(2);
         let req = part1(g, mid);
         if req > TOTAL {
             right = mid - 1;
