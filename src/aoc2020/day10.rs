@@ -3,7 +3,7 @@ fn parse(content: &str) -> Vec<u64> {
         .lines()
         .map(|line| {
             line.parse::<u64>()
-                .unwrap_or_else(|_| panic!("invalid line: {}", line))
+                .unwrap_or_else(|_| panic!("invalid line: {line}"))
         })
         .collect()
 }

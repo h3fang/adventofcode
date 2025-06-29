@@ -130,7 +130,7 @@ impl Grid4 {
     fn get(&self, i: i64, j: i64, k: i64, w: i64) -> char {
         let idx = self.index(i, j, k, w);
         if idx >= self.array.len() {
-            println!("({},{},{},{})", i, j, k, w);
+            println!("({i},{j},{k},{w})");
         }
         self.array[idx]
     }
@@ -138,7 +138,7 @@ impl Grid4 {
     fn set(&mut self, i: i64, j: i64, k: i64, w: i64, value: char) {
         let idx = self.index(i, j, k, w);
         if idx >= self.array.len() {
-            println!("({},{},{},{})", i, j, k, w);
+            println!("({i},{j},{k},{w})");
         }
         self.array[idx] = value;
     }

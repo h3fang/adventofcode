@@ -83,7 +83,7 @@ impl FromStr for Number {
 impl Display for Number {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Number::Value(n) => write!(f, "{}", n),
+            Number::Value(n) => write!(f, "{n}"),
             Number::Nested(p) => write!(f, "[{},{}]", p.left, p.right),
         }
     }
@@ -217,7 +217,7 @@ pub fn main() {
         .flat_map(|a| numbers.iter().map(|b| (a.clone() + b.clone()).magnitude()))
         .max()
         .unwrap();
-    println!("day18 part2: {}", p2);
+    println!("day18 part2: {p2}");
 }
 
 #[cfg(test)]

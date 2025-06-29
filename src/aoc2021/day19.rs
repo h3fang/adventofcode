@@ -404,8 +404,8 @@ pub fn main() {
     let data = std::fs::read_to_string("data/2021/day19").unwrap();
     let scanners = parse(&data);
     let (p1, p2) = solve(scanners);
-    println!("day19 part1: {}", p1);
-    println!("day19 part2: {}", p2);
+    println!("day19 part1: {p1}");
+    println!("day19 part2: {p2}");
 }
 
 #[cfg(test)]

@@ -44,11 +44,11 @@ pub fn main() {
         .iter()
         .filter(|(min, max, c, pwd)| is_valid(min, max, c, pwd))
         .count();
-    println!("day2 part1: {}", n_valid);
+    println!("day2 part1: {n_valid}");
 
     let n_valid_part2 = passwords
         .iter()
         .filter(|(min, max, c, pwd)| is_valid_part2(min, max, c, pwd))
         .count();
-    println!("day2 part2: {}", n_valid_part2);
+    println!("day2 part2: {n_valid_part2}");
 }

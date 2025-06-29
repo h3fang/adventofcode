@@ -6,10 +6,10 @@ fn part1(ids: &[&str]) -> usize {
         for b in id.as_bytes() {
             f[(b - b'a') as usize] += 1;
         }
-        if f.iter().any(|e| *e == 2) {
+        if f.contains(&2) {
             two += 1;
         }
-        if f.iter().any(|e| *e == 3) {
+        if f.contains(&3) {
             three += 1;
         }
     }

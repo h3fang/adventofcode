@@ -51,7 +51,7 @@ impl From<u8> for Facing {
             b'v' => Facing::South,
             b'<' => Facing::West,
             b'>' => Facing::East,
-            x => panic!("invalid facing symbol: {}", x),
+            x => panic!("invalid facing symbol: {x}"),
         }
     }
 }
@@ -295,7 +295,7 @@ pub fn main() {
         .collect::<Vec<_>>();
 
     let (alignment, img) = part1(&codes);
-    println!("day17 part1: {}", alignment);
+    println!("day17 part1: {alignment}");
     codes[0] = 2;
     println!("day17 part2: {}", part2(&codes, img));
 }

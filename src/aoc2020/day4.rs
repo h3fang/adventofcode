@@ -138,5 +138,5 @@ pub fn main() {
             lines.push(line);
         }
     }
-    println!("day4 part1: {}\nday4 part2: {}", valid, valid_part2);
+    println!("day4 part1: {valid}\nday4 part2: {valid_part2}");
 }

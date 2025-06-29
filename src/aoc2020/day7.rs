@@ -12,7 +12,7 @@ fn number(input: &str) -> IResult<&str, usize> {
 
 fn color(input: &str) -> IResult<&str, String> {
     let (r, (a, b, c)) = (alpha1, space1, alpha1).parse(input)?;
-    Ok((r, format!("{}{}{}", a, b, c)))
+    Ok((r, format!("{a}{b}{c}")))
 }
 
 fn split(bags: &str) -> Vec<(usize, String)> {
@@ -43,7 +43,7 @@ fn contains_shiny_gold(
     }
     for (_, node) in map
         .get(bag)
-        .unwrap_or_else(|| panic!("map doesn't contain: {}", bag))
+        .unwrap_or_else(|| panic!("map doesn't contain: {bag}"))
     {
         let r = match table.get(node) {
             Some(&v) => v,
@@ -66,7 +66,7 @@ fn count_contained_bags(
 ) -> usize {
     let n = map
         .get(bag)
-        .unwrap_or_else(|| panic!("map doesn't contain: {}", bag))
+        .unwrap_or_else(|| panic!("map doesn't contain: {bag}"))
         .iter()
         .map(|(n, node)| {
             n * match table.get(node) {
@@ -95,10 +95,10 @@ pub fn main() {
         .keys()
         .filter(|&k| k != "shiny gold" && contains_shiny_gold(k, &map, &mut table))
         .count();
-    println!("day7 part1: {}", n);
+    println!("day7 part1: {n}");
 
     // part 2
     let mut table = HashMap::new();
     let n = count_contained_bags("shiny gold", &map, &mut table) - 1;
-    println!("day7 part2: {}", n);
+    println!("day7 part2: {n}");
 }

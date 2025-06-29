@@ -15,7 +15,7 @@ fn mask_part1(s: &str) -> (usize, usize) {
         '1' => {
             value |= 1 << i;
         }
-        _ => panic!("invalid mask value: {}", s),
+        _ => panic!("invalid mask value: {s}"),
     });
     (mask, value)
 }
@@ -42,7 +42,7 @@ fn mask_part2(s: &str) -> (usize, usize, Vec<usize>) {
             mask |= 1 << i;
             value |= 1 << i;
         }
-        _ => panic!("invalid mask value: {}", s),
+        _ => panic!("invalid mask value: {s}"),
     });
     let mut addrs = vec![0];
     for i in xs {
@@ -63,7 +63,7 @@ fn parse(content: &str) -> Vec<Instruction> {
                 let value = tokens.next().unwrap().parse().unwrap();
                 Instruction::Mem { addr, value }
             } else {
-                panic!("invalid line: {}", line);
+                panic!("invalid line: {line}");
             }
         })
         .collect::<Vec<_>>()

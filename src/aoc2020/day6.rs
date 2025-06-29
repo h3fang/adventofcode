@@ -39,5 +39,5 @@ pub fn main() {
         n += count(&lines);
         n_part2 += count_part2(&lines);
     }
-    println!("day6 part1: {}\nday6 part2: {}", n, n_part2);
+    println!("day6 part1: {n}\nday6 part2: {n_part2}");
 }

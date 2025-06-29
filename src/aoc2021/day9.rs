@@ -71,7 +71,7 @@ pub fn main() {
     heightmap.push(vec![10; w]);
 
     let (p1, basins) = part1(&heightmap);
-    println!("day9 part1: {}", p1);
+    println!("day9 part1: {p1}");
     println!("day9 part2: {}", part2(&mut heightmap, &basins));
 }
 

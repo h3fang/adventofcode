@@ -100,7 +100,7 @@ pub fn main() {
     let t = solve(&mut stars);
     println!("part1:");
     print_stars(&stars);
-    println!("part2: {}", t);
+    println!("part2: {t}");
 }
 
 #[cfg(test)]

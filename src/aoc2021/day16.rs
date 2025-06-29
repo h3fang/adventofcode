@@ -152,8 +152,8 @@ fn solve(data: &[u8]) -> (i64, i64) {
 pub fn main() {
     let data = std::fs::read_to_string("data/2021/day16").unwrap();
     let (p1, p2) = solve(data.trim().as_bytes());
-    println!("day16 part1: {}", p1);
-    println!("day16 part2: {}", p2);
+    println!("day16 part1: {p1}");
+    println!("day16 part2: {p2}");
 }
 
 #[cfg(test)]

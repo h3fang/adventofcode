@@ -35,7 +35,7 @@ impl Postion {
                 270 => self.x -= v,
                 0 => self.y += v,
                 180 => self.y -= v,
-                x => panic!("angle is not multiple of 90: {}", x),
+                x => panic!("angle is not multiple of 90: {x}"),
             },
             Instruction::Left(v) => self.angle = self.facing() - v,
             Instruction::Right(v) => self.angle = self.facing() + v,
@@ -60,11 +60,11 @@ fn parse(content: &str) -> Vec<Instruction> {
             let mut chars = line.chars();
             let c = chars
                 .next()
-                .unwrap_or_else(|| panic!("invalid line: {}", line));
+                .unwrap_or_else(|| panic!("invalid line: {line}"));
             let value = chars.collect::<String>();
             let v = value
                 .parse::<i32>()
-                .unwrap_or_else(|_| panic!("invalid line: {}", line));
+                .unwrap_or_else(|_| panic!("invalid line: {line}"));
             match c {
                 'N' => Instruction::North(v),
                 'E' => Instruction::East(v),
@@ -73,7 +73,7 @@ fn parse(content: &str) -> Vec<Instruction> {
                 'F' => Instruction::Forward(v),
                 'L' => Instruction::Left(v),
                 'R' => Instruction::Right(v),
-                _ => panic!("invalid line: {}", line),
+                _ => panic!("invalid line: {line}"),
             }
         })
         .collect::<Vec<_>>()

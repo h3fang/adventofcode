@@ -138,7 +138,7 @@ pub fn main() {
     let map = data.lines().map(|row| row.as_bytes()).collect::<Vec<_>>();
 
     let (num, pos) = part1(&map);
-    println!("day10 part1: {}", num);
+    println!("day10 part1: {num}");
     println!("day10 part2: {}", part2(&map, pos, 200));
 }
 

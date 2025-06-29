@@ -143,8 +143,8 @@ pub fn main() {
     let regex = parse(&data);
     let map = explore(regex);
     let (p1, p2) = solve(&map);
-    println!("part1: {}", p1);
-    println!("part2: {}", p2);
+    println!("part1: {p1}");
+    println!("part2: {p2}");
 }
 
 #[cfg(test)]

@@ -117,7 +117,7 @@ fn dfs_traversal(
         if bad_items.contains(&item) {
             continue;
         }
-        run_command(prog, &format!("take {}", item));
+        run_command(prog, &format!("take {item}"));
         collected.insert(item);
     }
 
@@ -216,7 +216,7 @@ fn guess_items(prog: &mut Intcode, collected: &HashSet<String>, direction: Direc
         let mut t = taken;
         for item in items {
             if t & 1 == 0 {
-                run_command(&mut p, &format!("drop {}", item));
+                run_command(&mut p, &format!("drop {item}"));
             }
             t >>= 1;
         }
@@ -285,5 +285,5 @@ pub fn main() {
 
     // guess the correct items combination
     let p1 = guess_items(&mut prog, &collected, direction.unwrap());
-    println!("day 25 part1: {}", p1);
+    println!("day 25 part1: {p1}");
 }

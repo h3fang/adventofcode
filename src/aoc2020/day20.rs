@@ -19,7 +19,7 @@ impl From<char> for Color {
             '#' => Color::Black,
             '.' => Color::White,
             ' ' => Color::Any,
-            x => panic!("invalid color: {}", x),
+            x => panic!("invalid color: {x}"),
         }
     }
 }
@@ -32,7 +32,7 @@ impl fmt::Display for Color {
             Color::Any => ' ',
             Color::Monster => 'O',
         };
-        write!(f, "{}", c)
+        write!(f, "{c}")
     }
 }
 
@@ -74,7 +74,7 @@ impl fmt::Display for Tile {
 
 impl fmt::Debug for Tile {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self)
+        write!(f, "{self}")
     }
 }
 
@@ -414,7 +414,7 @@ pub fn main() {
     let tiles = parse(&content);
     // part 1
     let (answer, image) = part1(&tiles);
-    println!("day 20 part1: {}", answer);
+    println!("day 20 part1: {answer}");
 
     // part 2
     println!("day 20 part2: {}", part2(&image));

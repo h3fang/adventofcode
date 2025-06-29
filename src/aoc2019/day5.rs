@@ -38,7 +38,7 @@ impl Intcode {
             0 => self.codes[self.ip + i + 1] as usize,
             1 => self.ip + i + 1,
             2 => (self.relative_base + self.codes[self.ip + i + 1]) as usize,
-            x => panic!("invalid parameter mode {}", x),
+            x => panic!("invalid parameter mode {x}"),
         }
     }
 
@@ -127,7 +127,7 @@ impl Intcode {
                     self.relative_base += self.param(&modes, 0);
                     self.ip += 2;
                 }
-                x => panic!("invalid opcode {}", x),
+                x => panic!("invalid opcode {x}"),
             }
         }
     }

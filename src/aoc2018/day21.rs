@@ -25,8 +25,8 @@ fn solve() -> (u64, u64) {
 
 pub fn main() {
     let (p1, p2) = solve();
-    println!("part1: {}", p1);
-    println!("part2: {}", p2);
+    println!("part1: {p1}");
+    println!("part2: {p2}");
 }
 
 #[cfg(test)]

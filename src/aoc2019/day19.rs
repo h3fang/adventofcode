@@ -109,6 +109,6 @@ pub fn main() {
         .collect::<Vec<_>>();
 
     let (p1, p2) = solve(&codes);
-    println!("day 19 part1: {}", p1);
-    println!("day 19 part2: {}", p2);
+    println!("day 19 part1: {p1}");
+    println!("day 19 part2: {p2}");
 }

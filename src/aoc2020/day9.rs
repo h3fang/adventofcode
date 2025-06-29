@@ -6,7 +6,7 @@ fn parse() -> Vec<u64> {
         .lines()
         .map(|line| {
             line.parse::<u64>()
-                .unwrap_or_else(|_| panic!("invalid line: {}", line))
+                .unwrap_or_else(|_| panic!("invalid line: {line}"))
         })
         .collect()
 }
@@ -46,7 +46,7 @@ pub fn main() {
 
     // part 1
     let target = part1(&nums, 25);
-    println!("day9 part1: {}", target);
+    println!("day9 part1: {target}");
 
     // part 2
     println!("day9 part2: {}", part2(&nums, target));

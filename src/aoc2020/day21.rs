@@ -69,7 +69,7 @@ pub fn main() {
     let data = parse(&content);
     // part 1
     let (n, dangerous) = part1(&data);
-    println!("day 21 part1: {}", n);
+    println!("day 21 part1: {n}");
 
     // part 2
     println!("day 21 part1: {}", part2(&dangerous));

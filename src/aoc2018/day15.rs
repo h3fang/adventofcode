@@ -196,7 +196,7 @@ impl std::fmt::Display for Map {
                     units.push_str(&format!("{}({}) ", c as char, u.hp));
                 }
             }
-            writeln!(f, "{} {}", row, units)?;
+            writeln!(f, "{row} {units}")?;
         }
         Ok(())
     }

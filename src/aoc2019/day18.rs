@@ -198,7 +198,7 @@ pub fn main() {
         .map(|row| row.trim().as_bytes().to_vec())
         .collect::<Vec<_>>();
     let (p1, vault) = part1(&grid);
-    println!("day 18 part1: {}", p1);
+    println!("day 18 part1: {p1}");
     println!("day 18 part2: {}", part2(vault));
 }
 

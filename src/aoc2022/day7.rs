@@ -175,7 +175,7 @@ pub fn main() {
     let data = std::fs::read_to_string("data/2022/day7").unwrap();
     let root = parse(&data);
     let (p1, total) = part1(&root);
-    println!("part1: {}", p1);
+    println!("part1: {p1}");
     println!("part2: {}", part2(&root, total));
 }
 

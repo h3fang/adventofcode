@@ -17,7 +17,7 @@ impl From<i64> for Tile {
             0 => Tile::Wall,
             1 => Tile::Empty,
             2 => Tile::Tank,
-            x => panic!("invalid tile: {}", x),
+            x => panic!("invalid tile: {x}"),
         }
     }
 }

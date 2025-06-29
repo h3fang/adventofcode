@@ -29,10 +29,10 @@ pub fn main() {
         .collect();
 
     if let Some(n) = two_sum(2020, &numbers) {
-        println!("day1 part1: {}", n);
+        println!("day1 part1: {n}");
     }
 
     if let Some(n) = three_sum(2020, &numbers) {
-        println!("day1 part2: {}", n);
+        println!("day1 part2: {n}");
     }
 }

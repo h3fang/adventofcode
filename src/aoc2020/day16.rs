@@ -148,7 +148,7 @@ pub fn main() {
 
     // part 1
     let (sum, mut valid_tickets) = part1(&ranges, &nearby_tickets);
-    println!("day 16 part1: {}", sum);
+    println!("day 16 part1: {sum}");
 
     // part 2
     valid_tickets.push(my_ticket);

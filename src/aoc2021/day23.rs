@@ -283,7 +283,7 @@ fn parse<const D: usize>(data: &str) -> Grid<D> {
                 'B' => 2,
                 'C' => 3,
                 'D' => 4,
-                x => panic!("invalid amphipod {}", x),
+                x => panic!("invalid amphipod {x}"),
             };
         }
     }

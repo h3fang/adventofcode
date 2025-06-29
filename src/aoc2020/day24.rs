@@ -39,16 +39,16 @@ fn parse(content: &str) -> Vec<Vec<Direction>> {
                     's' => match chars.next().unwrap() {
                         'w' => Direction::SW,
                         'e' => Direction::SE,
-                        x => panic!("invalid direction symbol after s: {}", x),
+                        x => panic!("invalid direction symbol after s: {x}"),
                     },
                     'n' => match chars.next().unwrap() {
                         'w' => Direction::NW,
                         'e' => Direction::NE,
-                        x => panic!("invalid direction symbol after n: {}", x),
+                        x => panic!("invalid direction symbol after n: {x}"),
                     },
                     'e' => Direction::E,
                     'w' => Direction::W,
-                    x => panic!("invalid direction symbol: {}", x),
+                    x => panic!("invalid direction symbol: {x}"),
                 });
             }
             dirs
@@ -132,7 +132,7 @@ pub fn main() {
 
     // part 1
     let (n_black, mut tiles) = part1(&directions);
-    println!("day 24 part1: {}", n_black);
+    println!("day 24 part1: {n_black}");
 
     // part 2
     println!("day 24 part2: {}", part2(&mut tiles));

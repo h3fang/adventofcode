@@ -15,7 +15,7 @@ fn binary(mut s: Chars, left: char, right: char, low: usize, high: usize) -> usi
         } else if c == right {
             binary(s, left, right, low + (high - low) / 2 + 1, high)
         } else {
-            panic!("unknown symbol {}", c);
+            panic!("unknown symbol {c}");
         }
     } else {
         low
@@ -42,5 +42,5 @@ pub fn main() {
             break;
         }
     }
-    println!("day5 part1: {}\nday5 part2: {}", max, id);
+    println!("day5 part1: {max}\nday5 part2: {id}");
 }

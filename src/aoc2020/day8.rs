@@ -24,7 +24,7 @@ fn parse(line: &str) -> IResult<&str, Instruction> {
         "jmp" => Instruction::Jmp(num),
         "acc" => Instruction::Acc(num),
         "nop" => Instruction::Nop(num),
-        _ => panic!("invalid op code: {}", op),
+        _ => panic!("invalid op code: {op}"),
     };
     Ok(("", ins))
 }
@@ -83,9 +83,9 @@ pub fn main() {
 
     // part 1
     let acc = run(&instructions, 0).0;
-    println!("day8 part1: {}", acc);
+    println!("day8 part1: {acc}");
 
     // part 2
     let acc = find_bug(&mut instructions);
-    println!("day8 part2: {}", acc);
+    println!("day8 part2: {acc}");
 }

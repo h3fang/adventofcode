@@ -52,8 +52,8 @@ pub fn main() {
     let data = std::fs::read_to_string("data/2021/day17").unwrap();
     let limits = parse(&data);
     let (p1, p2) = solve(&limits);
-    println!("day17 part1: {}", p1);
-    println!("day17 part2: {}", p2);
+    println!("day17 part1: {p1}");
+    println!("day17 part2: {p2}");
 }
 
 #[cfg(test)]

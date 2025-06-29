@@ -18,7 +18,7 @@ impl Node {
         if let Node::Value(v) = self {
             *v
         } else {
-            panic!("node is not Node::Value: {:?}", self)
+            panic!("node is not Node::Value: {self:?}")
         }
     }
 }
@@ -35,7 +35,7 @@ impl From<char> for Node {
                 if let Ok(op) = n.to_string().parse::<usize>() {
                     Node::Value(op)
                 } else {
-                    panic!("invalid char in expression: {}", n)
+                    panic!("invalid char in expression: {n}")
                 }
             }
         }

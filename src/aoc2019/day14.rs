@@ -39,7 +39,7 @@ fn part1(g: &Graph, r: usize) -> usize {
             }
             result
         } else {
-            panic!("missing reaction for {}", curr);
+            panic!("missing reaction for {curr}");
         }
     }
     let mut remaining = HashMap::new();

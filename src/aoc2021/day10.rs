@@ -69,8 +69,8 @@ pub fn main() {
     let data = std::fs::read_to_string("data/2021/day10").unwrap();
     let lines = data.lines().collect::<Vec<_>>();
     let (p1, p2) = solve(&lines);
-    println!("day10 part1: {}", p1);
-    println!("day10 part2: {}", p2);
+    println!("day10 part1: {p1}");
+    println!("day10 part2: {p2}");
 }
 
 #[cfg(test)]

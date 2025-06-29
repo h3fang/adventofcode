@@ -159,8 +159,8 @@ pub fn main() {
     let data = std::fs::read_to_string("data/2022/day19").unwrap();
     let blueprints = parse(&data);
     let (p1, p2) = solve(&blueprints);
-    println!("part1: {}", p1);
-    println!("part2: {}", p2);
+    println!("part1: {p1}");
+    println!("part2: {p2}");
 }
 
 #[cfg(test)]

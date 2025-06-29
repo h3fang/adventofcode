@@ -19,7 +19,7 @@ impl From<i64> for Tile {
             2 => Tile::Block,
             3 => Tile::Paddle,
             4 => Tile::Ball,
-            x => panic!("invalid tile: {}", x),
+            x => panic!("invalid tile: {x}"),
         }
     }
 }
@@ -174,7 +174,7 @@ pub fn main() {
 
     let map = part1(&codes);
     let blocks = map.values().filter(|t| **t == Tile::Block).count();
-    println!("day13 part1: {}", blocks);
+    println!("day13 part1: {blocks}");
     codes[0] = 2;
     println!("day13 part2: {}", part2(&codes, map));
 }

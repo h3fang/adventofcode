@@ -60,8 +60,8 @@ enum Arg<'a> {
 impl std::fmt::Display for Arg<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Arg::Id(id) => write!(f, "{}", id),
-            Arg::Num(n) => write!(f, "{}", n),
+            Arg::Id(id) => write!(f, "{id}"),
+            Arg::Num(n) => write!(f, "{n}"),
         }
     }
 }
@@ -75,7 +75,7 @@ enum Exp<'a> {
 impl std::fmt::Display for Exp<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Exp::Num(n) => write!(f, "{}", n),
+            Exp::Num(n) => write!(f, "{n}"),
             Exp::Op((a, b, c)) => write!(f, "{} {} {}", a, *b as char, c),
         }
     }
