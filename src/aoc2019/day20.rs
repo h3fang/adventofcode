@@ -113,10 +113,10 @@ fn all_paths(maze: &Maze, start: Position) -> Vec<(Key, usize)> {
             continue;
         }
 
-        if let Some(&cost) = costs.get(&pos) {
-            if c.0 > cost {
-                continue;
-            }
+        if let Some(&cost) = costs.get(&pos)
+            && c.0 > cost
+        {
+            continue;
         }
 
         for next in maze.neighbors(pos.0, pos.1) {
@@ -147,10 +147,10 @@ fn part1(maze: &Maze) -> usize {
         if key == end {
             return c.0;
         }
-        if let Some(&cost) = costs.get(&key) {
-            if c.0 > cost {
-                continue;
-            }
+        if let Some(&cost) = costs.get(&key)
+            && c.0 > cost
+        {
+            continue;
         }
         for &(next, dist) in maze.paths.get(&key).unwrap() {
             let mut cn = c.0 + dist;
@@ -194,10 +194,10 @@ fn part2(maze: &Maze) -> usize {
         if (key, level) == (end, 0) {
             return c.0;
         }
-        if let Some(&cost) = costs.get(&(key, level)) {
-            if c.0 > cost {
-                continue;
-            }
+        if let Some(&cost) = costs.get(&(key, level))
+            && c.0 > cost
+        {
+            continue;
         }
         for &(next, dist) in maze.paths.get(&key).unwrap() {
             if next == start || (level == 0 && next.ring == Ring::Outer && next.name != end.name) {

@@ -62,11 +62,12 @@ impl Map {
             if i1 < 0 || j1 < 0 || i1 == self.grid.len() as i8 || j1 == self.grid[0].len() as i8 {
                 continue;
             }
-            if let Some(u) = self.units.get(&(i1, j1)) {
-                if u.kind == enemy && u.hp < min {
-                    min = u.hp;
-                    result = Some((i1, j1));
-                }
+            if let Some(u) = self.units.get(&(i1, j1))
+                && u.kind == enemy
+                && u.hp < min
+            {
+                min = u.hp;
+                result = Some((i1, j1));
             }
         }
         result

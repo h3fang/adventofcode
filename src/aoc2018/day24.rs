@@ -42,11 +42,11 @@ impl Group {
                 )
             })
             .max();
-        if let Some((dmg, _, _, t)) = t {
-            if dmg > 0 {
-                selected[t] = true;
-                return Some(t);
-            }
+        if let Some((dmg, _, _, t)) = t
+            && dmg > 0
+        {
+            selected[t] = true;
+            return Some(t);
         }
         None
     }

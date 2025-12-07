@@ -8,7 +8,7 @@ enum Rule<'a> {
     Workflow(&'a str),
 }
 
-fn parse_rule(s: &str) -> Rule {
+fn parse_rule(s: &str) -> Rule<'_> {
     match s {
         "A" => Rule::Accept,
         "R" => Rule::Reject,
@@ -33,7 +33,7 @@ fn part_number(part: u8) -> u8 {
     }
 }
 
-fn parse(data: &str) -> (HashMap<&str, Vec<Rule>>, Vec<[u32; 4]>) {
+fn parse(data: &str) -> (HashMap<&str, Vec<Rule<'_>>>, Vec<[u32; 4]>) {
     let lines = data.trim().lines().collect::<Vec<_>>();
     let i = lines.iter().position(|l| l.is_empty()).unwrap();
     let workflows = lines[..i]

@@ -1,4 +1,5 @@
 use nom::{
+    IResult, Parser,
     bytes::complete::{tag, take},
     character::{
         self,
@@ -7,7 +8,6 @@ use nom::{
     combinator::all_consuming,
     multi::separated_list1,
     sequence::{preceded, separated_pair},
-    IResult, Parser,
 };
 
 #[derive(Debug)]
@@ -68,7 +68,7 @@ fn parse_ip(s: &str) -> IResult<&str, u8> {
     preceded(tag("#ip "), character::complete::u8).parse(s)
 }
 
-fn parse_instruction(s: &str) -> IResult<&str, Instruction> {
+fn parse_instruction(s: &str) -> IResult<&str, Instruction<'_>> {
     let (r, (op, _, in1, _, in2, _, out)) = (
         take(4usize),
         ch(' '),
@@ -82,12 +82,12 @@ fn parse_instruction(s: &str) -> IResult<&str, Instruction> {
     Ok((r, Instruction { op, in1, in2, out }))
 }
 
-fn parse_instructions(s: &str) -> IResult<&str, Vec<Instruction>> {
+fn parse_instructions(s: &str) -> IResult<&str, Vec<Instruction<'_>>> {
     separated_list1(line_ending, parse_instruction).parse(s)
 }
 
 #[allow(unused)]
-fn parse(data: &str) -> (u8, Vec<Instruction>) {
+fn parse(data: &str) -> (u8, Vec<Instruction<'_>>) {
     let (_, r) = all_consuming(separated_pair(parse_ip, line_ending, parse_instructions))
         .parse(data.trim())
         .unwrap();
@@ -106,7 +106,7 @@ fn part1_sim(ip_reg: usize, instructions: &[Instruction]) -> u64 {
 fn sum_of_factors(n: u64) -> u64 {
     let mut r = 0;
     for i in 1..=(n as f64).sqrt() as u64 {
-        if n % i == 0 {
+        if n.is_multiple_of(i) {
             r += i;
             if i != (n / i) {
                 r += n / i;

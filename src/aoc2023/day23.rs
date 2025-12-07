@@ -57,11 +57,11 @@ fn solve(map: &[&[u8]], part2: bool) -> isize {
         visited.insert((i0, j0));
         let mut q = vec![(i0, j0, 0)];
         while let Some((i, j, d)) = q.pop() {
-            if d != 0 {
-                if let Some(&k1) = points.get(&(i, j)) {
-                    g.entry(k).or_default().push((k1, d));
-                    continue;
-                }
+            if d != 0
+                && let Some(&k1) = points.get(&(i, j))
+            {
+                g.entry(k).or_default().push((k1, d));
+                continue;
             }
 
             let mut next: ArrayVec<_, 4> = ArrayVec::new();

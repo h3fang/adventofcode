@@ -5,9 +5,9 @@ fn parse(data: &str) -> Vec<&[u8]> {
 }
 
 fn find_pos(map: &[&[u8]], p: u8) -> (i16, i16) {
-    for i in 0..map.len() {
-        for j in 0..map[0].len() {
-            if map[i][j] == p {
+    for (i, row) in map.iter().enumerate() {
+        for (j, &e) in row.iter().enumerate() {
+            if e == p {
                 return (i as i16, j as i16);
             }
         }

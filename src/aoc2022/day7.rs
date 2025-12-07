@@ -26,7 +26,7 @@ enum FSEntry<'a> {
     File(usize),
 }
 
-fn parse_file(input: &str) -> IResult<&str, Entry> {
+fn parse_file(input: &str) -> IResult<&str, Entry<'_>> {
     let (r, (size, name)) = separated_pair(
         complete::u64,
         complete::char(' '),
@@ -36,36 +36,36 @@ fn parse_file(input: &str) -> IResult<&str, Entry> {
     Ok((r, Entry::File(name, size as usize)))
 }
 
-fn parse_dir(input: &str) -> IResult<&str, Entry> {
+fn parse_dir(input: &str) -> IResult<&str, Entry<'_>> {
     let (r, name) =
         preceded(tag("dir "), take_while(|c: char| c != '\r' && c != '\n')).parse(input)?;
     Ok((r, Entry::Dir(name)))
 }
 
-fn parse_entry(input: &str) -> IResult<&str, Entry> {
+fn parse_entry(input: &str) -> IResult<&str, Entry<'_>> {
     alt((parse_file, parse_dir)).parse(input)
 }
 
-fn parse_ls_output(input: &str) -> IResult<&str, Vec<Entry>> {
+fn parse_ls_output(input: &str) -> IResult<&str, Vec<Entry<'_>>> {
     separated_list0(line_ending, parse_entry).parse(input)
 }
 
-fn parse_ls(input: &str) -> IResult<&str, Cmd> {
+fn parse_ls(input: &str) -> IResult<&str, Cmd<'_>> {
     let (r, entries) = preceded((tag("ls"), line_ending), parse_ls_output).parse(input)?;
     Ok((r, Cmd::Ls(entries)))
 }
 
-fn parse_cd(input: &str) -> IResult<&str, Cmd> {
+fn parse_cd(input: &str) -> IResult<&str, Cmd<'_>> {
     let (r, arg) =
         preceded(tag("cd "), take_while(|c: char| c != '\r' && c != '\n')).parse(input)?;
     Ok((r, Cmd::Cd(arg)))
 }
 
-fn parse_cmd(input: &str) -> IResult<&str, Cmd> {
+fn parse_cmd(input: &str) -> IResult<&str, Cmd<'_>> {
     preceded(tag("$ "), alt((parse_cd, parse_ls))).parse(input)
 }
 
-fn parse(data: &str) -> Rc<RefCell<FSEntry>> {
+fn parse(data: &str) -> Rc<RefCell<FSEntry<'_>>> {
     let (_, cmds) = all_consuming(separated_list0(line_ending, parse_cmd))
         .parse(data.trim())
         .unwrap();

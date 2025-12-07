@@ -24,9 +24,9 @@ fn print_grid(points: &Points) {
     for &(x, y) in points {
         paper[y][x] = true;
     }
-    for y in 0..paper.len() {
-        for x in 0..paper[0].len() {
-            print!("{}", if paper[y][x] { '█' } else { ' ' });
+    for row in &paper {
+        for &cell in row {
+            print!("{}", if cell { '█' } else { ' ' });
         }
         println!();
     }

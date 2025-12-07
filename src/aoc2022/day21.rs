@@ -5,7 +5,7 @@ enum Job<'a> {
     Op((&'a str, u8, &'a str)),
 }
 
-fn parse(data: &str) -> HashMap<&str, Job> {
+fn parse(data: &str) -> HashMap<&str, Job<'_>> {
     data.trim()
         .lines()
         .map(|line| {

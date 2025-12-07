@@ -8,7 +8,7 @@ fn parse(input: &str) -> &[u8] {
 }
 
 fn part1(mut map: &[u8]) -> usize {
-    if map.len() % 2 == 0 {
+    if map.len().is_multiple_of(2) {
         map = &map[..map.len() - 1];
     }
 
@@ -53,7 +53,7 @@ fn part1(mut map: &[u8]) -> usize {
 }
 
 fn part2(mut map: &[u8]) -> usize {
-    if map.len() % 2 == 0 {
+    if map.len().is_multiple_of(2) {
         map = &map[..map.len() - 1];
     }
 
@@ -77,10 +77,10 @@ fn part2(mut map: &[u8]) -> usize {
         let size = (map[i] - b'0') as u32;
         let min = (size..10)
             .filter_map(|len| {
-                if let Some(&Reverse(p)) = empty[len as usize].peek() {
-                    if p < pos[i] {
-                        return Some((p, len));
-                    }
+                if let Some(&Reverse(p)) = empty[len as usize].peek()
+                    && p < pos[i]
+                {
+                    return Some((p, len));
                 }
                 None
             })

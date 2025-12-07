@@ -62,12 +62,11 @@ impl Cuboid {
     }
 
     fn intersection(&self, rhs: &Self) -> Option<Self> {
-        if let Some(x) = self.x.intersection(&rhs.x) {
-            if let Some(y) = self.y.intersection(&rhs.y) {
-                if let Some(z) = self.z.intersection(&rhs.z) {
-                    return Some(Self { x, y, z });
-                }
-            }
+        if let Some(x) = self.x.intersection(&rhs.x)
+            && let Some(y) = self.y.intersection(&rhs.y)
+            && let Some(z) = self.z.intersection(&rhs.z)
+        {
+            return Some(Self { x, y, z });
         }
         None
     }

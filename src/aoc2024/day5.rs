@@ -43,20 +43,16 @@ fn part2(g: &HashMap<u8, HashSet<u8>>, updates: &mut [Vec<u8>]) -> i32 {
             for i in 0..n - 1 {
                 for j in i + 1..n {
                     let (a, b) = (u[i], u[j]);
-                    if let Some(rules) = g.get(&a) {
-                        if rules.contains(&b) {
-                            valid = false;
-                            u.swap(i, j);
-                        }
+                    if let Some(rules) = g.get(&a)
+                        && rules.contains(&b)
+                    {
+                        valid = false;
+                        u.swap(i, j);
                     }
                 }
             }
 
-            if !valid {
-                u[u.len() / 2] as i32
-            } else {
-                0
-            }
+            if !valid { u[u.len() / 2] as i32 } else { 0 }
         })
         .sum()
 }

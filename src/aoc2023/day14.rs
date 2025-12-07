@@ -44,6 +44,7 @@ fn part1(mut grid: Vec<Vec<u8>>) -> usize {
 fn transpose(grid: &mut [Vec<u8>]) {
     let (m, n) = (grid.len(), grid[0].len());
     assert!(m == n);
+    #[allow(clippy::needless_range_loop)]
     for i in 0..m {
         for j in i + 1..m {
             (grid[i][j], grid[j][i]) = (grid[j][i], grid[i][j]);

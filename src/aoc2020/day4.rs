@@ -1,10 +1,10 @@
 use ahash::AHashMap as HashMap;
 use nom::{
+    IResult, Parser,
     branch::alt,
     bytes::complete::tag,
     character::complete::{digit1, hex_digit1},
     combinator::{eof, map_res, recognize},
-    IResult, Parser,
 };
 
 const KEYS: &[&str] = &["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
@@ -44,10 +44,10 @@ impl Passport {
         for line in lines {
             line.split(' ').for_each(|pattern| {
                 let mut tokens = pattern.split(':');
-                if let Some(key) = tokens.next() {
-                    if let Some(value) = tokens.next() {
-                        fields.insert(key.to_string(), value.to_string());
-                    }
+                if let Some(key) = tokens.next()
+                    && let Some(value) = tokens.next()
+                {
+                    fields.insert(key.to_string(), value.to_string());
                 }
             });
         }

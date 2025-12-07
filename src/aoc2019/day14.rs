@@ -28,7 +28,7 @@ fn part1(g: &Graph, r: usize) -> usize {
 
         if let Some((n, inputs)) = g.get(&curr) {
             let mut result = 0;
-            let count = if amount % n == 0 {
+            let count = if amount.is_multiple_of(*n) {
                 amount / n
             } else {
                 *remaining.entry(curr).or_default() += n - amount % n;
@@ -46,7 +46,7 @@ fn part1(g: &Graph, r: usize) -> usize {
     dfs(g, "FUEL", r, &mut remaining)
 }
 
-fn create_graph(data: &str) -> Graph {
+fn create_graph(data: &str) -> Graph<'_> {
     let mut g: Graph = HashMap::new();
     data.lines().for_each(|s| {
         let parts = s.trim().split("=>").collect::<Vec<_>>();

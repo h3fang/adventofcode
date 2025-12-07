@@ -99,8 +99,8 @@ fn part2(map: &[Vec<i8>]) -> usize {
                     }
 
                     let mut right = 0;
-                    for j1 in j + 1..n {
-                        match map[i][j1].cmp(tree) {
+                    for &e in &map[i][j + 1..n] {
+                        match e.cmp(tree) {
                             std::cmp::Ordering::Less => right += 1,
                             _ => {
                                 right += 1;

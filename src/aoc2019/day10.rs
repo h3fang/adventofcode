@@ -1,11 +1,7 @@
 use std::f64::consts::{FRAC_PI_2, TAU};
 
 fn gcd(a: i64, b: i64) -> i64 {
-    if b == 0 {
-        a
-    } else {
-        gcd(b, a % b)
-    }
+    if b == 0 { a } else { gcd(b, a % b) }
 }
 
 fn line_of_sight(map: &[&[u8]], (x0, y0): (i64, i64), (x1, y1): (i64, i64)) -> bool {
@@ -108,9 +104,9 @@ impl Position {
 
 fn part2(map: &[&[u8]], (x0, y0): (usize, usize), n: usize) -> i64 {
     let mut asteroids = vec![];
-    for y in 0..map.len() {
-        for x in 0..map[0].len() {
-            if map[y][x] == b'#' && (x, y) != (x0, y0) {
+    for (y, row) in map.iter().enumerate() {
+        for (x, &cell) in row.iter().enumerate() {
+            if cell == b'#' && (x, y) != (x0, y0) {
                 asteroids.push(Position {
                     x: x as i64 - x0 as i64,
                     y: y0 as i64 - y as i64,

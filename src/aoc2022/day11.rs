@@ -110,7 +110,7 @@ fn take_round1(monkeys: &mut [Monkey]) {
             .into_iter()
             .for_each(|item| {
                 let worry = apply_operation(item, &monkeys[i].op) / 3;
-                if worry % monkeys[i].test.divisible == 0 {
+                if worry.is_multiple_of(monkeys[i].test.divisible) {
                     monkeys[monkeys[i].test.if_true].items.push(worry);
                 } else {
                     monkeys[monkeys[i].test.if_false].items.push(worry);
@@ -126,7 +126,7 @@ fn take_round2(monkeys: &mut [Monkey], modulus: u64) {
             .into_iter()
             .for_each(|item| {
                 let worry = apply_operation(item, &monkeys[i].op) % modulus;
-                if worry % monkeys[i].test.divisible == 0 {
+                if worry.is_multiple_of(monkeys[i].test.divisible) {
                     monkeys[monkeys[i].test.if_true].items.push(worry);
                 } else {
                     monkeys[monkeys[i].test.if_false].items.push(worry);

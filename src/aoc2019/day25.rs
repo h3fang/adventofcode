@@ -125,10 +125,10 @@ fn dfs_traversal(
 
     for d in &dirs {
         // explore
-        if let Some(from) = from {
-            if d == &from {
-                continue;
-            }
+        if let Some(from) = from
+            && d == &from
+        {
+            continue;
         }
         command(prog, &d.to_string());
         dfs_traversal(visited, collected, bad_items, prog, Some(d.opposite()));
@@ -165,10 +165,10 @@ fn go_to_checkpoint(
 
     for d in &dirs {
         // explore
-        if let Some(from) = from {
-            if *d == from {
-                continue;
-            }
+        if let Some(from) = from
+            && *d == from
+        {
+            continue;
         }
         let output = command_output(prog, &d.to_string());
         if let Some(d) = go_to_checkpoint(output, visited, prog, Some(*d)) {

@@ -299,10 +299,10 @@ fn solve<const D: usize, const E: usize>(g: Grid<D>) -> usize {
             return cost.0;
         }
         let key: &[u32; E] = unsafe { std::mem::transmute(&g) };
-        if let Some(c) = costs.get(key) {
-            if cost.0 > *c {
-                continue;
-            }
+        if let Some(c) = costs.get(key)
+            && cost.0 > *c
+        {
+            continue;
         }
         for (from, to, delta_cost) in g.all_moves() {
             let next = g.make_move((from, to));

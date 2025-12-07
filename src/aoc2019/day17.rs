@@ -109,11 +109,11 @@ fn part1(codes: &[i64]) -> (usize, Vec<Vec<u8>>) {
 fn find_robot(img: &[Vec<u8>]) -> (Position, Facing) {
     let mut pos = Position::default();
     let mut facing = Facing::North;
-    for y in 0..img.len() {
-        for x in 0..img[0].len() {
-            if img[y][x] != b'.' && img[y][x] != b'#' {
+    for (y, row) in img.iter().enumerate() {
+        for (x, &pixel) in row.iter().enumerate() {
+            if pixel != b'.' && pixel != b'#' {
                 pos = Position(x as i64, y as i64);
-                facing = img[y][x].into();
+                facing = pixel.into();
                 break;
             }
         }
