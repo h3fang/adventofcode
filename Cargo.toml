@@ -2,7 +2,7 @@
 name = "adventofcode"
 version = "0.5.0"
 edition = "2024"
-default-run = "2024"
+default-run = "2025"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -33,6 +33,10 @@ path = "src/aoc2023/main.rs"
 [[bin]]
 name = "2024"
 path = "src/aoc2024/main.rs"
+
+[[bin]]
+name = "2025"
+path = "src/aoc2025/main.rs"
 
 [dependencies]
 aoc-proc = { path = "aoc-proc" }

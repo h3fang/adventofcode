@@ -1,0 +1,11 @@
+use aoc_proc::aoc_event;
+
+aoc_event!(1);
+
+fn main() {
+    if let Some(day) = std::env::args().nth(1) {
+        run_day(&day);
+    } else {
+        run_all();
+    }
+}
