@@ -35,7 +35,7 @@ name = "2024"
 path = "src/aoc2024/main.rs"
 
 [dependencies]
-aoc-proc = {path = "aoc-proc"}
+aoc-proc = { path = "aoc-proc" }
 arrayvec = "0.7"
 ahash = "0.8"
 rayon = "1"
@@ -43,6 +43,6 @@ nom = "8"
 rand = "0.9"
 
 [profile.release]
-strip = true
 lto = true
 panic = 'abort'
+codegen-units = 1
