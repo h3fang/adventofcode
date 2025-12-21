@@ -1,6 +1,6 @@
 use aoc_proc::aoc_event;
 
-aoc_event!(1, 2);
+aoc_event!(1, 2, 3);
 
 fn main() {
     if let Some(day) = std::env::args().nth(1) {
