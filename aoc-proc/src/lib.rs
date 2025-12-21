@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 use proc_macro2::{Ident, Span};
-use quote::{quote, ToTokens};
+use quote::{ToTokens, quote};
 use syn::parse::Parser;
 use syn::punctuated::Punctuated;
 use syn::{Expr, Token};
@@ -13,8 +13,7 @@ pub fn aoc_event(input: TokenStream) -> TokenStream {
     let mods = days
         .iter()
         .map(|day| {
-            let name = format!("day{}", day.to_token_stream()
-            .to_string());
+            let name = format!("day{}", day.to_token_stream());
             Ident::new(&name, Span::call_site())
         })
         .collect::<Vec<_>>();
