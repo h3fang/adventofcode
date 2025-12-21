@@ -1,3 +1,6 @@
+[workspace]
+members = ["aoc-proc"]
+
 [package]
 name = "adventofcode"
 version = "0.5.0"
