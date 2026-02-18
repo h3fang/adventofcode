@@ -47,7 +47,7 @@ arrayvec = "0.7"
 ahash = "0.8"
 rayon = "1"
 nom = "8"
-rand = "0.9"
+rand = "0.10"
 
 [profile.release]
 lto = true
