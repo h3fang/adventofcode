@@ -45,7 +45,7 @@ fn part2(tiles: &[(u32, u32)]) -> u64 {
     let p0 = tiles[i0];
     let i_max = tiles[i0 + 1..].partition_point(|p| p.0 <= p0.0) - 1;
     let y_min = tiles[i_max].1;
-    for p in tiles[..i0 - 1].iter().rev() {
+    for p in tiles[i0 + 1..=i0 + 1 + i_max].iter() {
         if p.1 < y_min {
             break;
         }
