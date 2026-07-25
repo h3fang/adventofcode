@@ -148,10 +148,10 @@ fn part2(map: &[&[u8]], movements: &[u8]) -> usize {
         .map(|r| {
             r.iter()
                 .flat_map(|&b| match b {
-                    b'#' => [b'#', b'#'],
-                    b'O' => [b'[', b']'],
-                    b'.' => [b'.', b'.'],
-                    b'@' => [b'@', b'.'],
+                    b'#' => *b"##",
+                    b'O' => *b"[]",
+                    b'.' => *b"..",
+                    b'@' => *b"@.",
                     _ => unreachable!(),
                 })
                 .collect()

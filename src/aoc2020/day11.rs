@@ -122,12 +122,11 @@ fn step(
                         changed += 1;
                     }
                 }
-                'L' => {
-                    if neighbors.iter().all(|(m, n)| r.get(*m, *n) != '#') {
+                'L'
+                    if neighbors.iter().all(|(m, n)| r.get(*m, *n) != '#') => {
                         seats.set(i, j, '#');
                         changed += 1;
                     }
-                }
                 _ => {}
             }
         }

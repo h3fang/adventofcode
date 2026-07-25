@@ -105,7 +105,7 @@ impl Tower {
         let rock = self.next_rock;
         let pos = (self.chamber.len() + 3, 2);
         self.chamber.extend(vec![
-            [b'.', b'.', b'.', b'.', b'.', b'.', b'.'];
+            *b".......";
             3 + rock_height(rock)
         ]);
         self.next_rock = (self.next_rock + 1) % 5;

@@ -23,7 +23,7 @@ fn connected(grid: &[Vec<u8>], (i, j): (usize, usize)) -> Vec<(i32, i32)> {
 
 fn find_type_of_start(grid: &mut [Vec<u8>], (i, j): (usize, usize)) -> bool {
     let (m, n) = (grid.len() as i32, grid[0].len() as i32);
-    for c in [b'|', b'-', b'L', b'J', b'7', b'F'] {
+    for c in *b"|-LJ7F" {
         grid[i][j] = c;
         if connected(grid, (i, j)).into_iter().all(|(i1, j1)| {
             i1 >= 0
