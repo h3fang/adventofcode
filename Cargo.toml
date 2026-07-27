@@ -48,7 +48,6 @@ ahash = "0.8"
 rayon = "1"
 nom = "8"
 rand = "0.10"
-microlp = "0.5"
 
 [profile.release]
 lto = true
